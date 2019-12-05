@@ -14,7 +14,6 @@
 		B3FEF7F723885420008FD1DE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3FEF7F623885420008FD1DE /* Assets.xcassets */; };
 		B3FEF7FA23885420008FD1DE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B3FEF7F823885420008FD1DE /* LaunchScreen.storyboard */; };
 		B3FEF80723885819008FD1DE /* SteamcLog in Frameworks */ = {isa = PBXBuildFile; productRef = B3FEF80623885819008FD1DE /* SteamcLog */; };
-		B3FEF809238865A2008FD1DE /* SteamcLogConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FEF808238865A2008FD1DE /* SteamcLogConfig.swift */; };
 		B3FEF80F238867EE008FD1DE /* SimpleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3FEF80E238867EE008FD1DE /* SimpleModel.swift */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +27,6 @@
 		B3FEF7F923885420008FD1DE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B3FEF7FB23885420008FD1DE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = ../Info.plist; sourceTree = "<group>"; };
 		B3FEF80423885803008FD1DE /* SteamcLog */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SteamcLog; sourceTree = "<group>"; };
-		B3FEF808238865A2008FD1DE /* SteamcLogConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SteamcLogConfig.swift; sourceTree = "<group>"; };
 		B3FEF80E238867EE008FD1DE /* SimpleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -88,7 +86,6 @@
 				B3FEF7F623885420008FD1DE /* Assets.xcassets */,
 				B3FEF7FB23885420008FD1DE /* Info.plist */,
 				B3FEF7EF2388541E008FD1DE /* SceneDelegate.swift */,
-				B3FEF808238865A2008FD1DE /* SteamcLogConfig.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -185,7 +182,6 @@
 			files = (
 				B3FEF7F22388541E008FD1DE /* ViewController.swift in Sources */,
 				B3FEF80F238867EE008FD1DE /* SimpleModel.swift in Sources */,
-				B3FEF809238865A2008FD1DE /* SteamcLogConfig.swift in Sources */,
 				B3FEF7EE2388541E008FD1DE /* AppDelegate.swift in Sources */,
 				B3FEF7F02388541E008FD1DE /* SceneDelegate.swift in Sources */,
 			);

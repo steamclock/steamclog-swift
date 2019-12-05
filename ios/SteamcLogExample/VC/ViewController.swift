@@ -13,10 +13,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        log.verbose("this is verbose")
+        log.all("this is verbose")
         log.debug("this is debug")
         log.info("this is info")
-        log.warning("this is warn")
+        log.warn("this is warn")
         log.error("this is error")
     }
 }

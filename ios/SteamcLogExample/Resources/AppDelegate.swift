@@ -6,13 +6,20 @@
 //  Copyright © 2019 steamclock. All rights reserved.
 //
 
+import SteamcLog
 import UIKit
+
+#if DEBUG
+    var log = SCLog()
+#else
+    var log = SCLog()
+#endif
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+
         return true
     }
 
