@@ -7,8 +7,13 @@
 //
 
 import Foundation
+import SteamcLog
 
-struct SimpleModel: Codable {
+struct SimpleModel: Codable, Redactable {
+    var redactedProperties: [Any] {
+        return [uuid, timestamp]
+    }
+
     let name: String
     let uuid: String
     let timestamp: Date

@@ -10,7 +10,7 @@ import SteamcLog
 import UIKit
 
 #if DEBUG
-    var log = SCLog()
+    var log = SCLog(SCLogConfig(threshold: .verbose))
 #else
     var log = SCLog()
 #endif

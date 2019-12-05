@@ -13,7 +13,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        log.all("this is verbose")
+        log.verbose("this is verbose", SimpleModel(name: "Namey McNameface", uuid: UUID().uuidString, timestamp: Date(), amount: 1234.56))
         log.debug("this is debug")
         log.info("this is info")
         log.warn("this is warn")
