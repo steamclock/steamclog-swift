@@ -16,8 +16,8 @@ public struct SteamcLog {
     private var systemDestination: EnhancedAppleSystemLogDestination!
     private var fileDestination: FileDestination!
 
-    public init(_ customConfig: SteamcLogConfig? = nil) {
-        config = customConfig ?? SteamcLogConfig()
+    public init(_ customConfig: SteamcLogConfig = SteamcLogConfig()) {
+        config = customConfig
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: config.includeDefaultXCGDestinations)
 
         xcgLogger.setup(

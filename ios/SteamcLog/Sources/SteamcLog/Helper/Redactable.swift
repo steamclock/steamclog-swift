@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Redactable.swift
 //  
 //
 //  Created by Brendan Lensink on 2019-12-05.
