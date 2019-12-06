@@ -1,5 +1,5 @@
 //
-//  SCLogLevel.swift
+//  SteamcLogLevel.swift
 //  SteamcLog
 //
 //  Created by Brendan Lensink on 2019-11-22.
@@ -8,7 +8,7 @@
 import Foundation
 import XCGLogger
 
-public enum SCLogLevel: Int {
+public enum SteamcLogLevel: Int {
     case verbose
     case debug
     case info

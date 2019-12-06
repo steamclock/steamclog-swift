@@ -9,15 +9,15 @@
 import Foundation
 import XCGLogger
 
-public struct SCLog {
-    public var config: SCLogConfig!
+public struct SteamcLog {
+    public var config: SteamcLogConfig!
 
     private var xcgLogger: XCGLogger!
     private var systemDestination: EnhancedAppleSystemLogDestination!
     private var fileDestination: FileDestination!
 
-    public init(_ customConfig: SCLogConfig? = nil) {
-        config = customConfig ?? SCLogConfig()
+    public init(_ customConfig: SteamcLogConfig? = nil) {
+        config = customConfig ?? SteamcLogConfig()
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: config.includeDefaultXCGDestinations)
 
         xcgLogger.setup(
@@ -37,7 +37,7 @@ public struct SCLog {
         xcgLogger.logAppDetails()
     }
 
-     private func setLoggingDetails<T: BaseQueuedDestination>(destination: inout T, outputLevel: SCLogLevel) {
+     private func setLoggingDetails<T: BaseQueuedDestination>(destination: inout T, outputLevel: SteamcLogLevel) {
         destination.outputLevel = outputLevel.xcgLevel
         destination.showLogIdentifier = false
         destination.showFunctionName = true

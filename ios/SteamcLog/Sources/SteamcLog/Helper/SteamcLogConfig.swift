@@ -1,13 +1,13 @@
 //
-//  SCLogConfig.swift
+//  SteamcLogConfig.swift
 //  
 //
 //  Created by Brendan Lensink on 2019-12-05.
 //
 
-public struct SCLogConfig {
+public struct SteamcLogConfig {
     /// Global log threshold, logs under this level will be ignored
-    var threshold: SCLogLevel = .info
+    var threshold: SteamcLogLevel = .info
 
     /// By default we log to the console using a custom logging destination, so ignore this one
     var includeDefaultXCGDestinations = false
@@ -16,7 +16,7 @@ public struct SCLogConfig {
 
     var crashlyticsAppKey = ""
 
-    public init(threshold: SCLogLevel = .info, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog") {
+    public init(threshold: SteamcLogLevel = .info, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog") {
         self.threshold = threshold
         self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier
