@@ -114,17 +114,26 @@ object Steamclog {
     // Problems with wrapping Timber calls:
     // - Timber trace element containing line number and method points to THIS file.
     //---------------------------------------------
-    fun verbose(@NonNls message: String, vararg args: Any) = Timber.v(message, args)
-    fun debug(@NonNls message: String, vararg args: Any) = Timber.d(message, args)
-    fun info(@NonNls message: String, vararg args: Any) = Timber.i(message, args)
-    fun warn(@NonNls message: String, vararg args: Any) = Timber.w(message, args)
-    fun nonFatal(throwable: Throwable?, @NonNls message: String, vararg args: Any) = Timber.e(NonFatalException(throwable), message, args)
-    fun nonFatal(@NonNls message: String, vararg args: Any) = Timber.e(NonFatalException(), message, args)
-    fun fatal(@NonNls message: String, vararg args: Any) = Timber.e(message, args)
+    fun verbose(@NonNls message: String, obj: Any? = null) = Timber.v(addObjToMessage(message, obj))
+    fun debug(@NonNls message: String, obj: Any? = null) = Timber.d(addObjToMessage(message, obj))
+    fun info(@NonNls message: String, obj: Any? = null) = Timber.i(addObjToMessage(message, obj))
+    fun warn(@NonNls message: String, obj: Any? = null) = Timber.w(addObjToMessage(message, obj))
+    fun nonFatal(throwable: Throwable?, @NonNls message: String, obj: Any? = null) = Timber.e(NonFatalException(throwable), addObjToMessage(message, obj))
+    fun nonFatal(@NonNls message: String, obj: Any? = null) = Timber.e(NonFatalException(), addObjToMessage(message, obj))
+    fun fatal(@NonNls message: String, obj: Any? = null) = Timber.e(addObjToMessage(message, obj))
+    fun fatal(throwable: Throwable?, @NonNls message: String, obj: Any? = null) = Timber.e(throwable, addObjToMessage(message, obj))
 
     //---------------------------------------------
     // Private methods
     //---------------------------------------------
+    private fun addObjToMessage(@NonNls message: String, obj: Any?): String {
+        return obj?.let {
+            "$message : $it" // Calls obj.toString()
+        } ?: run {
+            message
+        }
+    }
+
     /**
      * Plants or uproots a tree accordingly.
      */

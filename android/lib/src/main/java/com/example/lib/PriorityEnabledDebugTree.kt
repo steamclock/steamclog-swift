@@ -4,15 +4,14 @@ import android.util.Log
 import timber.log.Timber
 
 /**
+ * PriorityEnabledDebugTree.kt
  *
+ * PriorityEnabledTrees are simple extensions of the Timber Tress that allows us to filter
+ * logs based on a specific priority level more easily.
  */
 
-
-//---------------------------------------------
-// PriorityEnabledTrees, allows us to filter logs based on a specific priority level.
-//---------------------------------------------
 /**
- *  DebugTree -> logging on Release Builds
+ *  Tree -> logging on Release Builds
  */
 abstract class PriorityEnabledTree : Timber.Tree() {
     var priorityLevel: Int = Log.VERBOSE
@@ -62,6 +61,9 @@ fun PriorityEnabledDebugTree.createCustomStackElementTag(): String {
     return "(${element.fileName}:${element.lineNumber}):${element.methodName}"
 }
 
+/**
+ * Associates a fun emoji with given log levels.
+ */
 fun PriorityEnabledDebugTree.getLevelEmoji(utilLevel: Int): String? = when(utilLevel) {
     Log.ERROR -> "🚫"
     Log.WARN -> "⚠️"
