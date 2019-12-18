@@ -37,7 +37,7 @@ abstract class PriorityEnabledDebugTree : Timber.DebugTree() {
  * getStackTraceElement uses a call stack index relative to our library, BUT because we cannot override
  * Timber.getTag, we cannot
  */
-fun PriorityEnabledDebugTree.getStackTraceElement(): StackTraceElement {
+fun getStackTraceElement(): StackTraceElement {
 
     val SC_CALL_STACK_INDEX = 8 // Need to go back 8 in the call stack to get to the actual calling method.
 
@@ -56,7 +56,7 @@ fun PriorityEnabledDebugTree.getStackTraceElement(): StackTraceElement {
  * createCustomStackElementTag that makes use of our custom call stack index to give us better filename
  * and linenumber reporting.
  */
-fun PriorityEnabledDebugTree.createCustomStackElementTag(): String {
+fun createCustomStackElementTag(): String {
     val element = getStackTraceElement()
     return "(${element.fileName}:${element.lineNumber}):${element.methodName}"
 }
