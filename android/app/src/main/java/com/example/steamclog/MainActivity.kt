@@ -25,21 +25,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        title = "SteamClog Test"
 
         Steamclog.enableCustomLogging(true)
 
-        fab.setOnClickListener { view ->
+        log_things.setOnClickListener { view ->
 
-            Steamclog.verbose("blep", TestMe())
+            Steamclog.verbose("Verbose message")
+            Steamclog.verbose("Verbose message", TestMe())
 
-            Steamclog.verbose("Blah blah is my VERBOSE message")
-            Steamclog.debug("What's wrong DEBUG message")
-            Steamclog.info("Giving you some INFO")
-            Steamclog.warn("WARNING you about a thing")
-            Steamclog.nonFatal("Something NONFATAL happened with no throwable")
-            Steamclog.nonFatal(Throwable("Supa NONFATAL"), "Something NONFATAL happened with a Throwable, letstrackit")
-            Steamclog.fatal("Blorpin' FATAL error happened with no throwable")
-            Steamclog.fatal(Throwable("ooooooooh FATAL"), "Blorpin' FATAL error happened")
+            Steamclog.debug("Debug message")
+            Steamclog.debug("Debug message", TestMe())
+
+            Steamclog.info("Info message")
+            Steamclog.info("Info message", TestMe())
+
+            Steamclog.warn("Warn message")
+            Steamclog.warn("Warn message", TestMe())
+
+            Steamclog.nonFatal("NonFatal message")
+            Steamclog.nonFatal("NonFatal message", TestMe())
+            Steamclog.nonFatal(Throwable("OriginalNonFatalThrowable"),"NonFatal message")
+            Steamclog.nonFatal(Throwable("OriginalNonFatalThrowable"),"NonFatal message", TestMe())
+
+            Steamclog.fatal("Fatal message")
+            Steamclog.fatal("Fatal message", TestMe())
+            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message")
+            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
+
         }
     }
 

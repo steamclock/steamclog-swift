@@ -37,13 +37,13 @@ class CrashlyticsTree : PriorityEnabledTree() {
 class CustomDebugTree: PriorityEnabledDebugTree() {
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
-
-        val prettyMessage = "${getLevelEmoji(priority) ?: ""} $message"
+        val emoji = getLevelEmoji(priority)
+        val prettyMessage = if (emoji == null) message else "$emoji $message"
 
         val logThrowable =
             if (throwable is Steamclog.NonFatalException) {
                 // If non-fatal, log the original throwable if one was given.
-                throwable.wrappedThrowable ?: Throwable(message)
+                throwable.wrappedThrowable ?: throwable
             } else {
                 throwable
             }
