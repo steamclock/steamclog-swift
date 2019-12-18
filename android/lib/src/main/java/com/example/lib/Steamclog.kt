@@ -46,7 +46,8 @@ object Steamclog {
     //---------------------------------------------
     // Public properties
     //---------------------------------------------
-    var priorityLevel: Int = Log.ERROR
+    const val defaultPriorityLevel = Log.VERBOSE
+    var priorityLevel: Int = defaultPriorityLevel
         set(value) {
             field = value
             crashlyticsTree.priorityLevel = value
@@ -102,14 +103,15 @@ object Steamclog {
     //---------------------------------------------
     // Public Logging <level> calls
     //
-    // Note, using default parameters (obj: Any? = null) appears to introduce one more call in the
+    // Problems with wrapping Timber calls:
+    // - Timber trace element containing line number and method points to THIS (Steamclog) file.
+    //
+    // Note, using default parameter values (obj: Any? = null) appears to introduce one more call in the
     // call stack that messes up how we are generating our PriorityEnabledDebugTree's stack element.
     // To get around this for now we explicit versions of each <level> method below without optional
     // parameters.
-    //
-    // Problems with wrapping Timber calls:
-    // - Timber trace element containing line number and method points to THIS file.
     //---------------------------------------------
+
     fun verbose(@NonNls message: String) = Timber.v(message)
     fun verbose(@NonNls message: String, obj: Any) = Timber.v(addObjToMessage(message, obj))
 
@@ -156,5 +158,13 @@ object Steamclog {
         } catch(e: Exception) {
             // Tree may not be planted, catch exception.
         }
+    }
+
+    override fun toString(): String {
+        return "Steamclog( \n" +
+                    "priorityLevel=$priorityLevel, \n" +
+                    "isCrashlyticsLoggingEnabled=$isCrashlyticsLoggingEnabled, \n" +
+                    "isCustomLoggingEnabled=$isCustomLoggingEnabled) \n" +
+                    "isExternalFileLoggingEnabled=$isExternalFileLoggingEnabled) \n"
     }
 }

@@ -2,6 +2,8 @@ package com.example.steamclog
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lib.Steamclog
@@ -28,6 +30,29 @@ class MainActivity : AppCompatActivity() {
         title = "SteamClog Test"
 
         Steamclog.enableCustomLogging(true)
+
+        Log.v("Steamclog", Steamclog.toString())
+
+        level_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                Steamclog.priorityLevel = Log.VERBOSE
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when (position) {
+                    0 -> Steamclog.priorityLevel = Log.VERBOSE
+                    1 -> Steamclog.priorityLevel = Log.DEBUG
+                    2 -> Steamclog.priorityLevel = Log.INFO
+                    3 -> Steamclog.priorityLevel = Log.WARN
+                    else -> Steamclog.priorityLevel = Log.ERROR
+                }
+            }
+        }
 
         log_things.setOnClickListener { view ->
 

@@ -14,7 +14,7 @@ import timber.log.Timber
  *  Tree -> logging on Release Builds
  */
 abstract class PriorityEnabledTree : Timber.Tree() {
-    var priorityLevel: Int = Log.VERBOSE
+    var priorityLevel: Int = Steamclog.defaultPriorityLevel
     var enabled: Boolean = false
     override fun isLoggable(priority: Int): Boolean { return priority >= priorityLevel }
 }
@@ -23,7 +23,7 @@ abstract class PriorityEnabledTree : Timber.Tree() {
  * DebugTree -> logging on Debug Builds
  */
 abstract class PriorityEnabledDebugTree : Timber.DebugTree() {
-    var priorityLevel: Int = Log.VERBOSE
+    var priorityLevel: Int = Steamclog.defaultPriorityLevel
     var enabled: Boolean = false
     override fun isLoggable(priority: Int): Boolean { return priority >= priorityLevel }
 }
