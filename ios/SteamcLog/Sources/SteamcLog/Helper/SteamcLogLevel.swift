@@ -13,7 +13,7 @@ public enum SteamcLogLevel: Int {
     case debug
     case info
     case warn
-    case nonfatal
+    case error
     case fatal
 
     internal var xcgLevel: XCGLogger.Level {
@@ -22,7 +22,7 @@ public enum SteamcLogLevel: Int {
         case .debug: return .debug
         case .info: return .info
         case .warn: return .warning
-        case .nonfatal: return .error
+        case .error: return .error
         case .fatal: return .severe
         }
     }

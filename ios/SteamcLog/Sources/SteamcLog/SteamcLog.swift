@@ -105,23 +105,22 @@ public struct SteamcLog {
 
     // MARK: Nonfatal Log Level
 
-    public func nonfatal(_ message: String) {
+    public func error(_ message: String) {
         xcgLogger.error(message)
     }
 
-    public func nonfatal(_ message: String?, _ object: Redactable) {
+    public func error(_ message: String?, _ object: Redactable) {
         let logString = (message ?? "") + ": " + object.secureToString()
         xcgLogger.error(logString)
     }
 
-
     // MARK: Error Log Level
 
-    public func error(_ message: String) {
+    public func fatal(_ message: String) {
         xcgLogger.severe(message)
     }
 
-    public func error(_ message: String?, _ object: Redactable) {
+    public func fatal(_ message: String?, _ object: Redactable) {
         let logString = (message ?? "") + ": " + object.secureToString()
         xcgLogger.severe(logString)
     }
@@ -132,7 +131,7 @@ class EnhancedAppleSystemLogDestination: AppleSystemLogDestination {
         let emoji: String
 
         switch logDetails.level {
-        case .error:
+        case .error, .severe:
             emoji = "🚫"
         case .warning:
             emoji = "⚠️"
