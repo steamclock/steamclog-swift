@@ -8,6 +8,7 @@
 
 import Crashlytics
 import Fabric
+import FirebaseAnalytics
 import Foundation
 import XCGLogger
 
@@ -34,7 +35,6 @@ public struct SteamcLog {
             setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
             Fabric.with([Crashlytics.self])
         }
-
 
         fileDestination = FileDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true)
         setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.file)
@@ -138,9 +138,13 @@ public struct SteamcLog {
 
     // MARK: Analytics Tracking Helpers
 
-    public func track<T: RawRepresentable>(id: String, value: T.Type) where T.RawValue == String {
+    public func track<T: RawRepresentable>(id: String, value: T) where T.RawValue == String {
+        track(id: id, data: ["data": value.rawValue])
+    }
+
+    func track(id: String, data: [String: Any]?) {
         if config.logLevel == .release {
-            // Log the analytics event
+            Analytics.logEvent(id, parameters: data)
         } else {
             info("Skipped logging analytics event: \(id) ...")
         }
