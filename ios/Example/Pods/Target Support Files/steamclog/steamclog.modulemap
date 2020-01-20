@@ -1,0 +1,6 @@
+framework module steamclog {
+  umbrella header "steamclog-umbrella.h"
+
+  export *
+  module * { export * }
+}
