@@ -279,6 +279,8 @@
 		B09C8B483C1D7E3DD28620AA7B4A5AF7 /* XCGLogger-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = B08DC8F3000BBBE38FC065DD2839DF01 /* XCGLogger-dummy.m */; };
 		B2F44AF266B61D2FDCE8C1325092AF05 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 644013D57F9B03BC1898D452879A4A44 /* Foundation.framework */; };
 		B2FA0A7642EEA39E75D3D03EF2E15B4C /* FIRConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = E722A482AD456577A5AE2867DBA016CB /* FIRConfiguration.m */; };
+		B3212D6D23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3212D6C23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift */; };
+		B3212D6F23D7853F0049C1E4 /* FileLogDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3212D6E23D7853F0049C1E4 /* FileLogDestination.swift */; };
 		B3495E8423D76C3B00AE7F4B /* DictionaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3495E8323D76C3B00AE7F4B /* DictionaryEncoder.swift */; };
 		B350DA3DF951BFDFC56331C90C01E200 /* FIRInstanceIDConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB12C01EB111568FD3A8C0EC9D9748 /* FIRInstanceIDConstants.m */; };
 		B5F335B69AE04BDABB6E9DFB7D96736A /* SteamcLog-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = B18C4252F739BE37A8C3D354F49382DF /* SteamcLog-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -902,6 +904,8 @@
 		B18C4252F739BE37A8C3D354F49382DF /* SteamcLog-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "SteamcLog-umbrella.h"; sourceTree = "<group>"; };
 		B193782EBC0603285CBBBD94161C1BC7 /* CLSReport.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = CLSReport.h; path = iOS/Crashlytics.framework/Headers/CLSReport.h; sourceTree = "<group>"; };
 		B2FBCE28B18990723FCDC92CACE60F23 /* GoogleDataTransport-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "GoogleDataTransport-Info.plist"; sourceTree = "<group>"; };
+		B3212D6C23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SteamcLogSystemLogDestination.swift; sourceTree = "<group>"; };
+		B3212D6E23D7853F0049C1E4 /* FileLogDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogDestination.swift; sourceTree = "<group>"; };
 		B3495E8323D76C3B00AE7F4B /* DictionaryEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEncoder.swift; sourceTree = "<group>"; };
 		B36F3828EED86369D85FB2E1117120A9 /* nanopb-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "nanopb-dummy.m"; sourceTree = "<group>"; };
 		B3815309F0273DB785B202157E287A49 /* FIRInstanceIDCombinedHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRInstanceIDCombinedHandler.h; path = Firebase/InstanceID/FIRInstanceIDCombinedHandler.h; sourceTree = "<group>"; };
@@ -1176,6 +1180,7 @@
 			isa = PBXGroup;
 			children = (
 				46542C7C3AE042E9679CCD16183DC0CC /* SteamcLog.swift */,
+				B3212D6723D782AB0049C1E4 /* Destinations */,
 				F8A988811F0F8B16A82D08DEE9E8583C /* Helper */,
 				E1E4D3430681BE7E4CC71332EDAA64F2 /* Pod */,
 				1C0440DD53DECA0C1ECDDABEDA797584 /* Support Files */,
@@ -1755,6 +1760,17 @@
 			path = "Target Support Files/Pods-SteamcLog_Example";
 			sourceTree = "<group>";
 		};
+		B3212D6723D782AB0049C1E4 /* Destinations */ = {
+			isa = PBXGroup;
+			children = (
+				30F7A575B5D03765533C5E99AAFC26E9 /* CrashlyticsDestination.swift */,
+				B3212D6E23D7853F0049C1E4 /* FileLogDestination.swift */,
+				B3212D6C23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift */,
+			);
+			name = Destinations;
+			path = SteamcLog/Classes/Destinations;
+			sourceTree = "<group>";
+		};
 		B91A9713A68D41D9FA7B1774A24B8395 /* ObjcExceptionBridging */ = {
 			isa = PBXGroup;
 			children = (
@@ -1956,7 +1972,6 @@
 			isa = PBXGroup;
 			children = (
 				5D95C80BC502729288D557174A9F8CC6 /* Config.swift */,
-				30F7A575B5D03765533C5E99AAFC26E9 /* CrashlyticsDestination.swift */,
 				17DE6DA5E4B3FCA5F03BEB531370E4B5 /* LogLevel.swift */,
 				2814799A9D9194CCB48D4C699FA1D5E0 /* LogLevelPreset.swift */,
 				FB5797316B9CEDBB568D892182F3BC8A /* Redactable.swift */,
@@ -2651,6 +2666,8 @@
 				FA2E36EDDC6D892DCA8A5A504EE28CBE /* LogLevelPreset.swift in Sources */,
 				5D3D16A7552AFBBA7DCB2E29928999A1 /* Redactable.swift in Sources */,
 				94E15BF4C07DD42F5DECDF9EDA0CC4D5 /* SteamcLog-dummy.m in Sources */,
+				B3212D6F23D7853F0049C1E4 /* FileLogDestination.swift in Sources */,
+				B3212D6D23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift in Sources */,
 				83306804C2845F8495FAF39C8591DBA2 /* SteamcLog.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -13,14 +13,20 @@ import Foundation
 import XCGLogger
 
 public struct SteamcLog {
-    public var config: Config!
+    public var config: Config! {
+        didSet {
+            crashlyticsDestination.outputLevel = config.logLevel.crashlytics.xcgLevel
+            fileDestination.outputLevel = config.logLevel.file.xcgLevel
+            systemDestination.outputLevel = config.logLevel.system.xcgLevel
+        }
+    }
 
     private var xcgLogger: XCGLogger!
     private let encoder = JSONEncoder()
 
     private var crashlyticsDestination: CrashlyticsDestination!
     private var fileDestination: FileDestination!
-    private var systemDestination: EnhancedAppleSystemLogDestination!
+    private var systemDestination: SteamcLogSystemLogDestination!
 
     public init(_ customConfig: Config = Config()) {
         config = customConfig
@@ -37,12 +43,12 @@ public struct SteamcLog {
             Fabric.with([Crashlytics.self])
         }
 
-        fileDestination = FileDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true)
+        fileDestination = FileLogDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true)
         setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.file)
         xcgLogger.add(destination: fileDestination)
         fileDestination.logQueue = XCGLogger.logQueue
 
-        systemDestination = EnhancedAppleSystemLogDestination(identifier: "steamclog.systemDestination")
+        systemDestination = SteamcLogSystemLogDestination(identifier: "steamclog.systemDestination")
         setLoggingDetails(destination: &systemDestination, outputLevel: config.logLevel.system)
         xcgLogger.add(destination: systemDestination)
 
@@ -223,22 +229,5 @@ public struct SteamcLog {
             warn("Failed to retrieve log file data: \(error)")
         }
         return nil
-    }
-}
-
-class EnhancedAppleSystemLogDestination: AppleSystemLogDestination {
-    override func output(logDetails: LogDetails, message: String) {
-        let emoji: String
-
-        switch logDetails.level {
-        case .error, .severe:
-            emoji = "🚫"
-        case .warning:
-            emoji = "⚠️"
-        default:
-            emoji = ""
-        }
-
-        super.output(logDetails: logDetails, message: emoji.isEmpty ? message : "\(emoji) \(message)")
     }
 }
