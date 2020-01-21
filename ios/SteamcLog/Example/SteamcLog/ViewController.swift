@@ -18,8 +18,7 @@ class ViewController: UIViewController {
         log.info("No admittance except on party business.")
         log.warn("All we have to decide is what to do with the time that is given to us.")
         log.error("I don’t know half of you half as well as I should like and I like less than half of you half as well as you deserve.")
-        /// Uncommenting this will trigger a fatal error
-//        log.fatal("It's the job that's never started as takes longest to finish.")
+        log.fatal("It's the job that's never started as takes longest to finish.")
 
 
         let sampleUser = User(name: "Name", uuid: UUID(), email: "hi@steamclock.com", created: Date())
