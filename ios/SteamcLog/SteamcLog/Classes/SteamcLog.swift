@@ -203,20 +203,24 @@ public struct SteamcLog {
 
     // MARK: Analytics Tracking Helpers
 
-    public func track(id: String, data: [String: Any]? = nil) {
+    public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil) where T.RawValue == String {
         if config.logLevel == .release {
-            Analytics.logEvent(id, parameters: data)
+            Analytics.logEvent(id.rawValue, parameters: data)
         } else {
             info("Skipped logging analytics event: \(id) ...")
         }
     }
 
-    public func track<T: RawRepresentable>(id: String, value: T) where T.RawValue == String {
-        track(id: id, data: ["value": value.rawValue])
+    public func track<T: RawRepresentable>(id: T, value: Redactable) where T.RawValue == String {
+        track(id: id, data: ["value": value.secureToString()])
     }
 
-    public func track(id: String, value: Redactable) {
-        track(id: id, data: ["value": value.secureToString()])
+    public func track<T: RawRepresentable, U>(id: T, value: U) where T.RawValue == String, U: Encodable {
+        guard let data = try? DictionaryEncoder().encode(value) else {
+            warn("Failed to encode \(value) to dictionary.")
+            return
+        }
+        track(id: id, data: data)
     }
 
     // MARK: Other public helper functions

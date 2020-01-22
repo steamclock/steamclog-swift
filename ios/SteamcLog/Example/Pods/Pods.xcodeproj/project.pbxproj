@@ -281,8 +281,8 @@
 		B2FA0A7642EEA39E75D3D03EF2E15B4C /* FIRConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = E722A482AD456577A5AE2867DBA016CB /* FIRConfiguration.m */; };
 		B3212D6D23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3212D6C23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift */; };
 		B3212D6F23D7853F0049C1E4 /* FileLogDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3212D6E23D7853F0049C1E4 /* FileLogDestination.swift */; };
-		B3495E8423D76C3B00AE7F4B /* DictionaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3495E8323D76C3B00AE7F4B /* DictionaryEncoder.swift */; };
 		B350DA3DF951BFDFC56331C90C01E200 /* FIRInstanceIDConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EAB12C01EB111568FD3A8C0EC9D9748 /* FIRInstanceIDConstants.m */; };
+		B3C25F9B23D9109500432674 /* DictionaryEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C25F9A23D9109500432674 /* DictionaryEncoder.swift */; };
 		B5F335B69AE04BDABB6E9DFB7D96736A /* SteamcLog-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = B18C4252F739BE37A8C3D354F49382DF /* SteamcLog-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BBF350DAFCCCCBBBD9F33FB13E0660A3 /* FIRErrorCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 046906E1BB1A84A22BC2EB838D21DB20 /* FIRErrorCode.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		BC39A14139D09DA09D179898A87CF021 /* GULLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB0D21BCA014199A968740F7E8151DB /* GULLogger.m */; };
@@ -906,10 +906,10 @@
 		B2FBCE28B18990723FCDC92CACE60F23 /* GoogleDataTransport-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "GoogleDataTransport-Info.plist"; sourceTree = "<group>"; };
 		B3212D6C23D783E20049C1E4 /* SteamcLogSystemLogDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SteamcLogSystemLogDestination.swift; sourceTree = "<group>"; };
 		B3212D6E23D7853F0049C1E4 /* FileLogDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileLogDestination.swift; sourceTree = "<group>"; };
-		B3495E8323D76C3B00AE7F4B /* DictionaryEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryEncoder.swift; sourceTree = "<group>"; };
 		B36F3828EED86369D85FB2E1117120A9 /* nanopb-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "nanopb-dummy.m"; sourceTree = "<group>"; };
 		B3815309F0273DB785B202157E287A49 /* FIRInstanceIDCombinedHandler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRInstanceIDCombinedHandler.h; path = Firebase/InstanceID/FIRInstanceIDCombinedHandler.h; sourceTree = "<group>"; };
 		B38D170EF936A9A1679EEAC12054BE3F /* FilterProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FilterProtocol.swift; path = Sources/XCGLogger/Filters/FilterProtocol.swift; sourceTree = "<group>"; };
+		B3C25F9A23D9109500432674 /* DictionaryEncoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DictionaryEncoder.swift; sourceTree = "<group>"; };
 		B3D7FFF3BEC3347D244B28EC662D5A4C /* FIRInstanceID+Private.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "FIRInstanceID+Private.m"; path = "Firebase/InstanceID/FIRInstanceID+Private.m"; sourceTree = "<group>"; };
 		B403E900A9BAF98554B986D9E77EE5EE /* FIRCoreDiagnosticsInterop.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRCoreDiagnosticsInterop.h; path = Interop/CoreDiagnostics/Public/FIRCoreDiagnosticsInterop.h; sourceTree = "<group>"; };
 		B43874C6CBB50E7134FBEC24BABFE14F /* GoogleUtilities.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = GoogleUtilities.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1972,10 +1972,10 @@
 			isa = PBXGroup;
 			children = (
 				5D95C80BC502729288D557174A9F8CC6 /* Config.swift */,
+				B3C25F9A23D9109500432674 /* DictionaryEncoder.swift */,
 				17DE6DA5E4B3FCA5F03BEB531370E4B5 /* LogLevel.swift */,
 				2814799A9D9194CCB48D4C699FA1D5E0 /* LogLevelPreset.swift */,
 				FB5797316B9CEDBB568D892182F3BC8A /* Redactable.swift */,
-				B3495E8323D76C3B00AE7F4B /* DictionaryEncoder.swift */,
 			);
 			name = Helper;
 			path = SteamcLog/Classes/Helper;
@@ -2660,6 +2660,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3C25F9B23D9109500432674 /* DictionaryEncoder.swift in Sources */,
 				7CBD0AD35C208DD5DF544F4EE2C75E1A /* Config.swift in Sources */,
 				DE26BC24ED319C692B8D73FD3A131929 /* CrashlyticsDestination.swift in Sources */,
 				7668FD974350C9979EFFFEDA7080464F /* LogLevel.swift in Sources */,
@@ -2692,7 +2693,6 @@
 				3C9923B6B84D38A40767A6E529CABE0F /* FIRComponentContainer.m in Sources */,
 				92FD213052E29CA5F30B41AAB84AB5E9 /* FIRComponentType.m in Sources */,
 				B2FA0A7642EEA39E75D3D03EF2E15B4C /* FIRConfiguration.m in Sources */,
-				B3495E8423D76C3B00AE7F4B /* DictionaryEncoder.swift in Sources */,
 				02995B31B424D53935F8576996C9F306 /* FIRCoreDiagnosticsConnector.m in Sources */,
 				48589406024717DC104D8F0B2585FCC4 /* FIRDependency.m in Sources */,
 				5A81696564F736AF85CA0CF8BA37458F /* FIRDiagnosticsData.m in Sources */,
