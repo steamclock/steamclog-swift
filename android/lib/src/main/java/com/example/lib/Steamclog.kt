@@ -83,6 +83,7 @@ object Steamclog {
      */
     @SuppressLint("LogNotTimber")
     fun enableWriteToExternalLogging(enable: Boolean, writePath: File?) {
+        isExternalFileLoggingEnabled = enable
         when {
             enable && writePath == null -> {
                 Log.e("Steamclog","enableWriteToExternalLogging requires a valid writePath")
@@ -133,6 +134,18 @@ object Steamclog {
     fun fatal(@NonNls message: String, obj: Any) = Timber.e(addObjToMessage(message, obj))
     fun fatal(throwable: Throwable?, @NonNls message: String) = Timber.e(throwable, message)
     fun fatal(throwable: Throwable?, @NonNls message: String, obj: Any?) = Timber.e(throwable, addObjToMessage(message, obj))
+
+    //---------------------------------------------
+    // Public util methods
+    //---------------------------------------------
+    fun getLogFileContents(): String? {
+        if (!isExternalFileLoggingEnabled) return null
+        return externalLogFileTree.getLogFileContents()
+    }
+
+    fun addCustomTree(tree: Timber.Tree) {
+        Timber.plant(tree)
+    }
 
     //---------------------------------------------
     // Private methods

@@ -34,7 +34,7 @@ class CrashlyticsTree : PriorityEnabledTree() {
 /**
  * Reformats console output to include file and line number to log.
  */
-class CustomDebugTree: PriorityEnabledDebugTree() {
+open class CustomDebugTree: PriorityEnabledDebugTree() {
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
         val emoji = getLevelEmoji(priority)
@@ -83,7 +83,8 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
             val logTimeStamp = SimpleDateFormat("E MMM dd yyyy 'at' hh:mm:ss:SSS aaa", Locale.getDefault()).format(date)
 
             // Create file
-            val file = getExternalFile("$fileNamePrefix-$fileNameTimeStamp.html")
+            //val file = getExternalFile("$fileNamePrefix-$fileNameTimeStamp.html")
+            val file = getExternalFile("$fileNamePrefix.html")
 
             // If file created or exists save logs
             if (file != null) {
@@ -113,7 +114,6 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
             null
         }
     }
-
     private fun getLogFiles(): List<String> {
         // todo may need to ask for some permissions?
         val filteredFiles = outputFilePath?.list { _, name -> name.contains(fileNamePrefix) }
@@ -124,5 +124,9 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
         for (file in getLogFiles()) {
             getExternalFile(file)?.delete()
         }
+    }
+
+    fun getLogFileContents(): String? {
+        return getExternalFile("$fileNamePrefix.html")?.readText()
     }
 }

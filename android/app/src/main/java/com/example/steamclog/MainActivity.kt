@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.AdapterView
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import com.example.lib.Steamclog
+import com.example.lib.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Exception
@@ -30,6 +30,9 @@ class MainActivity : AppCompatActivity() {
         title = "SteamClog Test"
 
         Steamclog.enableCustomLogging(true)
+        Steamclog.enableWriteToExternalLogging(true, externalCacheDir)
+
+        demo_text.text = Steamclog.toString()
 
         Log.v("Steamclog", Steamclog.toString())
 
@@ -79,6 +82,14 @@ class MainActivity : AppCompatActivity() {
             Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
 
         }
-    }
 
+        dump_file_button.setOnClickListener {
+            Steamclog.getLogFileContents()?.let {
+                demo_web_view.loadData(it, "text/html", "UTF-8")
+            }
+        }
+
+    }
 }
+
+
