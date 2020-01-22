@@ -8,6 +8,12 @@
 
 import UIKit
 
+private enum AnalyticsEvent: String {
+    case thingHappened
+    case cardDrawn
+    case userCreated
+}
+
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -26,16 +32,16 @@ class ViewController: UIViewController {
         log.info("Here's a simple model: ", sampleUser)
 
         /// Log a simple event to Firebase Analytics
-        log.track(id: "thing_happened")
-
-        /// Log an event with a RawRepresentable<String> enum
-        log.track(id: "card_drawn", value: Suit.heart)
+        log.track(id: AnalyticsEvent.thingHappened)
 
         /// Log an event with a dictionary of values
-        log.track(id: "card_drawn", data: ["suit": Suit.heart, "value": "Q"])
+        log.track(id: AnalyticsEvent.cardDrawn, data: ["suit": Suit.heart, "value": "Q"])
 
         /// Log an event with a redactable object
-        log.track(id: "user_created", value : sampleUser)
+        log.track(id: AnalyticsEvent.userCreated, redactable: sampleUser)
+
+        /// Log an event with an encodable object
+        log.track(id: AnalyticsEvent.userCreated, encodable: sampleUser)
     }
 
     @IBAction func showFileContents(_ sender: Any) {

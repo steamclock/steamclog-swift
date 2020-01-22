@@ -211,13 +211,13 @@ public struct SteamcLog {
         }
     }
 
-    public func track<T: RawRepresentable>(id: T, value: Redactable) where T.RawValue == String {
-        track(id: id, data: ["value": value.secureToString()])
+    public func track<T: RawRepresentable>(id: T, redactable: Redactable) where T.RawValue == String {
+        track(id: id, data: ["value": redactable.secureToString()])
     }
 
-    public func track<T: RawRepresentable, U>(id: T, value: U) where T.RawValue == String, U: Encodable {
-        guard let data = try? DictionaryEncoder().encode(value) else {
-            warn("Failed to encode \(value) to dictionary.")
+    public func track<T: RawRepresentable, U>(id: T, encodable: U) where T.RawValue == String, U: Encodable {
+        guard let data = try? DictionaryEncoder().encode(encodable) else {
+            warn("Failed to encode \(encodable) to dictionary.")
             return
         }
         track(id: id, data: data)

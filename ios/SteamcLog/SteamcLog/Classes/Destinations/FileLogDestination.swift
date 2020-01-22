@@ -13,7 +13,7 @@ private class FileSystemFormatter: LogFormatterProtocol {
 
     public init() {
         formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        formatter.dateFormat = "yyyy-MM-dd.H:m:ss.SSSS"
     }
 
     func format(logDetails: inout LogDetails, message: inout String) -> String {
