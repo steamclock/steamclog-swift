@@ -64,6 +64,13 @@ object Steamclog {
     var isExternalFileLoggingEnabled: Boolean = false
         private set
 
+
+    //---------------------------------------------
+    // Default Configs
+    //---------------------------------------------
+    // todo
+
+
     //---------------------------------------------
     // Public methods
     //---------------------------------------------
@@ -114,7 +121,11 @@ object Steamclog {
     //---------------------------------------------
 
     fun verbose(@NonNls message: String) = Timber.v(message)
-    fun verbose(@NonNls message: String, obj: Any) = Timber.v(addObjToMessage(message, obj))
+    fun verbose(@NonNls message: String, obj: Any?) = Timber.v(addObjToMessage(message, obj))
+    // todo Currently obj will be logged via toString. If we want to convert to a json object, we
+    // will need to determine what json parser (gson/moshi) to use, or expose an interface that the
+    // app can provide to do an object to string conversion.
+    //fun <T>verbose(@NonNls message: String, obj: T?) = Timber.v(addObjToMessage(message, obj))
 
     fun debug(@NonNls message: String) = Timber.d(message)
     fun debug(@NonNls message: String, obj: Any) = Timber.d(addObjToMessage(message, obj))
@@ -134,6 +145,10 @@ object Steamclog {
     fun fatal(@NonNls message: String, obj: Any) = Timber.e(addObjToMessage(message, obj))
     fun fatal(throwable: Throwable?, @NonNls message: String) = Timber.e(throwable, message)
     fun fatal(throwable: Throwable?, @NonNls message: String, obj: Any?) = Timber.e(throwable, addObjToMessage(message, obj))
+
+    // todo - fatal actually crashes app.
+
+    // todo - add track for Firebase analytics
 
     //---------------------------------------------
     // Public util methods
