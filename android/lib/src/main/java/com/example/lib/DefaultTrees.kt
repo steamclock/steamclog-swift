@@ -48,7 +48,7 @@ open class CustomDebugTree: PriorityEnabledDebugTree() {
  */
 class ExternalLogFileTree : PriorityEnabledDebugTree() {
     private var fileNamePrefix: String = "SteamLogger"
-    private var timestampFormat = "yyyy-MM-dd.HH:mm:ss.SSS"
+    private var timestampFormat = "yyyy-MM-dd'.'HH:mm:ss.SSS"
     private var fileExt = "txt"
     var outputFilePath: File? = null // Must be set with application's external cache dir
 
