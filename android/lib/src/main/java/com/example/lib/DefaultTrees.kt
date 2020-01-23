@@ -1,5 +1,6 @@
 package com.example.lib
 
+import android.os.Build
 import com.crashlytics.android.Crashlytics
 import timber.log.Timber
 import java.io.File
@@ -35,20 +36,10 @@ class CrashlyticsTree : PriorityEnabledTree() {
  * Reformats console output to include file and line number to log.
  */
 open class CustomDebugTree: PriorityEnabledDebugTree() {
-
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
         val emoji = getLevelEmoji(priority)
         val prettyMessage = if (emoji == null) message else "$emoji $message"
-
-        val logThrowable =
-            if (throwable is Steamclog.NonFatalException) {
-                // If non-fatal, log the original throwable if one was given.
-                throwable.wrappedThrowable ?: throwable
-            } else {
-                throwable
-            }
-
-        super.log(priority, createCustomStackElementTag(), prettyMessage, logThrowable)
+        super.log(priority, createCustomStackElementTag(), prettyMessage, throwable)
     }
 }
 
@@ -56,8 +47,10 @@ open class CustomDebugTree: PriorityEnabledDebugTree() {
  *
  */
 class ExternalLogFileTree : PriorityEnabledDebugTree() {
-    var outputFilePath: File? = null
-    var fileNamePrefix: String = "SteamLogger"
+    private var fileNamePrefix: String = "SteamLogger"
+    private var timestampFormat = "yyyy-MM-dd.HH:mm:ss.SSS"
+    private var fileExt = "txt"
+    var outputFilePath: File? = null // Must be set with application's external cache dir
 
     //---------------------------------------------
     // Reformats console output to include file and line number to log.
@@ -70,33 +63,32 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
     // Allows us to print out to an external file if desired.
     //---------------------------------------------
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
-        printLogToExternalFile(tag, message)
+        printLogToExternalFile(priority, tag, message)
     }
 
     //---------------------------------------------
     // Support to write logs out to External HTML file.
     //---------------------------------------------
-    private fun printLogToExternalFile(tag: String?, message: String) {
+    private fun printLogToExternalFile(priority: Int, tag: String?, message: String) {
         try {
             val date = Date()
-            val fileNameTimeStamp = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(date)
-            val logTimeStamp = SimpleDateFormat("E MMM dd yyyy 'at' hh:mm:ss:SSS aaa", Locale.getDefault()).format(date)
+            val logTimeStamp = SimpleDateFormat(timestampFormat, Locale.US).format(date)
+            val appId = BuildConfig.LIBRARY_PACKAGE_NAME
+            val processId = android.os.Process.myPid()
+            val threadName = Thread.currentThread().name
 
             // Create file
             //val file = getExternalFile("$fileNamePrefix-$fileNameTimeStamp.html")
-            val file = getExternalFile("$fileNamePrefix.html")
+            val file = getExternalFile()
 
             // If file created or exists save logs
             if (file != null) {
+                val logStr = "$logTimeStamp $appId[$processId:$threadName] [$priority] [$tag] > $message"
                 val writer = FileWriter(file, true)
+
                 writer.apply {
-                    append("<p style=\"background:lightgray;\"><strong style=\"background:lightblue;\">&nbsp&nbsp")
-                    append(logTimeStamp)
-                    append(" :&nbsp&nbsp</strong><strong>&nbsp&nbsp")
-                    append(tag)
-                    append("</strong> - ")
-                    append(message)
-                    append("</p>")
+                    append(logStr)
+                    append("\n\r")
                     flush()
                     close()
                 }
@@ -106,7 +98,9 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
         }
     }
 
-    private fun getExternalFile(filename: String): File? {
+    private fun getExternalFile(): File? {
+        val filename = "$fileNamePrefix.$fileExt" // Todo, per date
+
         return try {
             File(outputFilePath, filename)
         } catch (e: Exception) {
@@ -114,19 +108,24 @@ class ExternalLogFileTree : PriorityEnabledDebugTree() {
             null
         }
     }
-    private fun getLogFiles(): List<String> {
-        // todo may need to ask for some permissions?
-        val filteredFiles = outputFilePath?.list { _, name -> name.contains(fileNamePrefix) }
-        return filteredFiles?.sorted() ?: emptyList()
-    }
 
-    fun deleteLogFiles() {
-        for (file in getLogFiles()) {
-            getExternalFile(file)?.delete()
-        }
-    }
+//    private fun getLogFiles(): List<String> {
+//        // todo may need to ask for some permissions?
+//        val filteredFiles = outputFilePath?.list { _, name -> name.contains(fileNamePrefix) }
+//        return filteredFiles?.sorted() ?: emptyList()
+//    }
+//
+//    fun deleteLogFiles() {
+//        for (file in getLogFiles()) {
+//            getExternalFile(file)?.delete()
+//        }
+//    }
 
     fun getLogFileContents(): String? {
-        return getExternalFile("$fileNamePrefix.html")?.readText()
+        return getExternalFile()?.readText()
+    }
+
+    fun deleteLogFile() {
+        getExternalFile()?.delete()
     }
 }

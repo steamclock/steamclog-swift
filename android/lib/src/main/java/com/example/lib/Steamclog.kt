@@ -143,6 +143,11 @@ object Steamclog {
         return externalLogFileTree.getLogFileContents()
     }
 
+    fun deleteLogFile() {
+        if (!isExternalFileLoggingEnabled) return
+        return externalLogFileTree.deleteLogFile()
+    }
+
     fun addCustomTree(tree: Timber.Tree) {
         Timber.plant(tree)
     }

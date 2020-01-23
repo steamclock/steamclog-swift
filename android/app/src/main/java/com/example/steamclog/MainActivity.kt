@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
         Steamclog.enableCustomLogging(true)
         Steamclog.enableWriteToExternalLogging(true, externalCacheDir)
+        Steamclog.deleteLogFile() // Reset for test
 
         demo_text.text = Steamclog.toString()
 
@@ -83,11 +84,7 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        dump_file_button.setOnClickListener {
-            Steamclog.getLogFileContents()?.let {
-                demo_web_view.loadData(it, "text/html", "UTF-8")
-            }
-        }
+        dump_file_button.setOnClickListener { Steamclog.getLogFileContents()?.let { demo_text.text = it } }
 
     }
 }

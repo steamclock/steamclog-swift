@@ -52,12 +52,11 @@
         <TextView
             android:id="@+id/demo_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <WebView
-            android:id="@+id/demo_web_view"
-            android:layout_width="match_parent"
-            android:layout_height="400dp" />
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:padding="16dp"
+            android:fontFamily="monospace"
+            android:textColor="#333333"/>
 
     </LinearLayout>
 
