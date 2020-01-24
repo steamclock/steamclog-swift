@@ -14,26 +14,20 @@ import timber.log.Timber
 /**
  * TODOs
  *
- * - check to see how Logs are adding to crash reports - can we control these separate to the system log. talk to Jake.
+ * - Track implementation
  * - get clarification on how we know when to send crash reports? Logging levels no longer captures this.
  * - look into Jake's redaction implementation.
  * - Android Encodable equivalent?
  * - add track for Firebase analytics
  * - jitpack hosting
  * - todo coroutines for getLogFile?
+ * - files by day
  * - create encodable / redactable interfaces ?
- * - track call
- *
- * // Android - is there a difference between IDE log, and system log? I don't think so, I think
-// Android Studio is parsing the system log with a given set of parsing rules based on how Log.T is
-// formatting.
+ * - is there a difference between IDE log, and system log? I don't think so, I think Android Studio
+ * is parsing the system log with a given set of parsing rules based on how Log.T is formatting.
  *
  */
 
-/**
- * SteamLogger is a wrapper around the Timber logging library, giving us more control over
- * what is logged and when.
- */
 typealias clog = Steamclog
 object Steamclog {
 
@@ -104,7 +98,6 @@ object Steamclog {
     //---------------------------------------------
     // Public util methods
     //---------------------------------------------
-    // todo coroutines?
     fun getLogFileContents(): String? {
         return externalLogFileTree.getLogFileContents()
     }

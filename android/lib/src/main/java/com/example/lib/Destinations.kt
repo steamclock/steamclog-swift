@@ -5,6 +5,7 @@ import com.crashlytics.android.Crashlytics
 import timber.log.Timber
 import java.io.File
 import java.io.FileWriter
+import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -60,6 +61,7 @@ class ConsoleDestination: Timber.DebugTree() {
  */
 class ExternalLogFileDestination : Timber.DebugTree() {
     private var fileNamePrefix: String = "SteamLogger"
+    private var fileNameTimestamp = "yyyy_MM_dd"
     private var logTimestampFormat = "yyyy-MM-dd'.'HH:mm:ss.SSS"
     private var fileExt = "txt"
 
@@ -114,7 +116,8 @@ class ExternalLogFileDestination : Timber.DebugTree() {
     }
 
     private fun getExternalFile(): File? {
-        val filename = "$fileNamePrefix.$fileExt"
+        val date = SimpleDateFormat(fileNameTimestamp, Locale.US).format(Date())
+        val filename = "${fileNamePrefix}_${date}.${fileExt}"
         val outputFilePath = Steamclog.config.fileWritePath
 
         return try {
@@ -138,15 +141,39 @@ class ExternalLogFileDestination : Timber.DebugTree() {
 //        }
 //    }
 
-    fun getLogFileContents(): String? {
-        return try {
-            getExternalFile()?.readText()
-        } catch (e: Exception) {
-            // Do not call Timber here, or will will infinitely loop
-            Log.e(Steamclog.config.identifier,"getLogFileContents failed to read file: $e")
-           null
+    fun removeOldLogFiles() {
+        val outputFilePath = Steamclog.config.fileWritePath
+        val deleteThese = ArrayList<File>()
+        val expiryMs = Steamclog.config.keepLogsForDays * 86400000 // (86400000 ms per day)
+
+        outputFilePath?.listFiles()?.forEach { file ->
+            val now = Date().time
+            if (file.lastModified() < (now - expiryMs)) deleteThese.add(file)
         }
 
+        deleteThese.forEach { file ->
+            Log.d(Steamclog.config.identifier, "Deleting file ${file.name}")
+            file.delete()
+        }
+    }
+
+    fun getLogFileContents(): String? {
+        removeOldLogFiles()
+        val outputFilePath = Steamclog.config.fileWritePath
+        val logBuilder = StringBuilder()
+        outputFilePath?.listFiles()?.forEach { file ->
+            try {
+                Log.d(Steamclog.config.identifier, "Reading file ${file.name}")
+                // This method is not recommended on huge files. It has an internal limitation of 2 GB file size.
+                // todo, if we end up with super large logs we will have to read differently.
+                logBuilder.append(file.readText() )
+            } catch (e: Exception) {
+                // Do not call Timber here, or will will infinitely loop
+                Log.e(Steamclog.config.identifier,"getLogFileContents failed to read file: $e")
+            }
+        }
+
+        return logBuilder.toString()
     }
 
     fun deleteLogFile() {

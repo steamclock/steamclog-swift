@@ -12,15 +12,23 @@ data class Config(
      *
      */
     var destinationLevels: DestinationLevels = DestinationLevels.Debug,
+
     /**
      *
      */
     var identifier: String = "steamclog",
+
     /**
      *
      */
     var crashlyticsAppKey: String? = null,
+
     /**
      *
      */
-    var fileWritePath: File? = null)
+    var fileWritePath: File? = null,
+
+    /**
+     *
+     */
+    var keepLogsForDays: Int = 3)
