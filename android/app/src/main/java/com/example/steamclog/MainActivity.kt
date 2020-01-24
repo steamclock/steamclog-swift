@@ -29,34 +29,36 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         title = "SteamClog Test"
 
-        Steamclog.enableCustomLogging(true)
-        Steamclog.enableWriteToExternalLogging(true, externalCacheDir)
-        Steamclog.deleteLogFile() // Reset for test
+        clog.config.destinationLevels.crashlytics = LogLevel.None
+        clog.config.fileWritePath = externalCacheDir
+
+        clog.deleteLogFile() // Reset for test
 
         demo_text.text = Steamclog.toString()
 
         Log.v("Steamclog", Steamclog.toString())
 
-        level_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                Steamclog.priorityLevel = Log.VERBOSE
-            }
-
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                when (position) {
-                    0 -> Steamclog.priorityLevel = Log.VERBOSE
-                    1 -> Steamclog.priorityLevel = Log.DEBUG
-                    2 -> Steamclog.priorityLevel = Log.INFO
-                    3 -> Steamclog.priorityLevel = Log.WARN
-                    else -> Steamclog.priorityLevel = Log.ERROR
-                }
-            }
-        }
+//       level_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                Steamclog.priorityLevel = Log.VERBOSE
+//            }
+//
+//            override fun onItemSelected(
+//                parent: AdapterView<*>?,
+//                view: View?,
+//                position: Int,
+//                id: Long
+//            ) {
+//                when (position) {
+//                    0 -> Steamclog.priorityLevel = Log.VERBOSE
+//                    1 -> Steamclog.priorityLevel = Log.DEBUG
+//                    2 -> Steamclog.priorityLevel = Log.INFO
+//                    3 -> Steamclog.priorityLevel = Log.WARN
+//                    else -> Steamclog.priorityLevel = Log.ERROR
+//                }
+//            }
+//
+//        }
 
         log_things.setOnClickListener { view ->
 
@@ -72,19 +74,26 @@ class MainActivity : AppCompatActivity() {
             Steamclog.warn("Warn message")
             Steamclog.warn("Warn message", TestMe())
 
-            Steamclog.nonFatal("NonFatal message")
-            Steamclog.nonFatal("NonFatal message", TestMe())
-            Steamclog.nonFatal(Throwable("OriginalNonFatalThrowable"),"NonFatal message")
-            Steamclog.nonFatal(Throwable("OriginalNonFatalThrowable"),"NonFatal message", TestMe())
+            Steamclog.error("NonFatal message")
+            Steamclog.error("NonFatal message", TestMe())
+            //Steamclog.error("NonFatal message", Throwable("OriginalNonFatalThrowable"))
+            Steamclog.error("NonFatal message", Throwable("OriginalNonFatalThrowable"), TestMe())
 
-            Steamclog.fatal("Fatal message")
-            Steamclog.fatal("Fatal message", TestMe())
-            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message")
-            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
+            // These will crash app
+//            Steamclog.fatal("Fatal message")
+//            Steamclog.fatal("Fatal message", TestMe())
+//            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message")
+//            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
 
         }
 
         dump_file_button.setOnClickListener { Steamclog.getLogFileContents()?.let { demo_text.text = it } }
+
+
+
+
+        var num = 1
+        var me = "sfdsfsdf$num"
 
     }
 }
