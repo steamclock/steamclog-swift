@@ -26,12 +26,12 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-<!--        <Spinner-->
-<!--            android:id="@+id/level_selector"-->
-<!--            android:layout_width="fill_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:drawSelectorOnTop="true"-->
-<!--            android:entries="@array/levels" />-->
+        <Spinner
+            android:id="@+id/level_selector"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:drawSelectorOnTop="true"
+            android:entries="@array/levels" />
 
         <Button
             style="@style/Widget.AppCompat.Button.Colored"

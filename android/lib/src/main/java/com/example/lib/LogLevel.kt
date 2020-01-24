@@ -2,6 +2,11 @@ package com.example.lib
 
 import android.util.Log
 
+/**
+ * LogLevel
+ *
+ * Created by shayla on 2020-01-23
+ */
 enum class LogLevel(val javaLevel: Int) {
     Verbose (Log.VERBOSE),
     Debug(Log.DEBUG),

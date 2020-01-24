@@ -8,6 +8,12 @@ import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Destinations
+ *
+ * Created by shayla on 2020-01-23
+ */
+
 //-----------------------------------------------------------------------------
 // Default Destination Trees
 //
@@ -25,6 +31,8 @@ class CrashlyticsDestination : Timber.Tree() {
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
         Crashlytics.log(priority, tag, message)
+
+        // We trigger the crash report if we are logging a throwable (error)
         throwable?.let { Crashlytics.logException(throwable) }
     }
 }
@@ -52,7 +60,7 @@ class ConsoleDestination: Timber.DebugTree() {
  */
 class ExternalLogFileDestination : Timber.DebugTree() {
     private var fileNamePrefix: String = "SteamLogger"
-    private var timestampFormat = "yyyy-MM-dd'.'HH:mm:ss.SSS"
+    private var logTimestampFormat = "yyyy-MM-dd'.'HH:mm:ss.SSS"
     private var fileExt = "txt"
 
     override fun isLoggable(priority: Int): Boolean {
@@ -79,7 +87,7 @@ class ExternalLogFileDestination : Timber.DebugTree() {
     private fun printLogToExternalFile(priority: Int, tag: String?, message: String) {
         try {
             val date = Date()
-            val logTimeStamp = SimpleDateFormat(timestampFormat, Locale.US).format(date)
+            val logTimeStamp = SimpleDateFormat(logTimestampFormat, Locale.US).format(date)
             val appId = BuildConfig.LIBRARY_PACKAGE_NAME
             val processId = android.os.Process.myPid()
             val threadName = Thread.currentThread().name
@@ -106,12 +114,13 @@ class ExternalLogFileDestination : Timber.DebugTree() {
     }
 
     private fun getExternalFile(): File? {
-        val filename = "$fileNamePrefix.$fileExt" // Todo, per date
+        val filename = "$fileNamePrefix.$fileExt"
         val outputFilePath = Steamclog.config.fileWritePath
 
         return try {
             File(outputFilePath, filename)
         } catch (e: Exception) {
+            // Do not call Timber here, or will will infinitely loop
             Log.e(Steamclog.config.identifier,"HTMLFileTree failed to getExternalFile: $e")
             null
         }
@@ -130,7 +139,14 @@ class ExternalLogFileDestination : Timber.DebugTree() {
 //    }
 
     fun getLogFileContents(): String? {
-        return getExternalFile()?.readText()
+        return try {
+            getExternalFile()?.readText()
+        } catch (e: Exception) {
+            // Do not call Timber here, or will will infinitely loop
+            Log.e(Steamclog.config.identifier,"getLogFileContents failed to read file: $e")
+           null
+        }
+
     }
 
     fun deleteLogFile() {

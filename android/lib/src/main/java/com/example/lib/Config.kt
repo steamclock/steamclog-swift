@@ -3,7 +3,9 @@ package com.example.lib
 import java.io.File
 
 /**
+ * Config
  *
+ * Created by shayla on 2020-01-23
  */
 data class Config(
     /**

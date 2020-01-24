@@ -4,13 +4,20 @@ import org.jetbrains.annotations.NonNls
 import timber.log.Timber
 
 /**
+ * Steamclog
+ *
+ * Created by shayla on 2020-01-23
+ *
+ * A wrapper around the Timber logging library, giving us more control over what is logged and when.
+ */
+
+/**
  * TODOs
  *
  * - check to see how Logs are adding to crash reports - can we control these separate to the system log. talk to Jake.
  * - get clarification on how we know when to send crash reports? Logging levels no longer captures this.
  * - look into Jake's redaction implementation.
  * - Android Encodable equivalent?
- * - fatal actually crashes app.
  * - add track for Firebase analytics
  * - jitpack hosting
  * - todo coroutines for getLogFile?
@@ -75,14 +82,14 @@ object Steamclog {
 
     fun error(@NonNls message: String)                                   = log(LogLevel.Error, message)
     fun error(@NonNls message: String, obj: Any)                         = log(LogLevel.Error, message, obj)
-    fun error(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Error, message, throwable)
+    //fun error(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Error, message, throwable)
     fun error(@NonNls message: String, throwable: Throwable?, obj: Any?) = log(LogLevel.Error, message, throwable, obj)
 
     fun fatal(@NonNls message: String)                                   = log(LogLevel.Fatal, message)
     fun fatal(@NonNls message: String, obj: Any)                         = log(LogLevel.Fatal, message, obj)
-    fun fatal(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Fatal, message, throwable)
+    //fun fatal(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Fatal, message, throwable)
     fun fatal(@NonNls message: String, throwable: Throwable?, obj: Any?) = log(LogLevel.Fatal, message, throwable, obj)
-    
+
     // todo Currently obj will be logged via toString. If we want to convert to a json object, we
     // will need to determine what json parser (gson/moshi) to use, or expose an interface that the
     // app can provide to do an object to string conversion.

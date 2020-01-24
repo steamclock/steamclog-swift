@@ -36,29 +36,28 @@ class MainActivity : AppCompatActivity() {
 
         demo_text.text = Steamclog.toString()
 
-        Log.v("Steamclog", Steamclog.toString())
 
-//       level_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-//            override fun onNothingSelected(parent: AdapterView<*>?) {
-//                Steamclog.priorityLevel = Log.VERBOSE
-//            }
-//
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                when (position) {
-//                    0 -> Steamclog.priorityLevel = Log.VERBOSE
-//                    1 -> Steamclog.priorityLevel = Log.DEBUG
-//                    2 -> Steamclog.priorityLevel = Log.INFO
-//                    3 -> Steamclog.priorityLevel = Log.WARN
-//                    else -> Steamclog.priorityLevel = Log.ERROR
-//                }
-//            }
-//
-//        }
+       level_selector.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                Steamclog.config.destinationLevels.file = when (position) {
+                    0 -> LogLevel.Verbose
+                    1 -> LogLevel.Debug
+                    2 -> LogLevel.Info
+                    3 -> LogLevel.Warn
+                    else -> LogLevel.Error
+                }
+            }
+
+        }
 
         log_things.setOnClickListener { view ->
 
@@ -74,10 +73,10 @@ class MainActivity : AppCompatActivity() {
             Steamclog.warn("Warn message")
             Steamclog.warn("Warn message", TestMe())
 
-            Steamclog.error("NonFatal message")
-            Steamclog.error("NonFatal message", TestMe())
+            Steamclog.error("Error message")
+            Steamclog.error("NonFErroratal message", TestMe())
             //Steamclog.error("NonFatal message", Throwable("OriginalNonFatalThrowable"))
-            Steamclog.error("NonFatal message", Throwable("OriginalNonFatalThrowable"), TestMe())
+            Steamclog.error("Error message", Throwable("OriginalNonFatalThrowable"), TestMe())
 
             // These will crash app
 //            Steamclog.fatal("Fatal message")
@@ -88,9 +87,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         dump_file_button.setOnClickListener { Steamclog.getLogFileContents()?.let { demo_text.text = it } }
-
-
-
 
         var num = 1
         var me = "sfdsfsdf$num"
