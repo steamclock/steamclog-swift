@@ -1,5 +1,6 @@
 package com.example.lib
 
+import android.util.Log
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
 
@@ -21,7 +22,6 @@ import timber.log.Timber
  * - add track for Firebase analytics
  * - jitpack hosting
  * - todo coroutines for getLogFile?
- * - files by day
  * - create encodable / redactable interfaces ?
  * - is there a difference between IDE log, and system log? I don't think so, I think Android Studio
  * is parsing the system log with a given set of parsing rules based on how Log.T is formatting.
