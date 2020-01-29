@@ -23,6 +23,30 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    class LoginInfoz : Any(), Redactable {
+        val name = "shayla"
+        val password = "supersecretpassword"
+        val token = TokenInfoz()
+        val state = UserState()
+        private val privateVar = "myprivatevar"
+
+        // Here we list token as being safe, even though some of it's properties may also be
+        // redacted.
+        override val safeProperties: Set<String> = HashSet<String>(setOf("name", "token", "state"))
+    }
+
+    class TokenInfoz : Any(), Redactable {
+        val notSoSecretValue = 22
+        val secretToken = "supersecrettoken"
+
+        override val safeProperties: Set<String> = HashSet<String>(setOf("notSoSecretValue"))
+    }
+
+    class UserState : Any() {
+        val lastPageViewed = "mainActivity"
+        val numberOfClicks = 5
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -86,7 +110,16 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        dump_file_button.setOnClickListener { Steamclog.getLogFileContents()?.let { demo_text.text = it } }
+        dump_file_button.setOnClickListener {
+            Steamclog.getLogFileContents()?.let { demo_text.text = it }
+
+           // Log.d(Steamclog.config.identifier, LoginInfoz().getDebugDescription())
+
+            val loginInfoz2 = LoginInfoz()
+            Log.d(Steamclog.config.identifier, UserState().getRedactedDescription())
+            Log.d(Steamclog.config.identifier, LoginInfoz().getRedactedDescription())
+            //Log.d(Steamclog.config.identifier, LoginInfoz().getDebugDescription2())
+        }
 
         var num = 1
         var me = "sfdsfsdf$num"
