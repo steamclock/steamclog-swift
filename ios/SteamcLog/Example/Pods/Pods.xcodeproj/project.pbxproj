@@ -304,6 +304,7 @@
 		C4C126BCBB6FECD2ABA389A5041D6775 /* FIRComponentContainerInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = B8410298DDAEBBE0D62B43F171C20E57 /* FIRComponentContainerInternal.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		C51C3D70CCB9260030FA831AF35788CC /* pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = F329BB58CA04DDFFB6527434BDAAF72E /* pb_decode.c */; settings = {COMPILER_FLAGS = "-fno-objc-arc -fno-objc-arc"; }; };
 		C5A003405884F4939AFBD91C488D1E0B /* GULNetworkURLSession.h in Headers */ = {isa = PBXBuildFile; fileRef = BD7F248657285E762FBE688C4B1252A7 /* GULNetworkURLSession.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		C6A69DA423E9FA7700C7643D /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A69DA323E9FA7700C7643D /* AnalyticsEvent.swift */; };
 		CB48727224C11A91ACC989586D64528F /* .swift-version in Resources */ = {isa = PBXBuildFile; fileRef = BC383B50A990D21B3BBCD6B00A7DC380 /* .swift-version */; };
 		CBD32A49462E70119B6D4B9AC0E7898F /* FIRLoggerLevel.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9244B991B457F4396C68C74BE2D05E /* FIRLoggerLevel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CE12CCF702BE1FCF3BF897E8AA6C8F4F /* FirebaseCoreDiagnostics-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 8A2BBAD92A1E783652A025167CAF4AEC /* FirebaseCoreDiagnostics-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -942,6 +943,7 @@
 		C599E7243B6722DD4018128308D70A77 /* Pods-SteamcLog_Tests-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-SteamcLog_Tests-acknowledgements.markdown"; sourceTree = "<group>"; };
 		C626A677D480621C1FFF5266FC151F61 /* GDTCORTransport_Private.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GDTCORTransport_Private.h; path = GoogleDataTransport/GDTCORLibrary/Private/GDTCORTransport_Private.h; sourceTree = "<group>"; };
 		C657991DC8AA9CD6FED69F6A10E57ED5 /* GULReachabilityChecker.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GULReachabilityChecker.h; path = GoogleUtilities/Reachability/Private/GULReachabilityChecker.h; sourceTree = "<group>"; };
+		C6A69DA323E9FA7700C7643D /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
 		C6FC4B665C639896C46598FC84A502BA /* LogFormatterProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LogFormatterProtocol.swift; path = Sources/XCGLogger/LogFormatters/LogFormatterProtocol.swift; sourceTree = "<group>"; };
 		C7CCEC9A53CA36BF0E773D97985FC042 /* HelperFunctions.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HelperFunctions.swift; path = Sources/XCGLogger/Misc/HelperFunctions.swift; sourceTree = "<group>"; };
 		C80D5D60823924A11DEE89F8F2B30606 /* FirebaseCoreDiagnosticsInterop.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = FirebaseCoreDiagnosticsInterop.xcconfig; sourceTree = "<group>"; };
@@ -1976,6 +1978,7 @@
 				17DE6DA5E4B3FCA5F03BEB531370E4B5 /* LogLevel.swift */,
 				2814799A9D9194CCB48D4C699FA1D5E0 /* LogLevelPreset.swift */,
 				FB5797316B9CEDBB568D892182F3BC8A /* Redactable.swift */,
+				C6A69DA323E9FA7700C7643D /* AnalyticsEvent.swift */,
 			);
 			name = Helper;
 			path = SteamcLog/Classes/Helper;
@@ -2662,6 +2665,7 @@
 			files = (
 				B3C25F9B23D9109500432674 /* DictionaryEncoder.swift in Sources */,
 				7CBD0AD35C208DD5DF544F4EE2C75E1A /* Config.swift in Sources */,
+				C6A69DA423E9FA7700C7643D /* AnalyticsEvent.swift in Sources */,
 				DE26BC24ED319C692B8D73FD3A131929 /* CrashlyticsDestination.swift in Sources */,
 				7668FD974350C9979EFFFEDA7080464F /* LogLevel.swift in Sources */,
 				FA2E36EDDC6D892DCA8A5A504EE28CBE /* LogLevelPreset.swift in Sources */,

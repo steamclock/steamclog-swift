@@ -224,34 +224,29 @@ public struct SteamcLog {
 
     // MARK: Error Log Level
 
-    public func fatal(_ message: String) {
+    public func fatal(_ message: String) -> Never {
         xcgLogger.severe(message)
 
-        if config.logLevel == .release {
-            fatalError()
-        }
+        fatalError()
     }
 
-    public func fatal<T>(_ message: String, _ object: T) where T: Encodable {
+    public func fatal<T>(_ message: String, _ object: T) -> Never where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 fatal("\(message): Object redacted due to config.requireRedacted set to true")
-                return
             }
             fatal("\(message): \(redacted)")
-            return
         }
     
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             fatal(message)
-            return
         }
 
         fatal("\(message): \(jsonString)")
     }
 
-    public func fatal(_ message: String, _ redacted: Redacted) {
+    public func fatal(_ message: String, _ redacted: Redacted) -> Never {
         fatal("\(message): \(redacted)")
     }
 
