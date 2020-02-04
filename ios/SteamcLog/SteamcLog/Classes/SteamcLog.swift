@@ -84,6 +84,15 @@ public struct SteamcLog {
     }
 
     public func verbose<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                verbose("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            verbose("\(message): \(redacted)")
+            return
+        }
+        
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             verbose(message)
@@ -93,8 +102,8 @@ public struct SteamcLog {
         verbose("\(message): \(jsonString)")
     }
 
-    public func verbose(_ message: String, _ object: Redactable) {
-        verbose("\(message): \(object.secureToString())")
+    public func verbose(_ message: String, _ object: Redacted) {
+        verbose("\(message): \(object)")
     }
 
     // MARK: Debug Log Level
@@ -104,6 +113,15 @@ public struct SteamcLog {
     }
 
     public func debug<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                debug("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            debug("\(message): \(redacted)")
+            return
+        }
+        
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             debug(message)
@@ -113,8 +131,8 @@ public struct SteamcLog {
         debug("\(message): \(jsonString)")
     }
 
-    public func debug(_ message: String, _ object: Redactable) {
-        debug("\(message): \(object.secureToString())")
+    public func debug(_ message: String, _ object: Redacted) {
+        debug("\(message): \(object)")
     }
 
     // MARK: Info Log Level
@@ -124,6 +142,15 @@ public struct SteamcLog {
     }
 
     public func info<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                info("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            info("\(message): \(redacted)")
+            return
+        }
+        
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             info(message)
@@ -133,8 +160,8 @@ public struct SteamcLog {
         info("\(message): \(jsonString)")
     }
 
-    public func info(_ message: String, _ object: Redactable) {
-        info("\(message): \(object.secureToString())")
+    public func info(_ message: String, _ object: Redacted) {
+        info("\(message): \(object)")
     }
 
     // MARK: Warn Log Level
@@ -144,6 +171,15 @@ public struct SteamcLog {
     }
 
     public func warn<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                warn("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            warn("\(message): \(redacted)")
+            return
+        }
+        
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             warn(message)
@@ -153,8 +189,8 @@ public struct SteamcLog {
         warn("\(message): \(jsonString)")
     }
 
-    public func warn(_ message: String, _ object: Redactable) {
-        warn("\(message): \(object.secureToString())")
+    public func warn(_ message: String, _ object: Redacted) {
+        warn("\(message): \(object)")
     }
 
     // MARK: Nonfatal Log Level
@@ -164,6 +200,15 @@ public struct SteamcLog {
     }
 
     public func error<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                error("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            error("\(message): \(redacted)")
+            return
+        }
+        
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             error(message)
@@ -173,8 +218,8 @@ public struct SteamcLog {
         error("\(message): \(jsonString)")
     }
 
-    public func error(_ message: String, _ object: Redactable) {
-        error("\(message): \(object.secureToString())")
+    public func error(_ message: String, _ object: Redacted) {
+        error("\(message): \(object)")
     }
 
     // MARK: Error Log Level
@@ -188,6 +233,15 @@ public struct SteamcLog {
     }
 
     public func fatal<T>(_ message: String, _ object: T) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                fatal("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            fatal("\(message): \(redacted)")
+            return
+        }
+    
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
             fatal(message)
@@ -197,8 +251,8 @@ public struct SteamcLog {
         fatal("\(message): \(jsonString)")
     }
 
-    public func fatal(_ message: String, _ object: Redactable) {
-        fatal("\(message): \(object.secureToString())")
+    public func fatal(_ message: String, _ redacted: Redacted) {
+        fatal("\(message): \(redacted)")
     }
 
     // MARK: Analytics Tracking Helpers
@@ -211,11 +265,7 @@ public struct SteamcLog {
         }
     }
 
-    public func track<T: RawRepresentable>(id: T, redactable: Redactable) where T.RawValue == String {
-        track(id: id, data: ["value": redactable.secureToString()])
-    }
-
-    public func track<T: RawRepresentable, U>(id: T, encodable: U) where T.RawValue == String, U: Encodable {
+    public func track<T, U>(id: T, encodable: U) where T: AnalyticsEvent, U: Encodable {
         guard let data = try? DictionaryEncoder().encode(encodable) else {
             warn("Failed to encode \(encodable) to dictionary.")
             return
@@ -224,6 +274,10 @@ public struct SteamcLog {
     }
 
     // MARK: Other public helper functions
+    
+    public func logFileURL() -> URL {
+        return logFilePath
+    }
 
     public func getLogFileContents() -> String? {
         do {

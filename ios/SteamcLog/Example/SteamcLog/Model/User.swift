@@ -9,10 +9,8 @@
 import Foundation
 import SteamcLog
 
-struct User: Codable, Redactable {
-    var redactedProperties: [Any] {
-        return [uuid, email]
-    }
+struct User: Codable, Redacted {
+    static var safeProperties = Set<String>(["name", "email"])
 
     let name: String
     let uuid: UUID

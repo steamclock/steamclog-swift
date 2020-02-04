@@ -10,9 +10,9 @@ import SteamcLog
 import UIKit
 
 #if DEBUG
-var log = SteamcLog(Config(logLevel: .debug))
+var clog = SteamcLog(Config(logLevel: .debug))
 #else
-var log = SteamcLog(Config(logLevel: .develop))
+var clog = SteamcLog(Config(logLevel: .develop))
 #endif
 
 @UIApplicationMain

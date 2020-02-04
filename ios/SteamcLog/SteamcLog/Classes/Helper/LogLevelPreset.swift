@@ -8,47 +8,47 @@
 import Foundation
 
 public enum LogLevelPreset {
-    /// Disk: verbose, system: none, remote: none
-    case test
     /// Disk: verbose, system: verbose, remote: none
-    case debug
-    /// Disk: verbose, system: info, remote: none
+    case firehose
+    /// Disk: none, system: debug, remote: none
     case develop
+    /// Disk: verbose, system: none, remote: warn
+    case releaseAdvanced
     /// Disk: none, system: none, remote: warn
     case release
 
     var global: LogLevel {
         switch self {
-        case .test: return .verbose
-        case .debug: return .verbose
-        case .develop: return .verbose
+        case .firehose: return .info
+        case .develop: return .info
+        case .releaseAdvanced: return .info
         case .release: return .warn
         }
     }
 
     var crashlytics: LogLevel {
         switch self {
-        case .test: return .none
-        case .debug: return .none
+        case .firehose: return .none
         case .develop: return .none
+        case .releaseAdvanced: return .warn
         case .release: return .warn
         }
     }
 
     var file: LogLevel {
         switch self {
-        case .test: return .none
-        case .debug: return .verbose
-        case .develop: return .verbose
+        case .firehose: return .verbose
+        case .develop: return .none
+        case .releaseAdvanced: return .verbose
         case .release: return .none
         }
     }
 
     var system: LogLevel {
         switch self {
-        case .test: return .none
-        case .debug: return .verbose
-        case .develop: return .info
+        case .firehose: return .verbose
+        case .develop: return .debug
+        case .releaseAdvanced: return .none
         case .release: return .none
         }
     }

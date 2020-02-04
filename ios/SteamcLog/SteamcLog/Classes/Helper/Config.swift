@@ -15,8 +15,9 @@ public struct Config {
     var includeDefaultXCGDestinations = false
 
     var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
-
-    var crashlyticsAppKey = ""
+    
+    // Require that all logged objects conform to Redacted or are all redacted by default.
+    var requireRedacted = false
 
     public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog") {
         self.logLevel = logLevel

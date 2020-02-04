@@ -7,21 +7,33 @@
 
 import Foundation
 
-public protocol Redactable {
-    var redactedProperties: [Any] { get }
+public protocol Redacted: CustomDebugStringConvertible {
+    static var safeProperties: Set<String> { get }
+    var debugDescription: String { get }
 }
 
-extension Redactable {
-    func secureToString() -> String {
-        return redact(insecureString: String(describing: self))
-    }
-
-    private func redact(insecureString: String) -> String {
-        var returnString = insecureString
-        for property in redactedProperties {
-            returnString = returnString.replacingOccurrences(of: String(describing: property), with: "<redacted>")
+public extension Redacted {
+    var debugDescription: String {
+        var output = ""
+        
+        // trimmed and modified copy of standard debug print code from https://github.com/apple/swift/blob/master/stdlib/public/core/OutputStream.swift#L284
+        let mirror = Mirror(reflecting: self)
+        output += String(describing: type(of: self))
+        output += "("
+        var first = true
+        for (label, value) in mirror.children {
+          if let label = label {
+            if first {
+              first = false
+            } else {
+              output += ", "
+            }
+            output += label
+            output += ": "
+            output += Self.safeProperties.contains(label) ? "\"\(String(describing: value))\"" : "<redacted>"
+          }
         }
-
-        return returnString
+        output += ")"
+        return output
     }
 }
