@@ -1,0 +1,37 @@
+{
+  "name": "SteamcLog",
+  "version": "0.1.0",
+  "summary": "A short description of SteamcLog.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/steamclock/SteamcLog",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "brendan@steamclock.com": "brendan@steamclock.com"
+  },
+  "source": {
+    "git": "https://github.com/steamclog/SteamcLog.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "SteamcLog/Classes/**/*",
+  "static_framework": true,
+  "dependencies": {
+    "Fabric": [
+      "~> 1.10.2"
+    ],
+    "Crashlytics": [
+      "~> 3.14.0"
+    ],
+    "Firebase/Analytics": [
+
+    ],
+    "XCGLogger": [
+      "~> 7.0.0"
+    ]
+  }
+}

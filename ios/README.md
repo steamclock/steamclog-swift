@@ -1,3 +1,0 @@
-# SteamcLog iOS
-
-// TODO...
