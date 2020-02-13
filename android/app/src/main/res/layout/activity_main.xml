@@ -26,28 +26,55 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <Spinner
-            android:id="@+id/level_selector"
-            android:layout_width="fill_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawSelectorOnTop="true"
-            android:entries="@array/levels" />
+            android:orientation="horizontal"
+            android:gravity="center">
 
-        <Button
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/log_things"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="LOG THINGS"
-            android:layout_gravity="center"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:padding="10dp"
+                android:text="Log Level: " />
 
-        <Button
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:id="@+id/dump_file_button"
-            android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/level_selector"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="40dp"
+                android:drawSelectorOnTop="true"
+                android:entries="@array/levels" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SHOW FILE DUMP"
-            android:layout_gravity="center"/>
+            android:orientation="horizontal">
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/log_things"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="LOG THINGS"
+                android:layout_gravity="center"/>
+
+            <Button
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:id="@+id/dump_file_button"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="SHOW FILE DUMP"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/demo_text"

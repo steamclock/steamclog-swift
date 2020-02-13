@@ -13,4 +13,8 @@ sealed class DestinationLevels(var console: LogLevel, var file: LogLevel, var cr
     object Test: DestinationLevels(console = LogLevel.None, file = LogLevel.None, crashlytics = LogLevel.None)
     object Release: DestinationLevels(console = LogLevel.None, file = LogLevel.None, crashlytics = LogLevel.None)
     object Restrict3rdParty: DestinationLevels(console = LogLevel.None, file = LogLevel.None, crashlytics = LogLevel.None)
+
+    override fun toString(): String {
+        return "DestinationLevels(console=$console, file=$file, crashlytics=$crashlytics)"
+    }
 }
