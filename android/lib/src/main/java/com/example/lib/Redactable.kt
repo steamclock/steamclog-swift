@@ -14,7 +14,7 @@ fun <T : Any> T.getRedactedDescription(): String {
     // If a class does not implement Redactable, this boolean allows us to control if we default
     // show or redact the properties of those classes. This enables us to turn on app-wide redaction
     // for all classes.
-    val defaultShow = false
+    val redactedRequired = Steamclog.config.requireRedacted
 
     val clazz = this.javaClass.kotlin
     val clazzName = this.javaClass.simpleName
@@ -28,12 +28,16 @@ fun <T : Any> T.getRedactedDescription(): String {
             property.isAccessible = true
 
             // Don't recursively call getRedactedDescription on primatives/Strings
-            val isPrimative = property.javaField?.type?.let { type -> type.isPrimitive || type == String::class.java } ?: run { false }
+            val isPrimitive = property.javaField?.type?.let { type -> type.isPrimitive || type == String::class.java } ?: run { false }
 
-            val showValue = safeProperties?.contains(property.name) ?: defaultShow
+            // If class is not redactable, use redactedRequired bool to determine if we want to show/redact the value.
+            val showValue = safeProperties?.contains(property.name) ?: !redactedRequired
+
+            // If not dealing with a primitive object, then we may need to recurse down to get full description.
+            val recurseRequired = !isPrimitive && showValue
 
             when {
-                !isPrimative -> "${property.name}=${property.get(this)?.getRedactedDescription()}"
+                recurseRequired -> "${property.name}=${property.get(this)?.getRedactedDescription()}"
                 showValue -> "${property.name}=${property.get(this)}"
                 else -> "${property.name}=<redacted>"
             }
@@ -50,8 +54,8 @@ fun <T : Any> T.getRedactedDescription(): String {
 
 interface Redactable {
     // Opt-in "whitelist" of all property names that are considered "safe" to print.
-    val safeProperties: Set<String> // Abstract, must be set by implementing class
-    
+    val safeProperties: Set<String>
+
     // Commenting out for now, I think our Any() version here is better.
 //    fun getDebugDescription(): String {
 //        val clazz = this.javaClass.kotlin
