@@ -1,6 +1,5 @@
 package com.example.lib
 
-import android.util.Log
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
 
@@ -17,12 +16,10 @@ import timber.log.Timber
  *
  * - Track implementation
  * - get clarification on how we know when to send crash reports? Logging levels no longer captures this.
- * - look into Jake's redaction implementation.
  * - Android Encodable equivalent?
  * - add track for Firebase analytics
  * - jitpack hosting
  * - todo coroutines for getLogFile?
- * - create encodable / redactable interfaces ?
  * - is there a difference between IDE log, and system log? I don't think so, I think Android Studio
  * is parsing the system log with a given set of parsing rules based on how Log.T is formatting.
  *
@@ -62,38 +59,36 @@ object Steamclog {
     // To get around this for now we explicit versions of each <level> method below without optional
     // parameters.
     //---------------------------------------------
-    fun verbose(@NonNls message: String)            = log(LogLevel.Verbose, message)
-    fun verbose(@NonNls message: String, obj: Any)  = log(LogLevel.Verbose, message, obj)
+    fun verbose(@NonNls message: String)                = logTimber(LogLevel.Verbose, message)
+    fun verbose(@NonNls message: String, obj: Any)      = logTimber(LogLevel.Verbose, message, obj)
 
-    fun debug(@NonNls message: String)              = log(LogLevel.Debug, message)
-    fun debug(@NonNls message: String, obj: Any)    = log(LogLevel.Debug, message, obj)
+    fun debug(@NonNls message: String)                  = logTimber(LogLevel.Debug, message)
+    fun debug(@NonNls message: String, obj: Any)        = logTimber(LogLevel.Debug, message, obj)
 
-    fun info(@NonNls message: String)               = log(LogLevel.Info, message)
-    fun info(@NonNls message: String, obj: Any)     = log(LogLevel.Info, message, obj)
+    fun info(@NonNls message: String)                   = logTimber(LogLevel.Info, message)
+    fun info(@NonNls message: String, obj: Any)         = logTimber(LogLevel.Info, message, obj)
 
-    fun warn(@NonNls message: String)               = log(LogLevel.Warn, message)
-    fun warn(@NonNls message: String, obj: Any)     = log(LogLevel.Warn, message, obj)
+    fun warn(@NonNls message: String)                   = logTimber(LogLevel.Warn, message)
+    fun warn(@NonNls message: String, obj: Any)         = logTimber(LogLevel.Warn, message, obj)
 
-    fun error(@NonNls message: String)                                   = log(LogLevel.Error, message)
-    fun error(@NonNls message: String, obj: Any)                         = log(LogLevel.Error, message, obj)
-    //fun error(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Error, message, throwable)
-    fun error(@NonNls message: String, throwable: Throwable?, obj: Any?) = log(LogLevel.Error, message, throwable, obj)
+    fun error(@NonNls message: String)                  = logTimber(LogLevel.Error, message)
+    fun error(@NonNls message: String, obj: Any)        = logTimber(LogLevel.Error, message, obj)
+    fun error(@NonNls message: String, throwable: Throwable?, obj: Any?) = logTimber(LogLevel.Error, message, throwable, obj)
 
-    fun fatal(@NonNls message: String)                                   = log(LogLevel.Fatal, message)
-    fun fatal(@NonNls message: String, obj: Any)                         = log(LogLevel.Fatal, message, obj)
-    //fun fatal(@NonNls message: String, throwable: Throwable?)            = log(LogLevel.Fatal, message, throwable)
-    fun fatal(@NonNls message: String, throwable: Throwable?, obj: Any?) = log(LogLevel.Fatal, message, throwable, obj)
-
-    // todo Currently obj will be logged via toString. If we want to convert to a json object, we
-    // will need to determine what json parser (gson/moshi) to use, or expose an interface that the
-    // app can provide to do an object to string conversion.
-    //fun <T>verbose(@NonNls message: String, obj: T?) = Timber.v(addObjToMessage(message, obj))
+    fun fatal(@NonNls message: String)                  = logTimber(LogLevel.Fatal, message)
+    fun fatal(@NonNls message: String, obj: Any)        = logTimber(LogLevel.Fatal, message, obj)
+    fun fatal(@NonNls message: String, throwable: Throwable?, obj: Any?) = logTimber(LogLevel.Fatal, message, throwable, obj)
 
     // Mapping onto the corresponding Timber calls.
-    private fun log(logLevel: LogLevel, @NonNls message: String) = Timber.log(logLevel.javaLevel, message)
-    private fun log(logLevel: LogLevel, @NonNls message: String, obj: Any?) = Timber.log(logLevel.javaLevel, addObjToMessage(message, obj))
-    private fun log(logLevel: LogLevel, @NonNls message: String, throwable: Throwable?) = Timber.log(logLevel.javaLevel, throwable, message)
-    private fun log(logLevel: LogLevel, @NonNls message: String, throwable: Throwable?, obj: Any?) = Timber.log(logLevel.javaLevel, throwable, addObjToMessage(message, obj))
+    private fun logTimber(logLevel: LogLevel, @NonNls message: String) = Timber.log(logLevel.javaLevel, message)
+    private fun logTimber(logLevel: LogLevel, @NonNls message: String, throwable: Throwable?, obj: Any?) = Timber.log(logLevel.javaLevel, throwable, addObjToMessage(message, obj))
+    private fun logTimber(logLevel: LogLevel, @NonNls message: String, obj: Any?) {
+        if (obj is Throwable) {
+            Timber.log(logLevel.javaLevel, obj, message)
+        } else {
+            Timber.log(logLevel.javaLevel, addObjToMessage(message, obj))
+        }
+    }
 
     //---------------------------------------------
     // Public util methods
@@ -117,7 +112,7 @@ object Steamclog {
         return if (obj == null) {
             message
         } else {
-            "$message : $obj"
+            "$message : ${obj.getRedactedDescription()}"
         }
     }
 
@@ -134,5 +129,9 @@ object Steamclog {
         } catch(e: Exception) {
             // Tree may not be planted, catch exception.
         }
+    }
+
+    override fun toString(): String {
+        return config.toString()
     }
 }
