@@ -11,20 +11,6 @@ import timber.log.Timber
  * A wrapper around the Timber logging library, giving us more control over what is logged and when.
  */
 
-/**
- * TODOs
- *
- * - Track implementation
- * - get clarification on how we know when to send crash reports? Logging levels no longer captures this.
- * - Android Encodable equivalent?
- * - add track for Firebase analytics
- * - jitpack hosting
- * - todo coroutines for getLogFile?
- * - is there a difference between IDE log, and system log? I don't think so, I think Android Studio
- * is parsing the system log with a given set of parsing rules based on how Log.T is formatting.
- *
- */
-
 typealias clog = Steamclog
 object Steamclog {
 
