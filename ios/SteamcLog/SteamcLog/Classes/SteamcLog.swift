@@ -37,11 +37,9 @@ public struct SteamcLog {
         )
 
         // Set up default destinations
-        if config.logLevel == .release {
-            crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
-            setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
-            Fabric.with([Crashlytics.self])
-        }
+        crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
+        setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
+        Fabric.with([Crashlytics.self])
 
         fileDestination = FileLogDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true)
         setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.file)
