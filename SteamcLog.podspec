@@ -34,5 +34,5 @@ TODO: Add long description of the pod here.
   s.dependency 'Fabric', '~> 1.10.2'
   s.dependency 'Crashlytics', '~> 3.14.0'
   s.dependency 'Firebase/Analytics'
-  s.dependency 'XCGLogger', '~> 7.0.0'
+  s.dependency 'XCGLogger', '~> 7.0.1'
 end
