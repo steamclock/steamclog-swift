@@ -26,11 +26,9 @@ TODO: Add long description of the pod here.
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'brendan@steamclock.com' => 'brendan@steamclock.com' }
   s.source           = { :git => 'https://github.com/steamclog/SteamcLog.git', :tag => s.version.to_s }
+  s.source_files     = 'ios/SteamcLog/Classes/**/*'
   # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
-
   s.ios.deployment_target = '8.0'
-
-  s.source_files = 'SteamcLog/Classes/**/*'
   
   s.static_framework = true
   s.dependency 'Fabric', '~> 1.10.2'
