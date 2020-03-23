@@ -275,11 +275,11 @@ public struct SteamcLog {
     // MARK: Analytics Tracking Helpers
 
     public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T.RawValue == String {
-        if config.logLevel == .release {
-            Analytics.logEvent(id.rawValue, parameters: data)
-        } else {
+        guard config.logLevel.analyticsEnabled else {
             info("Skipped logging analytics event: \(id) ...", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
         }
+        Analytics.logEvent(id.rawValue, parameters: data)
     }
 
     public func track<T, U>(id: T, encodable: U, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: AnalyticsEvent, U: Encodable {
