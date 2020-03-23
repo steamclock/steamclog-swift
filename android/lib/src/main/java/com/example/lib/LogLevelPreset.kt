@@ -6,7 +6,7 @@ package com.example.lib
  * Created by shayla on 2020-01-23
  */
 sealed class LogLevelPreset {
-    data class Custom(val globalLevel: LogLevel, val consoleLevel: LogLevel, val fileLevel: LogLevel, val crashlyticsLevel: LogLevel): LogLevelPreset()
+    data class Custom(val globalLevel: LogLevel, val consoleLevel: LogLevel, val fileLevel: LogLevel, val crashlyticsLevel: LogLevel, val isAnalyticsEnabled: Boolean): LogLevelPreset()
 
     /// Disk: verbose, system: verbose, remote: none
     object Firehose: LogLevelPreset()
@@ -56,6 +56,15 @@ sealed class LogLevelPreset {
             is Custom -> this.consoleLevel
         }
 
+    val analyticsEnabled: Boolean
+        get() = when(this) {
+            is Firehose -> false
+            is Develop -> false
+            is ReleaseAdvanced -> true
+            is Release -> true
+            is Custom -> this.isAnalyticsEnabled
+        }
+
     override fun toString(): String {
         return "DestinationLevels(global=$global, console=$console, file=$file, crashlytics=$crashlytics)"
     }
@@ -63,15 +72,17 @@ sealed class LogLevelPreset {
     companion object {
         // allows us to create a custom level with single changes
         fun customUsingBase(base: LogLevelPreset,
-                   globalLevel: LogLevel? = null,
-                   consoleLevel: LogLevel? = null,
-                   fileLevel: LogLevel? = null,
-                   crashlyticsLevel: LogLevel? = null): LogLevelPreset {
+                            globalLevel: LogLevel? = null,
+                            consoleLevel: LogLevel? = null,
+                            fileLevel: LogLevel? = null,
+                            crashlyticsLevel: LogLevel? = null,
+                            analyticsEnabled: Boolean? = null): LogLevelPreset {
             return LogLevelPreset.Custom(
                 globalLevel = globalLevel ?: base.global,
                 consoleLevel = consoleLevel ?: base.console,
                 fileLevel =  fileLevel ?: base.file,
-                crashlyticsLevel = crashlyticsLevel ?: base.crashlytics)
+                crashlyticsLevel = crashlyticsLevel ?: base.crashlytics,
+                isAnalyticsEnabled = analyticsEnabled ?: base.analyticsEnabled)
         }
     }
 }
