@@ -27,7 +27,7 @@ import java.util.*
 class CrashlyticsDestination : Timber.Tree() {
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.logLevel.crashlytics, priority)
+        return isLoggable(SteamcLog.config.logLevel.crashlytics, priority)
     }
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
@@ -45,7 +45,7 @@ class CrashlyticsDestination : Timber.Tree() {
 class ConsoleDestination: Timber.DebugTree() {
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.logLevel.console, priority)
+        return isLoggable(SteamcLog.config.logLevel.console, priority)
     }
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
@@ -66,7 +66,7 @@ class ExternalLogFileDestination : Timber.DebugTree() {
     private var fileExt = "txt"
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.logLevel.file, priority)
+        return isLoggable(SteamcLog.config.logLevel.file, priority)
     }
 
     //---------------------------------------------
@@ -111,20 +111,20 @@ class ExternalLogFileDestination : Timber.DebugTree() {
                 }
             }
         } catch (e: Exception) {
-            Log.e(Steamclog.config.identifier, "HTMLFileTree failed to write into file: $e")
+            Log.e(SteamcLog.config.identifier, "HTMLFileTree failed to write into file: $e")
         }
     }
 
     private fun getExternalFile(): File? {
         val date = SimpleDateFormat(fileNameTimestamp, Locale.US).format(Date())
         val filename = "${fileNamePrefix}_${date}.${fileExt}"
-        val outputFilePath = Steamclog.config.fileWritePath
+        val outputFilePath = SteamcLog.config.fileWritePath
 
         return try {
             File(outputFilePath, filename)
         } catch (e: Exception) {
             // Do not call Timber here, or will will infinitely loop
-            Log.e(Steamclog.config.identifier,"HTMLFileTree failed to getExternalFile: $e")
+            Log.e(SteamcLog.config.identifier,"HTMLFileTree failed to getExternalFile: $e")
             null
         }
     }
@@ -142,9 +142,9 @@ class ExternalLogFileDestination : Timber.DebugTree() {
 //    }
 
     fun removeOldLogFiles() {
-        val outputFilePath = Steamclog.config.fileWritePath
+        val outputFilePath = SteamcLog.config.fileWritePath
         val deleteThese = ArrayList<File>()
-        val expiryMs = Steamclog.config.keepLogsForDays * 86400000 // (86400000 ms per day)
+        val expiryMs = SteamcLog.config.keepLogsForDays * 86400000 // (86400000 ms per day)
 
         outputFilePath?.listFiles()?.forEach { file ->
             val now = Date().time
@@ -152,24 +152,24 @@ class ExternalLogFileDestination : Timber.DebugTree() {
         }
 
         deleteThese.forEach { file ->
-            Log.d(Steamclog.config.identifier, "Deleting file ${file.name}")
+            Log.d(SteamcLog.config.identifier, "Deleting file ${file.name}")
             file.delete()
         }
     }
 
     fun getLogFileContents(): String? {
         removeOldLogFiles()
-        val outputFilePath = Steamclog.config.fileWritePath
+        val outputFilePath = SteamcLog.config.fileWritePath
         val logBuilder = StringBuilder()
         outputFilePath?.listFiles()?.forEach { file ->
             try {
-                Log.d(Steamclog.config.identifier, "Reading file ${file.name}")
+                Log.d(SteamcLog.config.identifier, "Reading file ${file.name}")
                 // This method is not recommended on huge files. It has an internal limitation of 2 GB file size.
                 // todo, if we end up with super large logs we will have to read differently.
                 logBuilder.append(file.readText() )
             } catch (e: Exception) {
                 // Do not call Timber here, or will will infinitely loop
-                Log.e(Steamclog.config.identifier,"getLogFileContents failed to read file: $e")
+                Log.e(SteamcLog.config.identifier,"getLogFileContents failed to read file: $e")
             }
         }
 

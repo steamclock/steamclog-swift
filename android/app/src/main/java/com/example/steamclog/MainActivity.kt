@@ -47,32 +47,32 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (newLevel == null) {
-                    Steamclog.config.logLevel = LogLevelPreset.Develop
+                    SteamcLog.config.logLevel = LogLevelPreset.Develop
                 } else {
                     // For now just set the file level so we can easily see the impact our change makes.
-                    Steamclog.config.logLevel = LogLevelPreset.customUsingBase(Steamclog.config.logLevel, fileLevel = newLevel)
+                    SteamcLog.config.logLevel = LogLevelPreset.customUsingBase(SteamcLog.config.logLevel, fileLevel = newLevel)
                 }
             }
         }
     }
 
     private fun testAllLoggingLevels() {
-        Steamclog.verbose("Verbose message")
-        Steamclog.verbose("Verbose message", RedactableParent())
+        SteamcLog.verbose("Verbose message")
+        SteamcLog.verbose("Verbose message", RedactableParent())
 
-        Steamclog.debug("Debug message")
-        Steamclog.debug("Debug message", RedactableParent())
+        SteamcLog.debug("Debug message")
+        SteamcLog.debug("Debug message", RedactableParent())
 
-        Steamclog.info("Info message")
-        Steamclog.info("Info message", RedactableParent())
+        SteamcLog.info("Info message")
+        SteamcLog.info("Info message", RedactableParent())
 
-        Steamclog.warn("Warn message")
-        Steamclog.warn("Warn message", RedactableParent())
+        SteamcLog.warn("Warn message")
+        SteamcLog.warn("Warn message", RedactableParent())
 
-        Steamclog.error("Error message")
-        Steamclog.error("Error message", RedactableParent())
-        Steamclog.error("Error message", Throwable("OriginalNonFatalThrowable"))
-        Steamclog.error("Error message", Throwable("OriginalNonFatalThrowable"), RedactableParent())
+        SteamcLog.error("Error message")
+        SteamcLog.error("Error message", RedactableParent())
+        SteamcLog.error("Error message", Throwable("OriginalNonFatalThrowable"))
+        SteamcLog.error("Error message", Throwable("OriginalNonFatalThrowable"), RedactableParent())
 
         // These will crash app
 //            Steamclog.fatal("Fatal message")
@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun testLogDump() {
-        Steamclog.getLogFileContents()?.let { demo_text.text = it }
+        SteamcLog.getLogFileContents()?.let { demo_text.text = it }
     }
 
 

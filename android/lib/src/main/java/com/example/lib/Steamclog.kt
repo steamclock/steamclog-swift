@@ -11,8 +11,8 @@ import timber.log.Timber
  * A wrapper around the Timber logging library, giving us more control over what is logged and when.
  */
 
-typealias clog = Steamclog
-object Steamclog {
+typealias clog = SteamcLog
+object SteamcLog {
 
     //---------------------------------------------
     // Privates
