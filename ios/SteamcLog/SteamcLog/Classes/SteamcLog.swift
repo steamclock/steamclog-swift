@@ -79,193 +79,217 @@ public struct SteamcLog {
 
     // MARK: All Log Level
 
-    public func verbose(_ message: String) {
-        xcgLogger.verbose(message)
+    private func internalVerbose(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+        xcgLogger.verbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func verbose<T>(_ message: String, _ object: T) where T: Encodable {
+    public func verbose(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalVerbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+    public func verbose<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                verbose("\(message): Object redacted due to config.requireRedacted set to true")
+                verbose("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
-            verbose("\(message): \(redacted)")
+            verbose("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
         
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            verbose(message)
+            verbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
 
-        verbose("\(message): \(jsonString)")
+        verbose("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func verbose(_ message: String, _ object: Redacted) {
-        verbose("\(message): \(object)")
+    public func verbose(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        verbose("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Debug Log Level
 
-    public func debug(_ message: String) {
-        xcgLogger.debug(message)
+    private func internalDebug(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+        xcgLogger.debug(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func debug<T>(_ message: String, _ object: T) where T: Encodable {
+    public func debug(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalDebug(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
+    }
+
+    public func debug<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                debug("\(message): Object redacted due to config.requireRedacted set to true")
+                debug("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
                 return
             }
-            debug("\(message): \(redacted)")
+            debug("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
         
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            debug(message)
+            debug(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
 
-        debug("\(message): \(jsonString)")
+        debug("\(message): \(jsonString)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func debug(_ message: String, _ object: Redacted) {
-        debug("\(message): \(object)")
+    public func debug(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        debug("\(message): \(object)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
     // MARK: Info Log Level
 
-    public func info(_ message: String) {
-        xcgLogger.info(message)
+    private func internalInfo(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+        xcgLogger.info(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func info<T>(_ message: String, _ object: T) where T: Encodable {
+    public func info(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalInfo(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
+    }
+
+    public func info<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                info("\(message): Object redacted due to config.requireRedacted set to true")
+                info("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
                 return
             }
-            info("\(message): \(redacted)")
+            info("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
         
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            info(message)
+            info(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
 
-        info("\(message): \(jsonString)")
+        info("\(message): \(jsonString)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func info(_ message: String, _ object: Redacted) {
-        info("\(message): \(object)")
+    public func info(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        info("\(message): \(object)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
     // MARK: Warn Log Level
 
-    public func warn(_ message: String) {
-        xcgLogger.warning(message)
+    private func internalWarn(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+        xcgLogger.warning(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func warn<T>(_ message: String, _ object: T) where T: Encodable {
+    public func warn(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalWarn(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
+    }
+
+    public func warn<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                warn("\(message): Object redacted due to config.requireRedacted set to true")
+                warn("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
                 return
             }
-            warn("\(message): \(redacted)")
+            warn("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
         
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            warn(message)
+            warn(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
 
-        warn("\(message): \(jsonString)")
+        warn("\(message): \(jsonString)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func warn(_ message: String, _ object: Redacted) {
-        warn("\(message): \(object)")
+    public func warn(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        warn("\(message): \(object)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
     // MARK: Nonfatal Log Level
 
-    public func error(_ message: String) {
-        xcgLogger.error(message)
+    private func internalError(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+        xcgLogger.error(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func error<T>(_ message: String, _ object: T) where T: Encodable {
+    public func error(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalError(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
+    }
+
+    public func error<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 error("\(message): Object redacted due to config.requireRedacted set to true")
                 return
             }
-            error("\(message): \(redacted)")
+            error("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
         
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            error(message)
+            error(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             return
         }
 
-        error("\(message): \(jsonString)")
+        error("\(message): \(jsonString)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func error(_ message: String, _ object: Redacted) {
-        error("\(message): \(object)")
+    public func error(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        error("\(message): \(object)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
     // MARK: Error Log Level
 
-    public func fatal(_ message: String) -> Never {
-        xcgLogger.severe(message)
+    private func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
+        xcgLogger.severe(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
 
         fatalError()
     }
 
-    public func fatal<T>(_ message: String, _ object: T) -> Never where T: Encodable {
+    public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+        internalFatal(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
+    }
+
+    public func fatal<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                fatal("\(message): Object redacted due to config.requireRedacted set to true")
+                fatal("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
             }
-            fatal("\(message): \(redacted)")
+            fatal("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
         }
     
         guard let jsonData = try? encoder.encode(object),
                 let jsonString = String(data: jsonData, encoding: .utf8) else {
-            fatal(message)
+            fatal(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
         }
 
-        fatal("\(message): \(jsonString)")
+        fatal("\(message): \(jsonString)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
-    public func fatal(_ message: String, _ redacted: Redacted) -> Never {
-        fatal("\(message): \(redacted)")
+    public func fatal(_ message: String, _ redacted: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+        fatal("\(message): \(redacted)", functionName: functionName, fileName: functionName, lineNumber: lineNumber)
     }
 
     // MARK: Analytics Tracking Helpers
 
-    public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil) where T.RawValue == String {
+    public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T.RawValue == String {
         if config.logLevel == .release {
             Analytics.logEvent(id.rawValue, parameters: data)
         } else {
-            info("Skipped logging analytics event: \(id) ...")
+            info("Skipped logging analytics event: \(id) ...", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
     }
 
-    public func track<T, U>(id: T, encodable: U) where T: AnalyticsEvent, U: Encodable {
+    public func track<T, U>(id: T, encodable: U, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: AnalyticsEvent, U: Encodable {
         guard let data = try? DictionaryEncoder().encode(encodable) else {
             warn("Failed to encode \(encodable) to dictionary.")
             return
         }
-        track(id: id, data: data)
+        track(id: id, data: data, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Other public helper functions
@@ -274,12 +298,12 @@ public struct SteamcLog {
         return logFilePath
     }
 
-    public func getLogFileContents() -> String? {
+    public func getLogFileContents(functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> String? {
         do {
             let fileData = try Data(contentsOf: logFilePath)
             return String(data: fileData, encoding: .utf8)
         } catch {
-            warn("Failed to retrieve log file data: \(error)")
+            warn("Failed to retrieve log file data: \(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
         return nil
     }
