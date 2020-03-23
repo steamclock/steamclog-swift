@@ -1,7 +1,12 @@
 package com.example.lib
 
+import android.content.Context
+import android.os.Bundle
+import android.os.Parcelable
+import com.google.firebase.analytics.FirebaseAnalytics
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
+import java.io.Serializable
 
 /**
  * Steamclog
@@ -20,6 +25,7 @@ object SteamcLog {
     private var crashlyticsTree = CrashlyticsDestination()
     private var customDebugTree = ConsoleDestination()
     private var externalLogFileTree = ExternalLogFileDestination()
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     //---------------------------------------------
     // Public properties
@@ -32,6 +38,10 @@ object SteamcLog {
         updateTree(customDebugTree, true)
         updateTree(crashlyticsTree, true)
         updateTree(externalLogFileTree, true)
+    }
+
+    fun initializeAnalytics(appContext: Context) {
+        firebaseAnalytics = FirebaseAnalytics.getInstance(appContext)
     }
 
     //---------------------------------------------
@@ -74,6 +84,44 @@ object SteamcLog {
         } else {
             Timber.log(logLevel.javaLevel, addObjToMessage(message, obj))
         }
+    }
+
+
+    fun track(@NonNls id: String, bundle: Bundle? = null) {
+        if (!::firebaseAnalytics.isInitialized) {
+            error("Analytics not initialized, please call SteamcLog.initializeAnalytics(appContext)")
+            return
+        }
+        if (!config.logLevel.analyticsEnabled) {
+            info("Skipped logging analytics event: $id ...")
+            return
+        }
+        firebaseAnalytics.logEvent(id, bundle)
+    }
+
+    private fun track(@NonNls id: String, obj: Any) {
+        if (obj !is Parcelable && obj !is Serializable) {
+            warn("Failed to encode $obj to bundle, must be either parcelable or serializable")
+            return
+        }
+
+        val bundle = Bundle()
+        if (obj is Serializable) {
+            bundle.putSerializable("Serializable", obj)
+        } else if (obj is Parcelable) {
+            bundle.putParcelable("Parcelable", obj)
+        }
+        track(id, bundle = bundle)
+    }
+
+    // convenience method for tracking parcelable data
+    fun track(@NonNls id: String, parcelable: Parcelable) {
+        track(id, obj = parcelable)
+    }
+
+    // convenience method for tracking serializable data
+    fun track(@NonNls id: String, serializable: Serializable) {
+        track(id, obj = serializable)
     }
 
     //---------------------------------------------
