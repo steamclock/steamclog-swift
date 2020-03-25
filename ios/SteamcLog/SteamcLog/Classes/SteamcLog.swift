@@ -245,12 +245,7 @@ public struct SteamcLog {
     private func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
         xcgLogger.severe(message, functionName: functionName, fileName: functionName, lineNumber: lineNumber)
 
-        // forcing a crash, so we get a stacktrace
-        let selector = NSSelectorFromString(message)
-        NSObject().perform(selector)
-
-        // This should never happen - convinces Swift compiler that this is a @noreturn
-        abort()
+        fatalError("\(functionName): \(message)", file: fileName, line: UInt(lineNumber))
     }
 
     public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
