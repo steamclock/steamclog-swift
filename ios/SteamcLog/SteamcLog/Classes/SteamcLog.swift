@@ -22,7 +22,7 @@ public struct SteamcLog {
     }
 
     private var xcgLogger: XCGLogger!
-    private let encoder = JSONEncoder()
+    @usableFromInline internal let encoder = JSONEncoder()
 
     private var crashlyticsDestination: CrashlyticsDestination!
     private var fileDestination: FileDestination!
@@ -242,7 +242,8 @@ public struct SteamcLog {
 
     // MARK: Error Log Level
 
-    private func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
+    @usableFromInline
+    internal func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
         xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
 
         // forcing a crash, so we get a stacktrace
@@ -254,10 +255,12 @@ public struct SteamcLog {
         abort()
     }
 
+    @_transparent
     public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
         internalFatal(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    @_transparent
     public func fatal<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
@@ -274,10 +277,11 @@ public struct SteamcLog {
         fatal("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    @_transparent
     public func fatal(_ message: String, _ redacted: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
         fatal("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
-    
+
     // MARK: Analytics Tracking Helpers
 
     public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T.RawValue == String {

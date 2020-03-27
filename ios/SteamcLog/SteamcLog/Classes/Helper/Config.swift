@@ -17,7 +17,7 @@ public struct Config {
     var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
     
     // Require that all logged objects conform to Redacted or are all redacted by default.
-    var requireRedacted = false
+    @usableFromInline internal var requireRedacted = false
 
     public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog") {
         self.logLevel = logLevel
