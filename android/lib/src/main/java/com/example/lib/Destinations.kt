@@ -24,7 +24,7 @@ import java.util.*
 /**
  * CrashlyticsDestination
  */
-class CrashlyticsDestination : Timber.Tree() {
+internal class CrashlyticsDestination : Timber.Tree() {
 
     override fun isLoggable(priority: Int): Boolean {
         return isLoggable(SteamcLog.config.logLevel.crashlytics, priority)
@@ -42,7 +42,7 @@ class CrashlyticsDestination : Timber.Tree() {
  * ConsoleDestination
  * DebugTree gives us access to override createStackElementTag
  */
-class ConsoleDestination: Timber.DebugTree() {
+internal class ConsoleDestination: Timber.DebugTree() {
 
     override fun isLoggable(priority: Int): Boolean {
         return isLoggable(SteamcLog.config.logLevel.console, priority)
@@ -59,7 +59,7 @@ class ConsoleDestination: Timber.DebugTree() {
  * ExternalLogFileDestination
  * DebugTree gives us access to override createStackElementTag
  */
-class ExternalLogFileDestination : Timber.DebugTree() {
+internal class ExternalLogFileDestination : Timber.DebugTree() {
     private var fileNamePrefix: String = "SteamLogger"
     private var fileNameTimestamp = "yyyy_MM_dd"
     private var logTimestampFormat = "yyyy-MM-dd'.'HH:mm:ss.SSS"
@@ -157,7 +157,7 @@ class ExternalLogFileDestination : Timber.DebugTree() {
         }
     }
 
-    fun getLogFileContents(): String? {
+    internal fun getLogFileContents(): String? {
         removeOldLogFiles()
         val outputFilePath = SteamcLog.config.fileWritePath
         val logBuilder = StringBuilder()
@@ -176,7 +176,7 @@ class ExternalLogFileDestination : Timber.DebugTree() {
         return logBuilder.toString()
     }
 
-    fun deleteLogFile() {
+    internal fun deleteLogFile() {
         getExternalFile()?.delete()
     }
 }
@@ -188,7 +188,7 @@ class ExternalLogFileDestination : Timber.DebugTree() {
  * Determines if the log (at given android.util.Log priority) should be logged given the
  * current tree logging level.
  */
-fun Timber.Tree.isLoggable(treeLevel: LogLevel, logPriority: Int): Boolean {
+internal fun Timber.Tree.isLoggable(treeLevel: LogLevel, logPriority: Int): Boolean {
     return (treeLevel != LogLevel.None) && (logPriority >= treeLevel.javaLevel)
 }
 

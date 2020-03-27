@@ -8,13 +8,13 @@
 import Foundation
 
 public enum LogLevelPreset {
-    /// Disk: verbose, system: verbose, remote: none
+    /// Disk: verbose, system: verbose, remote: none, analytics: disabled
     case firehose
-    /// Disk: none, system: debug, remote: none
+    /// Disk: none, system: debug, remote: none, analytics: disabled
     case develop
-    /// Disk: verbose, system: none, remote: warn
+    /// Disk: verbose, system: none, remote: warn, analytics: enabled
     case releaseAdvanced
-    /// Disk: none, system: none, remote: warn
+    /// Disk: none, system: none, remote: warn, analytics: enabled
     case release
 
     var global: LogLevel {
@@ -50,6 +50,15 @@ public enum LogLevelPreset {
         case .develop: return .debug
         case .releaseAdvanced: return .none
         case .release: return .none
+        }
+    }
+
+    var analyticsEnabled: Bool {
+        switch self {
+        case .firehose: return false
+        case .develop: return false
+        case .releaseAdvanced: return true
+        case .release: return true
         }
     }
 }
