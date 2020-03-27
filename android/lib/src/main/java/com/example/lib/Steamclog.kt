@@ -1,5 +1,10 @@
 package com.example.lib
 
+import android.app.Application
+import android.content.Context
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
+import io.fabric.sdk.android.Fabric
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
 
@@ -21,15 +26,21 @@ object Steamclog {
     private var customDebugTree: ConsoleDestination
     private var externalLogFileTree: ExternalLogFileDestination
 
+    private var fabricInitialized: Boolean = false
+    private var appContext: Context? = null
+
     //---------------------------------------------
     // Public properties
     //---------------------------------------------
-    var config: Config
+    var config: Config = Config()
+        set(value) {
+            field = value
+            // attempt to initialize fabric
+            appContext?.let { initialize(it) }
+        }
 
     init {
         // initializing in order
-        config = Config()
-
         crashlyticsTree = CrashlyticsDestination()
         customDebugTree = ConsoleDestination()
         externalLogFileTree = ExternalLogFileDestination()
@@ -39,6 +50,20 @@ object Steamclog {
         updateTree(customDebugTree, true)
         updateTree(crashlyticsTree, true)
         updateTree(externalLogFileTree, true)
+    }
+
+    fun initialize(appContext: Context) {
+        if (fabricInitialized) {
+            return
+        }
+        if (config.logLevel.crashlytics == LogLevel.None) {
+            warn("Fabric not initialized for log level ${config.logLevel}")
+            return
+        }
+        this.appContext = appContext
+        val builder = Crashlytics.Builder()
+        Fabric.with(appContext, builder.build())
+        fabricInitialized = true
     }
 
     //---------------------------------------------
