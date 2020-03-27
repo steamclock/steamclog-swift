@@ -3,10 +3,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
+
     defaultConfig {
         applicationId "com.example.steamclog"
         minSdkVersion 21
@@ -33,6 +36,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta02'
 
     implementation project(':lib')
 }
