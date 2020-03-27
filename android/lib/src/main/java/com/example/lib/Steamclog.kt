@@ -86,8 +86,7 @@ object SteamcLog {
         }
     }
 
-
-    fun track(@NonNls id: String, bundle: Bundle? = null) {
+    fun track(@NonNls id: String, data: Map<String, Any?>) {
         if (!::firebaseAnalytics.isInitialized) {
             error("Analytics not initialized, please call SteamcLog.initializeAnalytics(appContext)")
             return
@@ -96,32 +95,21 @@ object SteamcLog {
             info("Skipped logging analytics event: $id ...")
             return
         }
-        firebaseAnalytics.logEvent(id, bundle)
-    }
-
-    private fun track(@NonNls id: String, obj: Any) {
-        if (obj !is Parcelable && obj !is Serializable) {
-            warn("Failed to encode $obj to bundle, must be either parcelable or serializable")
-            return
-        }
 
         val bundle = Bundle()
-        if (obj is Serializable) {
-            bundle.putSerializable("Serializable", obj)
-        } else if (obj is Parcelable) {
-            bundle.putParcelable("Parcelable", obj)
+        data.forEach { (key, value) ->
+            if (value !is Parcelable && value !is Serializable) {
+                warn("Failed to encode $value to bundle, must be either parcelable or serializable")
+                return
+            }
+
+            if (value is Serializable) {
+                bundle.putSerializable(key, value)
+            } else if (value is Parcelable) {
+                bundle.putParcelable(key, value)
+            }
         }
-        track(id, bundle = bundle)
-    }
-
-    // convenience method for tracking parcelable data
-    fun track(@NonNls id: String, parcelable: Parcelable) {
-        track(id, obj = parcelable)
-    }
-
-    // convenience method for tracking serializable data
-    fun track(@NonNls id: String, serializable: Serializable) {
-        track(id, obj = serializable)
+        firebaseAnalytics.logEvent(id, bundle)
     }
 
     //---------------------------------------------
