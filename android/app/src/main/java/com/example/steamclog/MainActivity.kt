@@ -1,17 +1,13 @@
 package com.example.steamclog
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lib.*
 
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.Exception
-import java.util.logging.Level
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,7 +18,8 @@ class MainActivity : AppCompatActivity() {
         title = "SteamClog Test"
 
         // clog setup
-        clog.config.destinationLevels.crashlytics = LogLevel.None
+        clog.config = Config(logLevel = LogLevelPreset.Develop)
+        clog.config.logLevel = LogLevelPreset.customUsingBase(clog.config.logLevel, crashlyticsLevel = LogLevel.None)
         clog.config.fileWritePath = externalCacheDir
         clog.deleteLogFile() // Reset for test
 
@@ -50,10 +47,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (newLevel == null) {
-                    Steamclog.config.destinationLevels = DestinationLevels.Debug
+                    Steamclog.config.logLevel = LogLevelPreset.Develop
                 } else {
                     // For now just set the file level so we can easily see the impact our change makes.
-                    Steamclog.config.destinationLevels.file = newLevel
+                    Steamclog.config.logLevel = LogLevelPreset.customUsingBase(Steamclog.config.logLevel, fileLevel = newLevel)
                 }
             }
         }

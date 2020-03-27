@@ -17,7 +17,7 @@ data class Config(
     /**
      * Destination logging levels
      */
-    var destinationLevels: DestinationLevels = DestinationLevels.Debug,
+    var logLevel: LogLevelPreset = LogLevelPreset.Develop,
 
     /**
      * todo: Not sure if we want to do Crashlytics setup here?
@@ -40,5 +40,4 @@ data class Config(
      * Indicates if objects being logged must implement the redacted interface.
      */
     var requireRedacted: Boolean = false
-
 )

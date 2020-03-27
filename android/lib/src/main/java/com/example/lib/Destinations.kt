@@ -27,7 +27,7 @@ import java.util.*
 internal class CrashlyticsDestination : Timber.Tree() {
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.destinationLevels.crashlytics, priority)
+        return isLoggable(Steamclog.config.logLevel.crashlytics, priority)
     }
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
@@ -45,7 +45,7 @@ internal class CrashlyticsDestination : Timber.Tree() {
 internal class ConsoleDestination: Timber.DebugTree() {
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.destinationLevels.console, priority)
+        return isLoggable(Steamclog.config.logLevel.console, priority)
     }
 
     override fun log(priority: Int, tag: String?, message: String, throwable: Throwable?) {
@@ -66,7 +66,7 @@ internal class ExternalLogFileDestination : Timber.DebugTree() {
     private var fileExt = "txt"
 
     override fun isLoggable(priority: Int): Boolean {
-        return isLoggable(Steamclog.config.destinationLevels.file, priority)
+        return isLoggable(Steamclog.config.logLevel.file, priority)
     }
 
     //---------------------------------------------
