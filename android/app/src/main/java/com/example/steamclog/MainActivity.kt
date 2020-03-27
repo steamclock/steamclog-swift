@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                     else -> LogLevelPreset.Firehose
                 }
 
-                clog.config.logLevel = logLevelPreset
+                clog.config = Config(logLevel = logLevelPreset)
             }
         }
     }

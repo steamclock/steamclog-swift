@@ -1,9 +1,7 @@
 package com.example.lib
 
-import android.app.Application
 import android.content.Context
 import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.core.CrashlyticsCore
 import io.fabric.sdk.android.Fabric
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
@@ -56,11 +54,11 @@ object Steamclog {
         if (fabricInitialized) {
             return
         }
+        this.appContext = appContext
         if (config.logLevel.crashlytics == LogLevel.None) {
             warn("Fabric not initialized for log level ${config.logLevel}")
             return
         }
-        this.appContext = appContext
         val builder = Crashlytics.Builder()
         Fabric.with(appContext, builder.build())
         fabricInitialized = true
