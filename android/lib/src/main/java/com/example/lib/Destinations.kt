@@ -157,7 +157,7 @@ internal class ExternalLogFileDestination : Timber.DebugTree() {
         }
     }
 
-    internal fun getLogFileContents(): String? {
+    internal suspend fun getLogFileContents(): String? {
         removeOldLogFiles()
         val outputFilePath = Steamclog.config.fileWritePath
         val logBuilder = StringBuilder()
