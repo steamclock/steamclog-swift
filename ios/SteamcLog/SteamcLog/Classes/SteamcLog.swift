@@ -21,7 +21,7 @@ public struct SteamcLog {
         }
     }
 
-    private var xcgLogger: XCGLogger!
+    @usableFromInline internal var xcgLogger: XCGLogger!
     @usableFromInline internal let encoder = JSONEncoder()
 
     private var crashlyticsDestination: CrashlyticsDestination!
@@ -242,8 +242,8 @@ public struct SteamcLog {
 
     // MARK: Error Log Level
 
-    @usableFromInline
-    internal func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
+    @_transparent
+    public func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
         xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
 
         // forcing a crash, so we get a stacktrace
