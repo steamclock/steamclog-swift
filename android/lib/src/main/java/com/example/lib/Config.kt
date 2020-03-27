@@ -17,12 +17,7 @@ data class Config(
     /**
      * Destination logging levels
      */
-    var logLevel: LogLevelPreset = LogLevelPreset.Develop,
-
-    /**
-     * todo: Not sure if we want to do Crashlytics setup here?
-     */
-    var crashlyticsAppKey: String? = null,
+    val logLevel: LogLevelPreset = LogLevelPreset.Develop,
 
     /**
      * Location where the app wishes to store any log files generated
