@@ -243,21 +243,12 @@ public struct SteamcLog {
     // MARK: Error Log Level
 
     @_transparent
-    public func internalFatal(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> Never {
+    public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
         xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
 
         // forcing a crash, so we get a stacktrace
         let cleanfileName = ("\(fileName)" as NSString).lastPathComponent.replacingOccurrences(of: ".swift", with: "")
-        let selector = NSSelectorFromString("\(cleanfileName).\(functionName) - Line \(lineNumber): \(message)")
-        NSObject().perform(selector)
-
-        // This should never happen - convinces Swift compiler that this is a @noreturn
-        abort()
-    }
-
-    @_transparent
-    public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
-        internalFatal(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        fatalError("\(cleanfileName).\(functionName) - Line \(lineNumber): \(message)")
     }
 
     @_transparent
