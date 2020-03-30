@@ -110,10 +110,16 @@ object SteamcLog {
                 return
             }
 
-            if (value is Serializable) {
-                bundle.putSerializable(key, value)
-            } else if (value is Parcelable) {
-                bundle.putParcelable(key, value)
+            when (value) {
+                is Redactable -> {
+                    bundle.putString(key, value.getRedactedDescription())
+                }
+                is Serializable -> {
+                    bundle.putSerializable(key, value)
+                }
+                is Parcelable -> {
+                    bundle.putParcelable(key, value)
+                }
             }
         }
         firebaseAnalytics.logEvent(id, bundle)
