@@ -8,6 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.lib.*
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -76,8 +80,8 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(applicationContext, "Logged some things! Check your console or show the dump the log.", Toast.LENGTH_LONG).show()
     }
 
-    private fun testLogDump() {
-        clog.getLogFileContents()?.let { demo_text.text = it }
+    private fun testLogDump() = GlobalScope.launch(Dispatchers.Main) {
+        demo_text?.text = Steamclog.getLogFileContents()
     }
 
 
