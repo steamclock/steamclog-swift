@@ -17,16 +17,23 @@ object Steamclog {
     //---------------------------------------------
     // Privates
     //---------------------------------------------
-    private var crashlyticsTree = CrashlyticsDestination()
-    private var customDebugTree = ConsoleDestination()
-    private var externalLogFileTree = ExternalLogFileDestination()
+    private var crashlyticsTree: CrashlyticsDestination
+    private var customDebugTree: ConsoleDestination
+    private var externalLogFileTree: ExternalLogFileDestination
 
     //---------------------------------------------
     // Public properties
     //---------------------------------------------
-    var config: Config = Config()
+    var config: Config
 
     init {
+        // initializing in order
+        config = Config()
+
+        crashlyticsTree = CrashlyticsDestination()
+        customDebugTree = ConsoleDestination()
+        externalLogFileTree = ExternalLogFileDestination()
+
         // By default plant all trees; setting their level to LogLevel.None will effectively
         // disable that tree, but we do not uproot it.
         updateTree(customDebugTree, true)

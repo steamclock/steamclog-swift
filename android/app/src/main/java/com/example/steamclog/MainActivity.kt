@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
 
         // clog setup
         clog.config = Config(logLevel = LogLevelPreset.Develop)
-        clog.config.logLevel = LogLevelPreset.customUsingBase(clog.config.logLevel, crashlyticsLevel = LogLevel.None)
         clog.config.fileWritePath = externalCacheDir
         clog.deleteLogFile() // Reset for test
 
@@ -41,21 +40,15 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                val newLevel = when (position) {
-                    0 -> null
-                    1 -> LogLevel.Verbose
-                    2 -> LogLevel.Debug
-                    3 -> LogLevel.Info
-                    4 -> LogLevel.Warn
-                    else -> LogLevel.Error
+                val logLevelPreset = when (position) {
+                    0 -> LogLevelPreset.Firehose
+                    1 -> LogLevelPreset.Develop
+                    2 -> LogLevelPreset.Release
+                    3 -> LogLevelPreset.ReleaseAdvanced
+                    else -> LogLevelPreset.Firehose
                 }
 
-                if (newLevel == null) {
-                    Steamclog.config.logLevel = LogLevelPreset.Develop
-                } else {
-                    // For now just set the file level so we can easily see the impact our change makes.
-                    Steamclog.config.logLevel = LogLevelPreset.customUsingBase(Steamclog.config.logLevel, fileLevel = newLevel)
-                }
+                Steamclog.config.logLevel = logLevelPreset
             }
         }
     }
