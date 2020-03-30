@@ -2,6 +2,7 @@ package com.example.lib
 
 import android.util.Log
 import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import timber.log.Timber
 import java.io.File
 import java.io.FileWriter
@@ -141,8 +142,9 @@ internal class ExternalLogFileDestination : Timber.DebugTree() {
 //        }
 //    }
 
-    fun removeOldLogFiles() {
-        val outputFilePath = SteamcLog.config.fileWritePath
+    private val outputFilePath = SteamcLog.config.fileWritePath
+
+    private fun removeOldLogFiles() {
         val deleteThese = ArrayList<File>()
         val expiryMs = SteamcLog.config.keepLogsForDays * 86400000 // (86400000 ms per day)
 
@@ -157,7 +159,7 @@ internal class ExternalLogFileDestination : Timber.DebugTree() {
         }
     }
 
-    internal fun getLogFileContents(): String? {
+    internal suspend fun getLogFileContents(): String? {
         removeOldLogFiles()
         val outputFilePath = SteamcLog.config.fileWritePath
         val logBuilder = StringBuilder()

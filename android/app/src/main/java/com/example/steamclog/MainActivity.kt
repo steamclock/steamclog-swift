@@ -6,8 +6,10 @@ import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lib.*
-
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +21,6 @@ class MainActivity : AppCompatActivity() {
 
         // clog setup
         clog.config = Config(logLevel = LogLevelPreset.Develop)
-        clog.config.logLevel = LogLevelPreset.customUsingBase(clog.config.logLevel, crashlyticsLevel = LogLevel.None)
         clog.config.fileWritePath = externalCacheDir
         clog.deleteLogFile() // Reset for test
 
@@ -37,21 +38,15 @@ class MainActivity : AppCompatActivity() {
                 position: Int,
                 id: Long
             ) {
-                val newLevel = when (position) {
-                    0 -> null
-                    1 -> LogLevel.Verbose
-                    2 -> LogLevel.Debug
-                    3 -> LogLevel.Info
-                    4 -> LogLevel.Warn
-                    else -> LogLevel.Error
+                val logLevelPreset = when (position) {
+                    0 -> LogLevelPreset.Firehose
+                    1 -> LogLevelPreset.Develop
+                    2 -> LogLevelPreset.Release
+                    3 -> LogLevelPreset.ReleaseAdvanced
+                    else -> LogLevelPreset.Firehose
                 }
 
-                if (newLevel == null) {
-                    SteamcLog.config.logLevel = LogLevelPreset.Develop
-                } else {
-                    // For now just set the file level so we can easily see the impact our change makes.
-                    SteamcLog.config.logLevel = LogLevelPreset.customUsingBase(SteamcLog.config.logLevel, fileLevel = newLevel)
-                }
+                SteamcLog.config.logLevel = logLevelPreset
             }
         }
     }
@@ -83,8 +78,8 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(applicationContext, "Logged some things! Check your console or show the dump the log.", Toast.LENGTH_LONG).show()
     }
 
-    private fun testLogDump() {
-        SteamcLog.getLogFileContents()?.let { demo_text.text = it }
+    private fun testLogDump() = GlobalScope.launch(Dispatchers.Main) {
+        demo_text?.text = SteamcLog.getLogFileContents()
     }
 
 
