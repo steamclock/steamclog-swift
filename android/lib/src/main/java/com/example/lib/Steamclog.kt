@@ -79,7 +79,7 @@ object Steamclog {
     //---------------------------------------------
     // Public util methods
     //---------------------------------------------
-    fun getLogFileContents(): String? {
+    suspend fun getLogFileContents(): String? {
         return externalLogFileTree.getLogFileContents()
     }
 
