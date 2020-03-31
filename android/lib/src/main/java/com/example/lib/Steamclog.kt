@@ -1,6 +1,10 @@
+@file:Suppress("unused")
+
 package com.example.lib
 
 import android.content.Context
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 import android.os.Bundle
 import android.os.Parcelable
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -17,25 +21,33 @@ import java.io.Serializable
  */
 
 typealias clog = SteamcLog
+@Suppress("SpellCheckingInspection")
 object SteamcLog {
 
     //---------------------------------------------
     // Privates
     //---------------------------------------------
+    @Suppress("JoinDeclarationAndAssignment")
     private var crashlyticsTree: CrashlyticsDestination
     private var customDebugTree: ConsoleDestination
     private var externalLogFileTree: ExternalLogFileDestination
     private lateinit var firebaseAnalytics: FirebaseAnalytics
 
+    private var initialized: Boolean = false
+    private var appContext: Context? = null
+
     //---------------------------------------------
     // Public properties
     //---------------------------------------------
-    var config: Config
+    var config: Config = Config()
+        set(value) {
+            field = value
+            // attempt to initialize fabric
+            appContext?.let { initialize(it) }
+        }
 
     init {
         // initializing in order
-        config = Config()
-
         crashlyticsTree = CrashlyticsDestination()
         customDebugTree = ConsoleDestination()
         externalLogFileTree = ExternalLogFileDestination()
@@ -47,7 +59,19 @@ object SteamcLog {
         updateTree(externalLogFileTree, true)
     }
 
-    fun initializeAnalytics(appContext: Context) {
+    fun initialize(appContext: Context) {
+        if (initialized) {
+            return
+        }
+        this.appContext = appContext
+        if (config.logLevel.crashlytics == LogLevel.None) {
+            warn("Fabric not initialized for log level ${config.logLevel}")
+            return
+        }
+        val builder = Crashlytics.Builder()
+        Fabric.with(appContext, builder.build())
+        initialized = true
+
         firebaseAnalytics = FirebaseAnalytics.getInstance(appContext)
     }
 

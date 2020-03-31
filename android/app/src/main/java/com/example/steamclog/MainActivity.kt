@@ -46,34 +46,34 @@ class MainActivity : AppCompatActivity() {
                     else -> LogLevelPreset.Firehose
                 }
 
-                SteamcLog.config.logLevel = logLevelPreset
+                clog.config = Config(logLevel = logLevelPreset)
             }
         }
     }
 
     private fun testAllLoggingLevels() {
-        SteamcLog.verbose("Verbose message")
-        SteamcLog.verbose("Verbose message", RedactableParent())
+        clog.verbose("Verbose message")
+        clog.verbose("Verbose message", RedactableParent())
 
-        SteamcLog.debug("Debug message")
-        SteamcLog.debug("Debug message", RedactableParent())
+        clog.debug("Debug message")
+        clog.debug("Debug message", RedactableParent())
 
-        SteamcLog.info("Info message")
-        SteamcLog.info("Info message", RedactableParent())
+        clog.info("Info message")
+        clog.info("Info message", RedactableParent())
 
-        SteamcLog.warn("Warn message")
-        SteamcLog.warn("Warn message", RedactableParent())
+        clog.warn("Warn message")
+        clog.warn("Warn message", RedactableParent())
 
-        SteamcLog.error("Error message")
-        SteamcLog.error("Error message", RedactableParent())
-        SteamcLog.error("Error message", Throwable("OriginalNonFatalThrowable"))
-        SteamcLog.error("Error message", Throwable("OriginalNonFatalThrowable"), RedactableParent())
+        clog.error("Error message")
+        clog.error("Error message", RedactableParent())
+        clog.error("Error message", Throwable("OriginalNonFatalThrowable"))
+        clog.error("Error message", Throwable("OriginalNonFatalThrowable"), RedactableParent())
 
         // These will crash app
-//            Steamclog.fatal("Fatal message")
-//            Steamclog.fatal("Fatal message", TestMe())
-//            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message")
-//            Steamclog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
+//            clog.fatal("Fatal message")
+//            clog.fatal("Fatal message", TestMe())
+//            clog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message")
+//            clog.fatal(Throwable("OriginalFatalThrowable"),"Fatal message", TestMe())
 
         Toast.makeText(applicationContext, "Logged some things! Check your console or show the dump the log.", Toast.LENGTH_LONG).show()
     }
