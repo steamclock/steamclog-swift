@@ -3,8 +3,12 @@ package com.example.lib
 import android.content.Context
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
+import android.os.Bundle
+import android.os.Parcelable
+import com.google.firebase.analytics.FirebaseAnalytics
 import org.jetbrains.annotations.NonNls
 import timber.log.Timber
+import java.io.Serializable
 
 /**
  * Steamclog
@@ -14,8 +18,8 @@ import timber.log.Timber
  * A wrapper around the Timber logging library, giving us more control over what is logged and when.
  */
 
-typealias clog = Steamclog
-object Steamclog {
+typealias clog = SteamcLog
+object SteamcLog {
 
     //---------------------------------------------
     // Privates
@@ -23,6 +27,7 @@ object Steamclog {
     private var crashlyticsTree: CrashlyticsDestination
     private var customDebugTree: ConsoleDestination
     private var externalLogFileTree: ExternalLogFileDestination
+    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     private var fabricInitialized: Boolean = false
     private var appContext: Context? = null
@@ -62,6 +67,10 @@ object Steamclog {
         val builder = Crashlytics.Builder()
         Fabric.with(appContext, builder.build())
         fabricInitialized = true
+    }
+
+    fun initializeAnalytics(appContext: Context) {
+        firebaseAnalytics = FirebaseAnalytics.getInstance(appContext)
     }
 
     //---------------------------------------------
@@ -104,6 +113,38 @@ object Steamclog {
         } else {
             Timber.log(logLevel.javaLevel, addObjToMessage(message, obj))
         }
+    }
+
+    fun track(@NonNls id: String, data: Map<String, Any?>) {
+        if (!::firebaseAnalytics.isInitialized) {
+            error("Analytics not initialized, please call SteamcLog.initializeAnalytics(appContext)")
+            return
+        }
+        if (!config.logLevel.analyticsEnabled) {
+            info("Skipped logging analytics event: $id ...")
+            return
+        }
+
+        val bundle = Bundle()
+        data.forEach { (key, value) ->
+            if (value !is Parcelable && value !is Serializable) {
+                warn("Failed to encode $value to bundle, must be either parcelable or serializable")
+                return
+            }
+
+            when (value) {
+                is Redactable -> {
+                    bundle.putString(key, value.getRedactedDescription())
+                }
+                is Serializable -> {
+                    bundle.putSerializable(key, value)
+                }
+                is Parcelable -> {
+                    bundle.putParcelable(key, value)
+                }
+            }
+        }
+        firebaseAnalytics.logEvent(id, bundle)
     }
 
     //---------------------------------------------
