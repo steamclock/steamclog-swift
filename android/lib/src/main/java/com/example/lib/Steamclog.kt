@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.example.lib
 
 import android.content.Context
@@ -19,17 +21,19 @@ import java.io.Serializable
  */
 
 typealias clog = SteamcLog
+@Suppress("SpellCheckingInspection")
 object SteamcLog {
 
     //---------------------------------------------
     // Privates
     //---------------------------------------------
+    @Suppress("JoinDeclarationAndAssignment")
     private var crashlyticsTree: CrashlyticsDestination
     private var customDebugTree: ConsoleDestination
     private var externalLogFileTree: ExternalLogFileDestination
     private lateinit var firebaseAnalytics: FirebaseAnalytics
 
-    private var fabricInitialized: Boolean = false
+    private var initialized: Boolean = false
     private var appContext: Context? = null
 
     //---------------------------------------------
@@ -56,7 +60,7 @@ object SteamcLog {
     }
 
     fun initialize(appContext: Context) {
-        if (fabricInitialized) {
+        if (initialized) {
             return
         }
         this.appContext = appContext
@@ -66,10 +70,8 @@ object SteamcLog {
         }
         val builder = Crashlytics.Builder()
         Fabric.with(appContext, builder.build())
-        fabricInitialized = true
-    }
+        initialized = true
 
-    fun initializeAnalytics(appContext: Context) {
         firebaseAnalytics = FirebaseAnalytics.getInstance(appContext)
     }
 
