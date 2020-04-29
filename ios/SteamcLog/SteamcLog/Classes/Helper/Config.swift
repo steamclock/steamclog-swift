@@ -16,6 +16,7 @@ public struct Config {
 
     var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
 
+    /// Allows customization of auto rotating of log files. If nil, auto-rotation won't be used
     var autoRotateConfig: AutoRotateConfig?
     
     // Require that all logged objects conform to Redacted or are all redacted by default.

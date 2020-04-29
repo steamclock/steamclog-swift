@@ -9,6 +9,7 @@ import Foundation
 import XCGLogger
 
 public struct AutoRotateConfig {
+    /// The number of seconds before the log file will be rotated out.
     var rotateAfterSeconds: TimeInterval
 
     public init(rotateAfterSeconds: TimeInterval = AutoRotatingFileDestination.autoRotatingFileDefaultMaxTimeInterval) {
