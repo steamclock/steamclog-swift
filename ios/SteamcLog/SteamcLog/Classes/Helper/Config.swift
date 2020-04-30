@@ -16,13 +16,13 @@ public struct Config {
 
     var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
 
-    /// Allows customization of auto rotating of log files. If nil, auto-rotation won't be used
-    let autoRotateConfig: AutoRotateConfig?
-    
+    /// Allows customization of auto rotating of log files. By default, file will rotate every 600 seconds.
+    let autoRotateConfig: AutoRotateConfig
+
     // Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal var requireRedacted = false
 
-    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig? = nil) {
+    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
         self.logLevel = logLevel
         self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier

@@ -42,11 +42,10 @@ public struct SteamcLog {
         xcgLogger.add(destination: crashlyticsDestination)
         Fabric.with([Crashlytics.self])
 
-        if let autoRotateConfig = config.autoRotateConfig {
-            fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true, maxTimeInterval: autoRotateConfig.rotateAfterSeconds)
-        } else {
-            fileDestination = FileLogDestination(writeToFile: logFilePath, identifier: "steamclog.fileDestination", shouldAppend: true)
-        }
+        fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
+                                                      identifier: "steamclog.fileDestination",
+                                                      shouldAppend: true,
+                                                      maxTimeInterval: config.autoRotateConfig.fileRotationTime)
         setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.file)
         xcgLogger.add(destination: fileDestination)
         fileDestination.logQueue = XCGLogger.logQueue
