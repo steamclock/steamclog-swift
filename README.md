@@ -39,12 +39,12 @@ SteamcLog has a number of configuration options
 ### logLevel: LogLevelPreset
 There are four log level presets available, each of which has different logging outputs.
 
-| LogLevelPreset    | Disk Level | System Level | Remote Level | Analytics |
-|-------------------|------------|--------------|--------------|-----------|
-| `firehose`        | verbose    | verbose      | none         | disabled  |
-| `develop`         | none       | debug        | none         | disabled  |
-| `release`         | none       | none         | warn         | enabled   |
-| `releaseAdvanced` | verbose    | none         | warn         | enabled   |
+| LogLevelPreset    | Disk Level | System Level | Remote Level | 
+|-------------------|------------|--------------|--------------|
+| `firehose`        | verbose    | verbose      | none         |
+| `develop`         | none       | debug        | none         |
+| `release`         | none       | none         | warn         |
+| `releaseAdvanced` | verbose    | none         | warn         |
 
 In most cases, you'll be able to get by using `firehose` or `develop` on debug builds, and `release` or `releaseAdvanced` for production builds. 
 Note that if you're using `releaseAdvanced` you must build in a way for the client to email you the disk logs.
