@@ -1,6 +1,6 @@
 //
 //  AutoRotateConfig.swift
-//  FirebaseCore
+//  SteamcLog
 //
 //  Created by Jake Miner on 2020-04-29.
 //
