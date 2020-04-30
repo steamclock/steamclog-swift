@@ -32,6 +32,9 @@ class AppDelegate: UIApplicationDelegate {
 
 See configuration for details on `logLevel`
 
+For Crashlytics support, follow the instuctions from [the official Crashlytics docs](https://firebase.google.com/docs/crashlytics/get-started?platform=ios), skipping the podfile changes. 
+
+
 ## Configuration
 
 SteamcLog has a number of configuration options
