@@ -1,4 +1,4 @@
-# steamclog
+# SteamcLog
 [Current Proposal Spec](https://docs.google.com/document/d/1GeFAMBn_ZrIP7qVLzcYlCfqDnPiCrgMa0JdrU8HRx94/edit?usp=sharing)
 
 An open source library that consolidates/formalizes the logging setup and usage across all of Steamclock's projects.
@@ -11,7 +11,7 @@ pod 'SteamcLog', :git => "https://github.com/steamclock/SteamcLog.git"
 
 Note: If your project is using Crashlytics, Fabric, or XCGLogger, you'll also need to remove those from the podfile.
 
-In your AppDelegate (or a logging manager), setup a global instance of SteamcLog:
+In your AppDelegate (or a logging manager), set-up a global instance of SteamcLog:
 
 ```swift
 import SteamcLog
@@ -32,7 +32,7 @@ class AppDelegate: UIApplicationDelegate {
 
 See configuration for details on `logLevel`
 
-For Crashlytics support, follow the instuctions from [the official Crashlytics docs](https://firebase.google.com/docs/crashlytics/get-started?platform=ios), skipping the podfile changes. 
+For Crashlytics support, follow the instructions from [the official Crashlytics docs](https://firebase.google.com/docs/crashlytics/get-started?platform=ios), skipping the podfile changes. 
 
 
 ## Configuration
@@ -102,3 +102,4 @@ clog.info("Here's a simple model", sampleUser)
 And the log will output:
 
 `User(name: "Name", uuid: <redacted>, email: "hi@steamclock.com", created: <redacted>)`
+
