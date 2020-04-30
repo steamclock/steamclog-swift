@@ -3,7 +3,7 @@
 //  steamclog
 //
 //  Created by blensink192@gmail.com on 01/20/2020.
-//  Copyright (c) 2020 blensink192@gmail.com. All rights reserved.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Crashlytics

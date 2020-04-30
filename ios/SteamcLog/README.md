@@ -22,7 +22,7 @@ pod 'SteamcLog'
 
 ## Author
 
-blensink192@gmail.com, blensink192@gmail.com
+Steamclock Software, Ltd.
 
 ## License
 
