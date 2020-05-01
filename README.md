@@ -7,6 +7,7 @@
     + [logLevel: LogLevelPreset](#loglevel--loglevelpreset)
     + [includeDefaultXCGDestinations: Bool](#includedefaultxcgdestinations--bool)
     + [identifier: String](#identifier--string)
+    + [autoRotateConfig: AutoRotateConfig](#autorotateconfig--autorotateconfig)
   * [Usage](#usage)
   * [Exporting Logs](#exporting-logs)
     + [Variable Redaction](#variable-redaction)
