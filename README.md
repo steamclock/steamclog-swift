@@ -73,7 +73,7 @@ From there, you can use `clog` anywhere in your application with the following l
 
 Each of these functions has the following 3 available signatures
 `clog.<level>(_ message: String)`
-`clog.<level>(_ message: String, object: Enodable)`
+`clog.<level>(_ message: String, object: Encodable)`
 `clog.<level>(_ message: String, object: Redacted)`
 
 The log file URL is available via `logFileURL() -> URL`, or you can get the log file contents using `clog.getLogFileContents() -> String?`
@@ -102,4 +102,3 @@ clog.info("Here's a simple model", sampleUser)
 And the log will output:
 
 `User(name: "Name", uuid: <redacted>, email: "hi@steamclock.com", created: <redacted>)`
-
