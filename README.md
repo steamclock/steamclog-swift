@@ -82,7 +82,7 @@ The log file URL is available via `logFileURL() -> URL`, or you can get the log 
 
 ### Variable Redaction
 
-`Redacted` is a protocol that can be conformed to by a struct or class for marking particular fields as safe for logging. 
+`Redacted` is a protocol that can be conformed to by a struct or class for marking particular fields as safe for logging. By default, a class/struct conforming to `Redacted` will have all fields marked as redacted, and you can define logging-safe field using the `safeProperties` field.
 
 Example:
 ```swift
