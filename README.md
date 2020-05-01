@@ -70,6 +70,13 @@ TODO
 Default value is `steamclog`.
 The internal identifier used by XGCLogger. For disk logging, this is the log file's filename.
 
+### autoRotateConfig: AutoRotateConfig
+By default, logs will rotate every 10 minutes, and store 10 archived log files.
+`AutoRotateConfig` allows customization for the auto-rotating behaviour. 
+
+`AutoRotateConfig` has the following fields:
+**fileRotationTime: TimeInterval**: The number of seconds before the log file is rotated and archived.
+
 ## Usage
 
 From there, you can use `clog` anywhere in your application with the following levels. Note that availability of these logs will depend on your Configuration's `logLevel`.
