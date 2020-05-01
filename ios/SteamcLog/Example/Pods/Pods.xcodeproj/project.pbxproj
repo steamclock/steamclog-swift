@@ -116,6 +116,7 @@
 		1FF33937521B9CFEDF697805FEDCA707 /* LogFormatterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FC4B665C639896C46598FC84A502BA /* LogFormatterProtocol.swift */; };
 		21DCB3C8CBBB0BDCA5B2F4F7D875A352 /* GoogleDataTransport-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = 3A8E26BC58300D6A8DE5E03B14EC4A3A /* GoogleDataTransport-dummy.m */; };
 		2261047C874C11D1A0CF54277A0FE634 /* GDTCORPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 9233D891BF9A54195746A8531BFDBF7B /* GDTCORPlatform.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		237B2720245A1D2D0084A3E0 /* AutoRotateConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 237B271E245A1D230084A3E0 /* AutoRotateConfig.swift */; };
 		2521216CE078E953104465D53D96B1AC /* GDTCORAssert.m in Sources */ = {isa = PBXBuildFile; fileRef = 692D9601A22B86B045105B4A763600AF /* GDTCORAssert.m */; };
 		25AAC2809AB3097B7A04045B8CEF093B /* AutoRotatingFileDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31937D4DF1980F98A9807A44EF553A3E /* AutoRotatingFileDestination.swift */; };
 		27B79504C5826D93AAE1408548128CCD /* GDTCORConsoleLogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 75B7B73276515C24BE15411ADD2320EF /* GDTCORConsoleLogger.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -715,6 +716,7 @@
 		21C4AC4FEEC59695485302F378C200F1 /* FIRInstanceIDTokenInfo.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = FIRInstanceIDTokenInfo.m; path = Firebase/InstanceID/FIRInstanceIDTokenInfo.m; sourceTree = "<group>"; };
 		21CF136AE689A6BC3C36F34FDF19C086 /* NSError+FIRInstanceID.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "NSError+FIRInstanceID.h"; path = "Firebase/InstanceID/NSError+FIRInstanceID.h"; sourceTree = "<group>"; };
 		2276BA09A9D16C2B6DE0CFC4FD2677A0 /* Answers.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Answers.h; path = iOS/Crashlytics.framework/Headers/Answers.h; sourceTree = "<group>"; };
+		237B271E245A1D230084A3E0 /* AutoRotateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoRotateConfig.swift; sourceTree = "<group>"; };
 		23E5997BF9EDBB66BE9B0884A34BC829 /* FIRInstanceIDStore.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = FIRInstanceIDStore.h; path = Firebase/InstanceID/FIRInstanceIDStore.h; sourceTree = "<group>"; };
 		23FCBE506D649250A8BFF500E0FD69F2 /* GDTCORPlatform.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = GDTCORPlatform.m; path = GoogleDataTransport/GDTCORLibrary/GDTCORPlatform.m; sourceTree = "<group>"; };
 		24663FB3A4E178BEE46D706173ECAF4B /* GULNetwork.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = GULNetwork.h; path = GoogleUtilities/Network/Private/GULNetwork.h; sourceTree = "<group>"; };
@@ -1979,6 +1981,7 @@
 				2814799A9D9194CCB48D4C699FA1D5E0 /* LogLevelPreset.swift */,
 				FB5797316B9CEDBB568D892182F3BC8A /* Redactable.swift */,
 				C6A69DA323E9FA7700C7643D /* AnalyticsEvent.swift */,
+				237B271E245A1D230084A3E0 /* AutoRotateConfig.swift */,
 			);
 			name = Helper;
 			path = SteamcLog/Classes/Helper;
@@ -2666,6 +2669,7 @@
 				B3C25F9B23D9109500432674 /* DictionaryEncoder.swift in Sources */,
 				7CBD0AD35C208DD5DF544F4EE2C75E1A /* Config.swift in Sources */,
 				C6A69DA423E9FA7700C7643D /* AnalyticsEvent.swift in Sources */,
+				237B2720245A1D2D0084A3E0 /* AutoRotateConfig.swift in Sources */,
 				DE26BC24ED319C692B8D73FD3A131929 /* CrashlyticsDestination.swift in Sources */,
 				7668FD974350C9979EFFFEDA7080464F /* LogLevel.swift in Sources */,
 				FA2E36EDDC6D892DCA8A5A504EE28CBE /* LogLevelPreset.swift in Sources */,
