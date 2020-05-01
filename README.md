@@ -76,6 +76,8 @@ Each of these functions has the following 3 available signatures
 `clog.<level>(_ message: String, object: Encodable)`
 `clog.<level>(_ message: String, object: Redacted)`
 
+## Exporting Logs
+
 The log file URL is available via `logFileURL() -> URL`, or you can get the log file contents using `clog.getLogFileContents() -> String?`
 
 ### Variable Redaction
