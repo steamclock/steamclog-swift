@@ -30,7 +30,7 @@ class AppDelegate: UIApplicationDelegate {
 }
 ```
 
-See configuration for details on `logLevel`
+See configuration documentation for details on `logLevel` [here](#configuration).
 
 For Crashlytics support, follow the instructions from [the official Crashlytics docs](https://firebase.google.com/docs/crashlytics/get-started?platform=ios), skipping the podfile changes. 
 
