@@ -5,8 +5,6 @@
   * [Installation](#installation)
   * [Configuration](#configuration)
     + [logLevel: LogLevelPreset](#loglevel-loglevelpreset)
-    + [includeDefaultXCGDestinations: Bool](#includedefaultxcgdestinations-bool)
-    + [identifier: String](#identifier-string)
     + [autoRotateConfig: AutoRotateConfig](#autorotateconfig-autorotateconfig)
   * [Usage](#usage)
   * [Exporting Logs](#exporting-logs)
@@ -62,14 +60,6 @@ There are four log level presets available, each of which has different logging 
 
 In most cases, you'll be able to get by using `firehose` or `develop` on debug builds, and `release` or `releaseAdvanced` for production builds. 
 Note that if you're using `releaseAdvanced` you must build in a way for the client to email you the disk logs.
-
-### includeDefaultXCGDestinations: Bool
-Default value is `false`.
-TODO
-
-### identifier: String
-Default value is `steamclog`.
-The internal identifier used by XGCLogger. For disk logging, this is the log file's filename.
 
 ### autoRotateConfig: AutoRotateConfig
 By default, logs will rotate every 10 minutes, and store 10 archived log files.
