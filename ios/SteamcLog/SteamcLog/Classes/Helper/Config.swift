@@ -11,9 +11,6 @@ public struct Config {
     /// Global log threshold, logs under this level will be ignored
     var logLevel: LogLevelPreset = .develop
 
-    /// By default we log to the console using a custom logging destination, so ignore this one
-    var includeDefaultXCGDestinations = false
-
     var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
 
     /// Allows customization of auto rotating of log files. By default, file will rotate every 600 seconds.
@@ -22,9 +19,12 @@ public struct Config {
     // Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal var requireRedacted = false
 
-    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+    public init(logLevel: LogLevelPreset = .develop,
+                requireRedacted: Bool = false,
+                identifier: String = "steamclog",
+                autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+        self.requireRedacted = requireRedacted
         self.logLevel = logLevel
-        self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
     }
