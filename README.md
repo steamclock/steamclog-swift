@@ -1,6 +1,16 @@
 # SteamcLog
 [Current Proposal Spec](https://docs.google.com/document/d/1GeFAMBn_ZrIP7qVLzcYlCfqDnPiCrgMa0JdrU8HRx94/edit?usp=sharing)
 
+- [SteamcLog](#steamclog)
+  * [Installation](#installation)
+  * [Configuration](#configuration)
+    + [logLevel: LogLevelPreset](#loglevel--loglevelpreset)
+    + [includeDefaultXCGDestinations: Bool](#includedefaultxcgdestinations--bool)
+    + [identifier: String](#identifier--string)
+  * [Usage](#usage)
+  * [Exporting Logs](#exporting-logs)
+    + [Variable Redaction](#variable-redaction)
+
 An open source library that consolidates/formalizes the logging setup and usage across all of Steamclock's projects.
 
 ## Installation
