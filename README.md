@@ -9,7 +9,7 @@ Add the following to your podfile then run `pod install`
 pod 'SteamcLog', :git => "https://github.com/steamclock/SteamcLog.git"
 ```
 
-Note: If your project is using Crashlytics, Fabric, or XCGLogger, you'll also need to remove those from the podfile.
+Note: If your project is using Crashlytics, Fabric, or XCGLogger, you can remove those from the podfile, as they'll be imported as dependencies for SteamcLog.
 
 In your AppDelegate (or a logging manager), set-up a global instance of SteamcLog:
 
