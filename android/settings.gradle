@@ -1,2 +1,0 @@
-include ':app', ':lib'
-rootProject.name='steamclog'
