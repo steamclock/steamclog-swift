@@ -5,6 +5,7 @@
   * [Installation](#installation)
   * [Configuration](#configuration)
     + [logLevel: LogLevelPreset](#loglevel-loglevelpreset)
+    + [requireRedacted: Bool](#requireredacted-bool)
     + [autoRotateConfig: AutoRotateConfig](#autorotateconfig-autorotateconfig)
   * [Usage](#usage)
   * [Exporting Logs](#exporting-logs)
@@ -49,6 +50,7 @@ For Crashlytics support, follow the instructions from [the official Crashlytics 
 SteamcLog has a number of configuration options
 
 ### logLevel: LogLevelPreset
+Default value is: `develop`.
 There are four log level presets available, each of which has different logging outputs.
 
 | LogLevelPreset    | Disk Level | System Level | Remote Level | 
@@ -60,6 +62,10 @@ There are four log level presets available, each of which has different logging 
 
 In most cases, you'll be able to get by using `firehose` or `develop` on debug builds, and `release` or `releaseAdvanced` for production builds. 
 Note that if you're using `releaseAdvanced` you must build in a way for the client to email you the disk logs.
+
+### requireRedacted: Bool
+Default value is `false`.
+Require that all logged objects conform to Redacted or are all redacted by default.
 
 ### autoRotateConfig: AutoRotateConfig
 By default, logs will rotate every 10 minutes, and store 10 archived log files.
