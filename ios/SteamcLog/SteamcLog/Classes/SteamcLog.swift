@@ -59,6 +59,12 @@ public struct SteamcLog {
         xcgLogger.logAppDetails()
     }
 
+    public func addCustomDestination<T: BaseQueuedDestination>(destination: inout T, outputLevel: LogLevel) {
+        // TODO: I bet there's going to be a problem here with retaining a reference to destination.
+        setLoggingDetails(destination: &destination, outputLevel: outputLevel)
+        xcgLogger.add(destination: destination)
+    }
+
     private func setLoggingDetails<T: BaseQueuedDestination>(destination: inout T, outputLevel: LogLevel) {
         destination.outputLevel = outputLevel.xcgLevel
         destination.showLogIdentifier = false
