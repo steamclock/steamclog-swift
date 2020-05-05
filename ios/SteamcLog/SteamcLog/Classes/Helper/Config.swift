@@ -19,8 +19,11 @@ public struct Config {
     /// Allows customization of auto rotating of log files. By default, file will rotate every 600 seconds.
     let autoRotateConfig: AutoRotateConfig
 
-    // Require that all logged objects conform to Redacted or are all redacted by default.
+    /// Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal var requireRedacted = false
+
+    /// Don't initialize the crashlytics destination if set to false
+    let useCrashlytics = true
 
     public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
         self.logLevel = logLevel

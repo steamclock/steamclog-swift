@@ -37,10 +37,13 @@ public struct SteamcLog {
         )
 
         // Set up default destinations
-        crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
-        setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
-        xcgLogger.add(destination: crashlyticsDestination)
-        Fabric.with([Crashlytics.self])
+        if config.useCrashlytics {
+            crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
+            setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
+            xcgLogger.add(destination: crashlyticsDestination)
+            Fabric.with([Crashlytics.self])
+
+        }
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
