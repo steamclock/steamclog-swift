@@ -23,12 +23,13 @@ public struct Config {
     @usableFromInline internal var requireRedacted = false
 
     /// Don't initialize the crashlytics destination if set to false
-    let useCrashlytics = true
+    let useCrashlytics: Bool
 
-    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig(), useCrashlytics: Bool = true) {
         self.logLevel = logLevel
         self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
+        self.useCrashlytics = useCrashlytics
     }
 }

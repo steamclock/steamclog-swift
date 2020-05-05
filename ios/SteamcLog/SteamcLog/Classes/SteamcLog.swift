@@ -42,7 +42,6 @@ public struct SteamcLog {
             setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
             xcgLogger.add(destination: crashlyticsDestination)
             Fabric.with([Crashlytics.self])
-
         }
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
