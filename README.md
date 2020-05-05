@@ -15,7 +15,7 @@ An open source library that consolidates/formalizes the logging setup and usage 
 ## Installation
 Add the following to your podfile then run `pod install`
 ```
-pod 'SteamcLog', :git => "https://github.com/steamclock/SteamcLog.git"
+pod 'SteamcLog', :git => "git@github.com:steamclock/steamclog.git"
 ```
 
 Note: If your project is using Crashlytics, Fabric, or XCGLogger, you can remove those from the podfile, as they'll be imported as dependencies for SteamcLog.
