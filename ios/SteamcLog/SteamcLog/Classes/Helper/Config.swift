@@ -20,6 +20,16 @@ public struct Config {
     /// Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal let requireRedacted: Bool
 
+    /*
+     * Create a new SteamcLog configuration to use.
+     *
+     * - Parameters:
+     *   - logLevel: The log level presets for each destination. Default is `.develop`.
+     *   - requireRedacted: If true, all logged objects must conform to `Redacted` or be redacted by default. Default is false.
+     *   - identifier: The indentifier to note logs under. Default is "steamclog".
+     *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
+     *
+     */
     public init(logLevel: LogLevelPreset = .develop,
                 requireRedacted: Bool = false,
                 identifier: String = "steamclog",
