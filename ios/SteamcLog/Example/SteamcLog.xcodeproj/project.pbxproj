@@ -17,6 +17,7 @@
 		86856065BE56FD81665AE2B0 /* Pods_SteamcLog_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6E0F145F55E72E6676A0C07 /* Pods_SteamcLog_Tests.framework */; };
 		B33B59DF23D7618400F3B854 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33B59DE23D7618400F3B854 /* User.swift */; };
 		B33B59E123D766F000F3B854 /* Suit.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33B59E023D766F000F3B854 /* Suit.swift */; };
+		C64E5AB524633F46005241D2 /* CustomDestinationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64E5AB424633F46005241D2 /* CustomDestinationViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		A762621FCEB3FAC3829A8490 /* Pods-SteamcLog_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SteamcLog_Tests.release.xcconfig"; path = "Target Support Files/Pods-SteamcLog_Tests/Pods-SteamcLog_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		B33B59DE23D7618400F3B854 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		B33B59E023D766F000F3B854 /* Suit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suit.swift; sourceTree = "<group>"; };
+		C64E5AB424633F46005241D2 /* CustomDestinationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDestinationViewController.swift; sourceTree = "<group>"; };
 		DA04622924E053F05F2C2B0F /* Pods_SteamcLog_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SteamcLog_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2DAD746D445B9BB9CB01B0B /* Pods-SteamcLog_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SteamcLog_Example.release.xcconfig"; path = "Target Support Files/Pods-SteamcLog_Example/Pods-SteamcLog_Example.release.xcconfig"; sourceTree = "<group>"; };
 		F6E0F145F55E72E6676A0C07 /* Pods_SteamcLog_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SteamcLog_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,9 +120,10 @@
 			isa = PBXGroup;
 			children = (
 				607FACD51AFB9204008FA782 /* AppDelegate.swift */,
-				607FACD71AFB9204008FA782 /* ViewController.swift */,
-				B33B59E523D7679C00F3B854 /* Supporting Files */,
+				C64E5AB424633F46005241D2 /* CustomDestinationViewController.swift */,
 				B33B59E323D7678500F3B854 /* Model */,
+				B33B59E523D7679C00F3B854 /* Supporting Files */,
+				607FACD71AFB9204008FA782 /* ViewController.swift */,
 			);
 			name = Example;
 			path = SteamcLog;
@@ -356,6 +359,7 @@
 				B33B59DF23D7618400F3B854 /* User.swift in Sources */,
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
 				B33B59E123D766F000F3B854 /* Suit.swift in Sources */,
+				C64E5AB524633F46005241D2 /* CustomDestinationViewController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

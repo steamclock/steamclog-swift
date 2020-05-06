@@ -36,7 +36,7 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
-        // Set up default destinations
+        // Set up default log destinations
         if config.useCrashlytics {
             crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
             setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
@@ -59,8 +59,13 @@ public struct SteamcLog {
         xcgLogger.logAppDetails()
     }
 
+    /*
+     * Add a new custom log destination.
+     *
+     * - Parameter destination: The log destination to add to SteamcLog.
+     * - Parameter outputLevel: The minimum log level observed by the destination.
+     */
     public func addCustomDestination<T: BaseQueuedDestination>(destination: inout T, outputLevel: LogLevel) {
-        // TODO: I bet there's going to be a problem here with retaining a reference to destination.
         setLoggingDetails(destination: &destination, outputLevel: outputLevel)
         xcgLogger.add(destination: destination)
     }
