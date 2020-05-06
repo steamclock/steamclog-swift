@@ -25,7 +25,7 @@ public struct Config {
     /// Don't initialize the crashlytics destination if set to false
     let useCrashlytics: Bool
 
-    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig(), useCrashlytics: Bool = true) {
+    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig(), useCrashlytics: Bool = false) {
         self.logLevel = logLevel
         self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier

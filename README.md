@@ -73,10 +73,15 @@ By default, logs will rotate every 10 minutes, and store 10 archived log files.
 From there, you can use `clog` anywhere in your application with the following levels. Note that availability of these logs will depend on your Configuration's `logLevel`.
 
 `clog.verbose` - Log all of the things! Probably only output to the console by developers, never to devices.
+
 `clog.debug` - Info that is interesting to developers, any information that may be helpful when debugging. Should be stored to system logs for debug builds but never stored in production.
+
 `clog.info` - Routine app operations, used to document changes in state within the application. Minimum level of log stored in device logs in production.
-`clog.warn` - Developer concerns or incorrect state etc. Something’s definitely gone wrong, but there’s a path to recover
-`clog.error` - Something has gone wrong, report to a remote service (like Crashlytics)
+
+`clog.warn` - Developer concerns or incorrect state etc. Something’s definitely gone wrong, but there’s a path to recover.
+
+`clog.error` - Something has gone wrong, report to a remote service (like Crashlytics).
+
 `clog.fatal` - Something has gone wrong and we cannot recover, so force the app to close.
 
 Each of these functions has the following 3 available signatures
@@ -112,3 +117,27 @@ clog.info("Here's a simple model", sampleUser)
 And the log will output:
 
 `User(name: "Name", uuid: <redacted>, email: "hi@steamclock.com", created: <redacted>)`
+
+## Adding a custom log destination
+
+First, create a new log destination that extends `BaseQueuedDestination`
+
+```
+import XCGLogger
+
+class CustomLogDestination: BaseQueuedDestination {
+    override open func output(logDetails: LogDetails, message: String) {
+        // TODO: Add your functionality here
+    }
+}
+
+```
+
+Then, after you've created your global `clog` instance, attach the new log destination and specify the input level:
+
+```
+func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+  var customDestination = CustomLogDestination()
+  clog.addCustomDestination(destination: &customDestination, outputLevel: .warn)
+}
+```
