@@ -15,23 +15,13 @@
     "git": "https://github.com/steamclog/SteamcLog.git",
     "tag": "0.1.0"
   },
+  "source_files": "SteamcLog/Classes/**/*",
   "platforms": {
     "ios": "8.0"
   },
-  "source_files": "SteamcLog/Classes/**/*",
-  "static_framework": true,
   "dependencies": {
-    "Fabric": [
-      "~> 1.10.2"
-    ],
-    "Crashlytics": [
-      "~> 3.14.0"
-    ],
-    "Firebase/Analytics": [
-
-    ],
     "XCGLogger": [
-      "~> 7.0.0"
+      "~> 7.0.1"
     ]
   }
 }
