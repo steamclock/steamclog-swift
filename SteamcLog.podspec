@@ -31,4 +31,5 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '8.0'
   
   s.dependency 'XCGLogger', '~> 7.0.1'
+  s.dependency 'Sentry', '~> 5'
 end

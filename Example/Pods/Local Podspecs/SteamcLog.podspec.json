@@ -22,6 +22,9 @@
   "dependencies": {
     "XCGLogger": [
       "~> 7.0.1"
+    ],
+    "Sentry": [
+      "~> 5"
     ]
   }
 }
