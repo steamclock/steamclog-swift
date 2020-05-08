@@ -9,22 +9,33 @@ import Foundation
 
 public struct Config {
     /// Global log threshold, logs under this level will be ignored
-    var logLevel: LogLevelPreset = .develop
+    internal let logLevel: LogLevelPreset
 
-    /// By default we log to the console using a custom logging destination, so ignore this one
-    var includeDefaultXCGDestinations = false
-
-    var identifier = "steamclog" // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
+    /// Identifier used for XCGLogger destinations
+    internal let identifier: String // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
 
     /// Allows customization of auto rotating of log files. By default, file will rotate every 600 seconds.
-    let autoRotateConfig: AutoRotateConfig
+    internal let autoRotateConfig: AutoRotateConfig
 
-    // Require that all logged objects conform to Redacted or are all redacted by default.
-    @usableFromInline internal var requireRedacted = false
+    /// Require that all logged objects conform to Redacted or are all redacted by default.
+    @usableFromInline internal let requireRedacted: Bool
 
-    public init(logLevel: LogLevelPreset = .develop, includeDefaultXCGDestinations: Bool = false, identifier: String = "steamclog", autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+    /*
+     * Create a new SteamcLog configuration to use.
+     *
+     * - Parameters:
+     *   - logLevel: The log level presets for each destination. Default is `.develop`.
+     *   - requireRedacted: If true, all logged objects must conform to `Redacted` or be redacted by default. Default is false.
+     *   - identifier: The indentifier to note logs under. Default is "steamclog".
+     *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
+     *
+     */
+    public init(logLevel: LogLevelPreset = .develop,
+                requireRedacted: Bool = false,
+                identifier: String = "steamclog",
+                autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+        self.requireRedacted = requireRedacted
         self.logLevel = logLevel
-        self.includeDefaultXCGDestinations = includeDefaultXCGDestinations
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
     }

@@ -30,7 +30,7 @@ public struct SteamcLog {
 
     public init(_ customConfig: Config = Config()) {
         config = customConfig
-        xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: config.includeDefaultXCGDestinations)
+        xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
 
         xcgLogger.setup(
             level: config.logLevel.global.xcgLevel
