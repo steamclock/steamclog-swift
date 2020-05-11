@@ -1,8 +1,8 @@
 //
 //  ViewController.swift
-//  SteamcLog
+//  SteamcLog Example
 //
-//  Created by blensink192@gmail.com on 01/21/2020.
+//  Created by Brendan on 01/21/2020.
 //  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
@@ -26,7 +26,6 @@ class ViewController: UIViewController {
         clog.warn("All we have to decide is what to do with the time that is given to us.")
         clog.error("I don’t know half of you half as well as I should like and I like less than half of you half as well as you deserve.")
         clog.fatal("It's the job that's never started as takes longest to finish.")
-
 
         let sampleUser = User(name: "Name", uuid: UUID(), email: "hi@steamclock.com", created: Date())
         /// Print a simple model out with some properties redacted

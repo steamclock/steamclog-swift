@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  SteamcLog
+//  SteamcLog Example
 //
-//  Created by blensink192@gmail.com on 01/21/2020.
+//  Created by Brendan on 01/21/2020.
 //  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 

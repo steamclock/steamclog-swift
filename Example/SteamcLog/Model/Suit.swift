@@ -2,8 +2,8 @@
 //  Suit.swift
 //  SteamcLog_Example
 //
-//  Created by Brendan Lensink on 2020-01-21.
-//  Copyright © 2020 CocoaPods. All rights reserved.
+//  Created by Brendan on 2020-01-21.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Foundation
