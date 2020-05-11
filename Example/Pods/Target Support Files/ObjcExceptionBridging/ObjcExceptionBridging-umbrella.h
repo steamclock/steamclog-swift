@@ -10,7 +10,6 @@
 #endif
 #endif
 
-#import "ObjcExceptionBridging 2.h"
 #import "ObjcExceptionBridging.h"
 
 FOUNDATION_EXPORT double ObjcExceptionBridgingVersionNumber;

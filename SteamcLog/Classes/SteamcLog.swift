@@ -2,20 +2,18 @@
 //  SteamcLog.swift
 //  steamclog
 //
-//  Created by blensink192@gmail.com on 01/20/2020.
+//  Created by Brendan on 01/20/2020.
 //  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
-import Crashlytics
-import Fabric
-import FirebaseAnalytics
 import Foundation
+import Sentry
 import XCGLogger
 
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            crashlyticsDestination.outputLevel = config.logLevel.crashlytics.xcgLevel
+            sentryDestination.outputLevel = config.logLevel.sentry.xcgLevel
             fileDestination.outputLevel = config.logLevel.file.xcgLevel
             systemDestination.outputLevel = config.logLevel.system.xcgLevel
         }
@@ -24,12 +22,12 @@ public struct SteamcLog {
     @usableFromInline internal var xcgLogger: XCGLogger!
     @usableFromInline internal let encoder = JSONEncoder()
 
-    private var crashlyticsDestination: CrashlyticsDestination!
     private var fileDestination: FileDestination!
+    private var sentryDestination: SentryDestination!
     private var systemDestination: SteamcLogSystemLogDestination!
 
-    public init(_ customConfig: Config = Config()) {
-        config = customConfig
+    public init(_ config: Config) {
+        self.config = config
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
 
         xcgLogger.setup(
@@ -37,10 +35,14 @@ public struct SteamcLog {
         )
 
         // Set up default destinations
-        crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
-        setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
-        xcgLogger.add(destination: crashlyticsDestination)
-        Fabric.with([Crashlytics.self])
+        SentrySDK.start(options: [
+            "dsn": config.sentryKey,
+            "debug": config.sentryDebug,
+            "enableAutoSessionTracking": config.sentryAutoSessionTracking
+        ])
+        sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
+        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.sentry)
+        xcgLogger.add(destination: sentryDestination)
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
@@ -279,14 +281,16 @@ public struct SteamcLog {
 
     // MARK: Analytics Tracking Helpers
 
+    @available(*, deprecated, message: "No analytics platform currently supported.")
     public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T.RawValue == String {
         guard config.logLevel.analyticsEnabled else {
             info("Skipped logging analytics event: \(id) ...", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
-        Analytics.logEvent(id.rawValue, parameters: data)
+        // TODO: Add an analytics tracking platform to work with sentry.
     }
-
+    
+    @available(*, deprecated, message: "No analytics platform currently supported.")
     public func track<T, U>(id: T, encodable: U, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: AnalyticsEvent, U: Encodable {
         guard let data = try? DictionaryEncoder().encode(encodable) else {
             warn("Failed to encode \(encodable) to dictionary.")

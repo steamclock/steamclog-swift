@@ -2,7 +2,8 @@
 //  FileLogDestination.swift
 //  SteamcLog
 //
-//  Created by Brendan Lensink on 2020-01-21.
+//  Created by Brendan on 2020-01-21.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Foundation

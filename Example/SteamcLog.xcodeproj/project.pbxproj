@@ -44,7 +44,7 @@
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		951C044FB7E49AA13214FC3A /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		9E67672EF425E860D1E7CAEF /* SteamcLog.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SteamcLog.podspec; path = ../SteamcLog.podspec; sourceTree = "<group>"; };
+		9E67672EF425E860D1E7CAEF /* SteamcLog.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SteamcLog.podspec; path = ../SteamcLog.podspec; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		A762621FCEB3FAC3829A8490 /* Pods-SteamcLog_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SteamcLog_Tests.release.xcconfig"; path = "Target Support Files/Pods-SteamcLog_Tests/Pods-SteamcLog_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		B33B59DE23D7618400F3B854 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		B33B59E023D766F000F3B854 /* Suit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Suit.swift; sourceTree = "<group>"; };

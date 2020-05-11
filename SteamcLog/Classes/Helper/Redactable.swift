@@ -1,8 +1,9 @@
 //
 //  Redactable.swift
-//  steamclog
+//  SteamcLog
 //
-//  Created by Brendan Lensink on 2020-01-20.
+//  Created by Brendan on 2020-01-20.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Foundation

@@ -3,6 +3,7 @@
 //  SteamcLog
 //
 //  Created by Jake Miner on 2020-04-29.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Foundation

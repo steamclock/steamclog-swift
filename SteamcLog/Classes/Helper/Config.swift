@@ -2,7 +2,8 @@
 //  Config.swift
 //  steamclog
 //
-//  Created by Brendan Lensink on 2020-01-20.
+//  Created by Brendan on 2020-01-20.
+//  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
 import Foundation
@@ -20,23 +21,44 @@ public struct Config {
     /// Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal let requireRedacted: Bool
 
+    /// Sentry project specific key. Found here: https://docs.sentry.io/platforms/cocoa/?platform=swift
+    /// Set this key to an empty string to not report logs to Sentry.
+    internal let sentryKey: String
+
+    /// Debug mode for Sentry SDK. Default is false.
+    /// More info here: https://docs.sentry.io/error-reporting/configuration/?platform=swift#debug
+    internal let sentryDebug: Bool
+
+    /// Toggles Sentry auto session tracking. Default is false.
+    /// More info here: https://docs.sentry.io/platforms/cocoa/?platform=swift#release-health
+    internal let sentryAutoSessionTracking: Bool
+
     /*
      * Create a new SteamcLog configuration to use.
      *
      * - Parameters:
+     *   - sentryKey: Sentry project key, needed to initialize SentrySDK.
      *   - logLevel: The log level presets for each destination. Default is `.develop`.
      *   - requireRedacted: If true, all logged objects must conform to `Redacted` or be redacted by default. Default is false.
      *   - identifier: The indentifier to note logs under. Default is "steamclog".
      *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
-     *
+     *   - sentryDebug: Enable debug mode for SentrySDK. Default is false.
+     *   - sentryAutoSessionTracking: Enably SentrySDK auto session tracking. Default is false.
      */
-    public init(logLevel: LogLevelPreset = .develop,
-                requireRedacted: Bool = false,
-                identifier: String = "steamclog",
-                autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+    public init(
+            sentryKey: String,
+            logLevel: LogLevelPreset = .develop,
+            requireRedacted: Bool = false,
+            identifier: String = "steamclog",
+            autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
+            sentryDebug: Bool = false,
+            sentryAutoSessionTracking: Bool = false) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
+        self.sentryKey = sentryKey
+        self.sentryDebug = sentryDebug
+        self.sentryAutoSessionTracking = sentryAutoSessionTracking
     }
 }
