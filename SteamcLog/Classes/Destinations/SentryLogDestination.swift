@@ -10,10 +10,36 @@ import Foundation
 import Sentry
 import XCGLogger
 
-class SentryDestination: BaseQueuedDestination {
-    override open func output(logDetails: LogDetails, message: String) {
-        guard logDetails.level.rawValue >= LogLevel.error.rawValue else { return }
+extension XCGLogger.Level {
+    var sentryLevel: SentryLevel {
+        switch self {
+        case .verbose, .debug: return .debug
+        case .info: return .info
+        case .warning: return .warning
+        case .error: return .error
+        case .severe: return .fatal
+        case .none: return .none
+        case .notice, .alert, .emergency: return .none
+        }
+    }
+}
 
-        SentrySDK.capture(message: message)
+class SentryDestination: BaseQueuedDestination {
+    private let scope = Scope()
+
+    override init(owner: XCGLogger? = nil, identifier: String = "") {
+        super.init(owner: owner, identifier: identifier)
+
+        scope.setLevel(.error)
+    }
+
+    override open func output(logDetails: LogDetails, message: String) {
+        let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
+        breadcrumb.message = logDetails.message
+        SentrySDK.addBreadcrumb(crumb: breadcrumb)
+
+        if logDetails.level.rawValue == LogLevel.error.rawValue {
+            SentrySDK.capture(message: logDetails.message, scope: scope)
+        }
     }
 }

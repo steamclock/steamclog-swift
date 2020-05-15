@@ -31,7 +31,7 @@ public enum LogLevelPreset {
         switch self {
         case .firehose: return .none
         case .develop: return .none
-        case .releaseAdvanced: return .warn
+        case .releaseAdvanced: return .info
         case .release: return .warn
         }
     }
