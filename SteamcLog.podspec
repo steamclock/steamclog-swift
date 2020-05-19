@@ -30,4 +30,9 @@ TODO: Add long description of the pod here.
   
   s.dependency 'XCGLogger', '~> 7.0.1'
   s.dependency 'Sentry', '~> 5'
+
+  s.subspec 'Netable' do |ss|
+    ss.source_files = 'Netable/*'
+    ss.dependency 'Netable'
+  end
 end
