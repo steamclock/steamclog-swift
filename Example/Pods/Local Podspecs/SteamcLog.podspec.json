@@ -17,7 +17,7 @@
   },
   "source_files": "SteamcLog/Classes/**/*",
   "platforms": {
-    "ios": "8.0"
+    "ios": "11.0"
   },
   "dependencies": {
     "XCGLogger": [
@@ -30,7 +30,10 @@
   "subspecs": [
     {
       "name": "Netable",
-      "source_files": "Sources/",
+      "source_files": [
+        "Netable/*",
+        "SteamcLog/Classes/**/*"
+      ],
       "dependencies": {
         "Netable": [
 

@@ -6,10 +6,6 @@ PODS:
   - Sentry (5.0.2):
     - Sentry/Core (= 5.0.2)
   - Sentry/Core (5.0.2)
-  - SteamcLog (0.2.0):
-    - Sentry (~> 5)
-    - SteamcLog/Netable (= 0.2.0)
-    - XCGLogger (~> 7.0.1)
   - SteamcLog/Netable (0.2.0):
     - Netable
     - Sentry (~> 5)
@@ -20,7 +16,7 @@ PODS:
     - ObjcExceptionBridging
 
 DEPENDENCIES:
-  - SteamcLog (from `../`)
+  - SteamcLog/Netable (from `../`)
 
 SPEC REPOS:
   trunk:
@@ -37,9 +33,9 @@ SPEC CHECKSUMS:
   Netable: 5718fa2bf4b093596a094e72d88ee2a7535765f5
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   Sentry: 5cec6146fff65c11080f78e8128582727c076e12
-  SteamcLog: 487c32950222a4e895ddb61a087e4da27d375dd1
+  SteamcLog: 5a6986c1e5bf074085975927b8f72e8e1ce01834
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f7322690efbdc0be19cb8970c2314ea05ed5779d
+PODFILE CHECKSUM: b4b676ae45ee0013755910214feeb62126de8f0a
 
 COCOAPODS: 1.9.1
