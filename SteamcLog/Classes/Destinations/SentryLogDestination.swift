@@ -30,8 +30,15 @@ class SentryDestination: BaseQueuedDestination {
     }
 
     override open func output(logDetails: LogDetails, message: String) {
-        let event = Event(level: logDetails.level.sentryLevel)
-        event.message = logDetails.message
-        SentrySDK.capture(event: event)
+        if logDetails.level >= .warning {
+                 let event = Event(level: logDetails.level.sentryLevel)
+                 event.message = logDetails.message
+                 SentrySDK.capture(event: event)
+        } else {
+                 let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
+                 breadcrumb.message = logDetails.message
+                 SentrySDK.addBreadcrumb(crumb: breadcrumb)
+        }
+
     }
 }
