@@ -9,28 +9,27 @@ NS_ASSUME_NONNULL_BEGIN
 SENTRY_NO_INIT
 
 // id can be null if no event in the envelope or attachment related to event
-- (instancetype)initWithId:(NSString *_Nullable) eventId NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithId:(NSString *_Nullable)eventId NS_DESIGNATED_INITIALIZER;
 
 /**
  * The event identifier, if available.
- * An event id exist if the envelope contains an event of items within it are related.
- * i.e Attachments
+ * An event id exist if the envelope contains an event of items within it are
+ * related. i.e Attachments
  */
-@property(nonatomic, readonly, copy) NSString *_Nullable eventId;
+@property (nonatomic, readonly, copy) NSString *_Nullable eventId;
 
 @end
 
 @interface SentryEnvelopeItemHeader : NSObject
 SENTRY_NO_INIT
 
-- (instancetype)initWithType:(NSString *)type
-                length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithType:(NSString *)type length:(NSUInteger)length NS_DESIGNATED_INITIALIZER;
 
 /**
  * The type of the envelope item.
  */
-@property(nonatomic, readonly, copy) NSString *type;
-@property(nonatomic, readonly) NSUInteger length;
+@property (nonatomic, readonly, copy) NSString *type;
+@property (nonatomic, readonly) NSUInteger length;
 
 @end
 
@@ -40,17 +39,17 @@ SENTRY_NO_INIT
 - (instancetype)initWithEvent:(SentryEvent *)event;
 - (instancetype)initWithSession:(SentrySession *)session;
 - (instancetype)initWithHeader:(SentryEnvelopeItemHeader *)header
-                data:(NSData *)data NS_DESIGNATED_INITIALIZER;
+                          data:(NSData *)data NS_DESIGNATED_INITIALIZER;
 
 /**
  * The envelope item header.
  */
-@property(nonatomic, readonly, strong) SentryEnvelopeItemHeader *header;
+@property (nonatomic, readonly, strong) SentryEnvelopeItemHeader *header;
 
 /**
  * The envelope payload.
  */
-@property(nonatomic, readonly, strong) NSData *data;
+@property (nonatomic, readonly, strong) NSData *data;
 
 @end
 
@@ -58,15 +57,12 @@ SENTRY_NO_INIT
 SENTRY_NO_INIT
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id
-                singleItem:(SentryEnvelopeItem *)item;
+- (instancetype)initWithId:(NSString *_Nullable)id singleItem:(SentryEnvelopeItem *)item;
 
-- (instancetype)initWithHeader:(SentryEnvelopeHeader *)header
-                    singleItem:(SentryEnvelopeItem *)item;
+- (instancetype)initWithHeader:(SentryEnvelopeHeader *)header singleItem:(SentryEnvelopeItem *)item;
 
 // If no event, or no data related to event, id will be null
-- (instancetype)initWithId:(NSString *_Nullable)id
-                     items:(NSArray<SentryEnvelopeItem *> *)items;
+- (instancetype)initWithId:(NSString *_Nullable)id items:(NSArray<SentryEnvelopeItem *> *)items;
 
 /**
  * Initializes a SentryEnvelope with a single session.
@@ -77,7 +73,8 @@ SENTRY_NO_INIT
 
 /**
  * Initializes a SentryEnvelope with a list of sessions.
- * Can be used when an operations that starts a session closes an ongoing session
+ * Can be used when an operations that starts a session closes an ongoing
+ * session
  * @param sessions to init the envelope with.
  * @return an initialized SentryEnvelope
  */
@@ -92,12 +89,12 @@ SENTRY_NO_INIT
 /**
  * The envelope header.
  */
-@property(nonatomic, readonly, strong) SentryEnvelopeHeader *header;
+@property (nonatomic, readonly, strong) SentryEnvelopeHeader *header;
 
 /**
  * The envelope items.
  */
-@property(nonatomic, readonly, strong) NSArray<SentryEnvelopeItem *> *items;
+@property (nonatomic, readonly, strong) NSArray<SentryEnvelopeItem *> *items;
 
 @end
 

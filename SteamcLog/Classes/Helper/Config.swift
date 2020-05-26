@@ -52,7 +52,7 @@ public struct Config {
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
             sentryDebug: Bool = false,
-            sentryAutoSessionTracking: Bool = false) {
+            sentryAutoSessionTracking: Bool = true) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier

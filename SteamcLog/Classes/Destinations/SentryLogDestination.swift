@@ -25,21 +25,13 @@ extension XCGLogger.Level {
 }
 
 class SentryDestination: BaseQueuedDestination {
-    private let scope = Scope()
-
     override init(owner: XCGLogger? = nil, identifier: String = "") {
         super.init(owner: owner, identifier: identifier)
-
-        scope.setLevel(.error)
     }
 
     override open func output(logDetails: LogDetails, message: String) {
-        let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
-        breadcrumb.message = logDetails.message
-        SentrySDK.addBreadcrumb(crumb: breadcrumb)
-
-        if logDetails.level.rawValue == LogLevel.error.rawValue {
-            SentrySDK.capture(message: logDetails.message, scope: scope)
-        }
+        let event = Event(level: logDetails.level.sentryLevel)
+        event.message = logDetails.message
+        SentrySDK.capture(event: event)
     }
 }
