@@ -1,6 +1,6 @@
 {
   "name": "SteamcLog",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "summary": "A short description of SteamcLog.",
   "description": "TODO: Add long description of the pod here.",
   "homepage": "https://github.com/steamclock/SteamcLog",
@@ -13,7 +13,7 @@
   },
   "source": {
     "git": "https://github.com/steamclog/SteamcLog.git",
-    "tag": "0.2.0"
+    "tag": "0.3.0"
   },
   "source_files": "SteamcLog/Classes/**/*",
   "platforms": {
@@ -24,7 +24,7 @@
       "~> 7.0.1"
     ],
     "Sentry": [
-      "~> 5"
+      "~> 5.1"
     ]
   },
   "subspecs": [

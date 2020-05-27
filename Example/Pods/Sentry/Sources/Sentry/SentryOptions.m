@@ -6,22 +6,24 @@
 
 @implementation SentryOptions
 
-+ (NSArray<NSString *>*)defaultIntegrations {
++ (NSArray<NSString *> *)defaultIntegrations
+{
     return @[
-        @"SentryCrashIntegration",
-        @"SentryUIKitMemoryWarningIntegration",
-        @"SentryAutoBreadcrumbTrackingIntegration",
+        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
         @"SentryAutoSessionTrackingIntegration"
     ];
 }
 
 - (_Nullable instancetype)initWithDict:(NSDictionary<NSString *, id> *)options
-                      didFailWithError:(NSError *_Nullable *_Nullable)error {
+                      didFailWithError:(NSError *_Nullable *_Nullable)error
+{
     self = [super init];
     if (self) {
         [self validateOptions:options didFailWithError:error];
         if (nil != error && nil != *error) {
-            [SentryLog logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error] andLevel:kSentryLogLevelError];
+            [SentryLog
+                logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
+                      andLevel:kSentryLogLevelError];
             return nil;
         }
 
@@ -29,10 +31,9 @@
         if (nil == self.releaseName) {
             NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
             if (nil != infoDict) {
-                self.releaseName = [NSString stringWithFormat:@"%@@%@+%@",
-                                    infoDict[@"CFBundleIdentifier"],
-                                    infoDict[@"CFBundleShortVersionString"],
-                                    infoDict[@"CFBundleVersion"]];
+                self.releaseName = [NSString
+                    stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
+                    infoDict[@"CFBundleShortVersionString"], infoDict[@"CFBundleVersion"]];
             }
         }
     }
@@ -40,20 +41,23 @@
 }
 
 /**
- populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
+ populates all `SentryOptions` values from `options` dict using
+ fallbacks/defaults if needed.
  */
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
-       didFailWithError:(NSError *_Nullable *_Nullable)error {
-    
+       didFailWithError:(NSError *_Nullable *_Nullable)error
+{
+
     if (nil != [options objectForKey:@"debug"]) {
         self.debug = [NSNumber numberWithBool:[[options objectForKey:@"debug"] boolValue]];
     } else {
         self.debug = @NO;
     }
 
-    if ([self.debug isEqual:@YES])  {
-        // In other SDKs there's debug=true + diagnosticLevel where we can control how chatty the SDK is.
-        // Ideally we'd support all the levels here, and perhaps name it `diagnosticLevel` to align more.
+    if ([self.debug isEqual:@YES]) {
+        // In other SDKs there's debug=true + diagnosticLevel where we can
+        // control how chatty the SDK is. Ideally we'd support all the levels
+        // here, and perhaps name it `diagnosticLevel` to align more.
         if ([@"verbose" isEqual:[options objectForKey:@"logLevel"]]) {
             SentrySDK.logLevel = kSentryLogLevelVerbose;
             _logLevel = kSentryLogLevelVerbose;
@@ -65,30 +69,33 @@
         SentrySDK.logLevel = kSentryLogLevelError;
         _logLevel = kSentryLogLevelError;
     }
-    
-    if (nil == [options valueForKey:@"dsn"] || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
+
+    if (nil == [options valueForKey:@"dsn"]
+        || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
         self.enabled = @NO;
-        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK" andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK"
+                         andLevel:kSentryLogLevelDebug];
         return;
     }
-    
-    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"] didFailWithError:error];
+
+    self.dsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"]
+                                didFailWithError:error];
     if (nil != error && nil != *error) {
         self.enabled = @NO;
     }
-    
+
     if ([[options objectForKey:@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = [options objectForKey:@"release"];
     }
-    
+
     if ([[options objectForKey:@"environment"] isKindOfClass:[NSString class]]) {
         self.environment = [options objectForKey:@"environment"];
     }
-    
+
     if ([[options objectForKey:@"dist"] isKindOfClass:[NSString class]]) {
         self.dist = [options objectForKey:@"dist"];
     }
-    
+
     if (nil != [options objectForKey:@"enabled"]) {
         self.enabled = [NSNumber numberWithBool:[[options objectForKey:@"enabled"] boolValue]];
     } else {
@@ -125,13 +132,15 @@
     }
 
     if (nil != [options objectForKey:@"enableAutoSessionTracking"]) {
-        self.enableAutoSessionTracking = [NSNumber numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"] boolValue]];
+        self.enableAutoSessionTracking = [NSNumber
+            numberWithBool:[[options objectForKey:@"enableAutoSessionTracking"] boolValue]];
     } else {
         self.enableAutoSessionTracking = @NO; // TODO: Opt-out?
     }
 
     if (nil != [options objectForKey:@"sessionTrackingIntervalMillis"]) {
-        self.sessionTrackingIntervalMillis = [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
+        self.sessionTrackingIntervalMillis =
+            [[options objectForKey:@"sessionTrackingIntervalMillis"] unsignedIntValue];
     } else {
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
     }
