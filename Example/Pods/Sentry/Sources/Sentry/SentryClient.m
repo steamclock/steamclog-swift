@@ -1,7 +1,10 @@
 #import "SentryClient.h"
 #import "SentryBreadcrumbTracker.h"
 #import "SentryCrash.h"
+#import "SentryCrashDefaultBinaryImageProvider.h"
+#import "SentryCrashDefaultMachineContextWrapper.h"
 #import "SentryCrashInstallationReporter.h"
+#import "SentryDebugMetaBuilder.h"
 #import "SentryDsn.h"
 #import "SentryEnvelope.h"
 #import "SentryError.h"
@@ -11,11 +14,15 @@
 #import "SentryHttpTransport.h"
 #import "SentryIntegrationProtocol.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentryOptions.h"
 #import "SentryQueueableRequestManager.h"
 #import "SentrySDK.h"
 #import "SentryScope.h"
 #import "SentrySession.h"
+#import "SentryStacktraceBuilder.h"
+#import "SentryThread.h"
+#import "SentryThreadInspector.h"
 #import "SentryTransport.h"
 #import "SentryTransportFactory.h"
 #import "SentryUser.h"
@@ -31,6 +38,8 @@ SentryClient ()
 
 @property (nonatomic, strong) id<SentryTransport> transport;
 @property (nonatomic, strong) SentryFileManager *fileManager;
+@property (nonatomic, strong) SentryDebugMetaBuilder *debugMetaBuilder;
+@property (nonatomic, strong) SentryThreadInspector *threadInspector;
 
 @end
 
@@ -40,7 +49,34 @@ SentryClient ()
 {
     if (self = [super init]) {
         self.options = options;
+
+        SentryCrashDefaultBinaryImageProvider *provider =
+            [[SentryCrashDefaultBinaryImageProvider alloc] init];
+
+        self.debugMetaBuilder =
+            [[SentryDebugMetaBuilder alloc] initWithBinaryImageProvider:provider];
+
+        SentryStacktraceBuilder *stacktraceBuilder = [[SentryStacktraceBuilder alloc] init];
+        id<SentryCrashMachineContextWrapper> machineContextWrapper =
+            [[SentryCrashDefaultMachineContextWrapper alloc] init];
+
+        self.threadInspector =
+            [[SentryThreadInspector alloc] initWithStacktraceBuilder:stacktraceBuilder
+                                            andMachineContextWrapper:machineContextWrapper];
     }
+    return self;
+}
+
+/** Internal constructor for testing */
+- (instancetype)initWithOptions:(SentryOptions *)options
+                   andTransport:(id<SentryTransport>)transport
+                 andFileManager:(SentryFileManager *)fileManager
+{
+    self = [self initWithOptions:options];
+
+    self.transport = transport;
+    self.fileManager = fileManager;
+
     return self;
 }
 
@@ -71,31 +107,37 @@ SentryClient ()
 - (NSString *_Nullable)captureMessage:(NSString *)message withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelInfo];
-    // TODO: Attach stacktrace?
     event.message = message;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
 }
 
 - (NSString *_Nullable)captureException:(NSException *)exception
                               withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
     event.message = exception.reason;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureError:(NSError *)error withScope:(SentryScope *_Nullable)scope
 {
     SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelError];
-    // TODO: Capture Stacktrace
     event.message = error.localizedDescription;
-    return [self captureEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:YES];
 }
 
 - (NSString *_Nullable)captureEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
 {
-    SentryEvent *preparedEvent = [self prepareEvent:event withScope:scope];
+    return [self sendEvent:event withScope:scope alwaysAttachStacktrace:NO];
+}
+
+- (NSString *_Nullable)sendEvent:(SentryEvent *)event
+                       withScope:(SentryScope *_Nullable)scope
+          alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
+{
+    SentryEvent *preparedEvent = [self prepareEvent:event
+                                          withScope:scope
+                             alwaysAttachStacktrace:alwaysAttachStacktrace];
     if (nil != preparedEvent) {
         if (nil != self.options.beforeSend) {
             event = self.options.beforeSend(event);
@@ -114,6 +156,7 @@ SentryClient ()
     [self captureEnvelope:envelope];
 }
 
+// TODO: We remove this function It is not in the header and nobody uses it
 - (void)captureSessions:(NSArray<SentrySession *> *)sessions
 {
     SentryEnvelope *envelope = [[SentryEnvelope alloc] initWithSessions:sessions];
@@ -140,7 +183,9 @@ SentryClient ()
     return ([sampleRate floatValue] >= ((double)arc4random() / 0x100000000));
 }
 
-- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event withScope:(SentryScope *_Nullable)scope
+- (SentryEvent *_Nullable)prepareEvent:(SentryEvent *)event
+                             withScope:(SentryScope *_Nullable)scope
+                alwaysAttachStacktrace:(BOOL)alwaysAttachStacktrace
 {
     NSParameterAssert(event);
 
@@ -178,6 +223,23 @@ SentryClient ()
     NSString *environment = self.options.environment;
     if (nil != environment && nil == event.environment) {
         event.environment = environment;
+    }
+
+    NSMutableDictionary *sdk =
+        @{ @"name" : SentryMeta.sdkName, @"version" : SentryMeta.versionString }.mutableCopy;
+    if (nil != sdk && nil == event.sdk) {
+        if (event.extra[@"__sentry_sdk_integrations"]) {
+            [sdk setValue:event.extra[@"__sentry_sdk_integrations"] forKey:@"integrations"];
+        }
+        event.sdk = sdk;
+    }
+
+    if (alwaysAttachStacktrace || [self.options.attachStacktrace boolValue] ||
+        [event.exceptions count] > 0) {
+        event.debugMeta = [self.debugMetaBuilder buildDebugMeta];
+        // We don't want to add the stacktrace of attaching the stacktrace.
+        // Therefore we skip three frames.
+        event.threads = [self.threadInspector getCurrentThreadsSkippingFrames:3];
     }
 
     if (nil != scope) {

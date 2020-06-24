@@ -20,7 +20,7 @@ public class RedactedLogDestination: LogDestination {
     public func log(event: LogEvent) {
         switch event {
         case .message(let message):
-            clog.info(message)
+            clog.info(message.description)
         case .requestCompleted(let statusCode, _, let finalizedResult):
             if let result = finalizedResult as? Redacted {
                 clog.info("Request completed with status code \(statusCode)", result)
@@ -34,6 +34,8 @@ public class RedactedLogDestination: LogDestination {
             clog.info("    URL: \(urlString)")
             clog.info("    Headers: \(redacted(headers: headers))")
             clog.info("    Params: \(redacted(params: params))")
+        case .startupInfo(let baseURL, let logDestination):
+            clog.info("Netable started with base url: \(baseURL). Log destination: \(logDestination)")
         }
     }
 
