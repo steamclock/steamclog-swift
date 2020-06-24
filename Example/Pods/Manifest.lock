@@ -1,12 +1,12 @@
 PODS:
-  - Netable (0.8.5)
+  - Netable (0.9.0)
   - ObjcExceptionBridging (1.0.1):
     - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
   - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
-  - Sentry (5.1.0):
-    - Sentry/Core (= 5.1.0)
-  - Sentry/Core (5.1.0)
-  - SteamcLog/Netable (0.3.0):
+  - Sentry (5.1.5):
+    - Sentry/Core (= 5.1.5)
+  - Sentry/Core (5.1.5)
+  - SteamcLog/Netable (0.3.1):
     - Netable
     - Sentry (~> 5.1)
     - XCGLogger (~> 7.0.1)
@@ -30,12 +30,12 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Netable: 5718fa2bf4b093596a094e72d88ee2a7535765f5
+  Netable: bfebd1518f48ef61cb45edb77eb217896f38f585
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
-  Sentry: 01008d590825eb1c02a796cbdced2cd3625f61e4
-  SteamcLog: d75a622ab0880c292fd1e0c1380d493ea7fa1249
+  Sentry: e73af5462d1e7978c571aa2fdb861053938d7efd
+  SteamcLog: 14ebe75fbcaa47ec82e2274bd6842a52f2bb6e5f
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
 PODFILE CHECKSUM: b4b676ae45ee0013755910214feeb62126de8f0a
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3
