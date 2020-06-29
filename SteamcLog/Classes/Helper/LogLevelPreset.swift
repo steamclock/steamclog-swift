@@ -8,9 +8,9 @@
 
 import Foundation
 
-public enum LogLevelPreset: Int, Codable {
+public enum LogLevelPreset: String, Codable {
     /// Disk: verbose, system: verbose, remote: none, analytics: disabled
-    case firehose = 0
+    case firehose
     /// Disk: none, system: debug, remote: none, analytics: disabled
     case develop
     /// Disk: verbose, system: none, remote: warn, analytics: enabled
