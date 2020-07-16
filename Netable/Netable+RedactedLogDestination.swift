@@ -21,19 +21,23 @@ public class RedactedLogDestination: LogDestination {
         switch event {
         case .message(let message):
             clog.info(message.description)
-        case .requestCompleted(let statusCode, _, let finalizedResult):
+        case .requestCreationFailed(_, let error):
+            clog.warn("Creation of request failed with error: \(error.errorDescription ?? "UNKNOWN")")
+        case .requestSuccess(_, _, let statusCode, _, let finalizedResult):
             if let result = finalizedResult as? Redacted {
                 clog.info("Request completed with status code \(statusCode)", result)
             } else {
                 clog.info("Request completed with status code \(statusCode). Finalized result redacted.")
             }
-        case .requestFailed(let error):
+        case .requestFailed(_, _, let error):
             clog.warn("Request failed with error: \(error.errorDescription ?? "UNKNOWN")")
-        case .requestStarted(let urlString, let method, let headers, let params):
-            clog.info("Started \(method.rawValue) request...")
-            clog.info("    URL: \(urlString)")
-            clog.info("    Headers: \(redacted(headers: headers))")
-            clog.info("    Params: \(redacted(params: params))")
+        case .requestRetrying(_, _, let error):
+            clog.warn("Request retrying due to error: \(error.errorDescription ?? "UNKNOWN")")
+        case .requestStarted(let info):
+            clog.info("Started \(info.method.rawValue) request...")
+            clog.info("    URL: \(info.urlString)")
+            clog.info("    Headers: \(redacted(headers: info.headers))")
+            clog.info("    Params: \(redacted(params: info.params))")
         case .startupInfo(let baseURL, let logDestination):
             clog.info("Netable started with base url: \(baseURL). Log destination: \(logDestination)")
         }
