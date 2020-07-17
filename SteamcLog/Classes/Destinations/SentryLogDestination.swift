@@ -30,7 +30,7 @@ class SentryDestination: BaseQueuedDestination {
     }
 
     override open func output(logDetails: LogDetails, message: String) {
-        if logDetails.level >= .warning {
+        if logDetails.level >= .error {
                  let event = Event(level: logDetails.level.sentryLevel)
                  event.message = logDetails.message
                  SentrySDK.capture(event: event)
