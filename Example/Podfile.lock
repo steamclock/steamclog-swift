@@ -1,5 +1,5 @@
 PODS:
-  - Netable (0.10.0)
+  - Netable (0.10.1)
   - ObjcExceptionBridging (1.0.1):
     - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
   - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Netable: fc5f78b8dc55b5b36724be51a687be23e7f8690c
+  Netable: ca524b746fcd8cf2a295565223c6a6c26c444c6e
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   Sentry: 81f7f2bd3cb041137ea7efcde3aa5ad0d5a67632
   SteamcLog: 34f56c1fe9673dbd8ae02b05bf59e1c9374aac1f
