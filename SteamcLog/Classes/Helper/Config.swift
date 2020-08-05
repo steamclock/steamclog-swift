@@ -33,6 +33,9 @@ public struct Config {
     /// More info here: https://docs.sentry.io/platforms/cocoa/?platform=swift#release-health
     internal let sentryAutoSessionTracking: Bool
 
+    /// Toggles Sentry attaching stack traces  to errors. Default is true.
+    internal let sentryAttachStacktrace: Bool
+
     /*
      * Create a new SteamcLog configuration to use.
      *
@@ -52,7 +55,8 @@ public struct Config {
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
             sentryDebug: Bool = false,
-            sentryAutoSessionTracking: Bool = true) {
+            sentryAutoSessionTracking: Bool = true,
+            sentryAttachStacktrace: Bool = true) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
@@ -60,5 +64,6 @@ public struct Config {
         self.sentryKey = sentryKey
         self.sentryDebug = sentryDebug
         self.sentryAutoSessionTracking = sentryAutoSessionTracking
+        self.sentryAttachStacktrace = sentryAttachStacktrace
     }
 }
