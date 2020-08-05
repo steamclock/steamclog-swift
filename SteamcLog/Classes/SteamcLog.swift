@@ -215,41 +215,48 @@ public struct SteamcLog {
 
     // MARK: Nonfatal Log Level
 
-    private func internalError(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
+    private func internalError(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        if let info = info {
+            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        }
+
         xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func error(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
-        internalError(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    public func error(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalError(message, info: info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func error<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                error("\(message): Object redacted due to config.requireRedacted set to true")
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
                 return
             }
-            error("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
 
         guard let jsonData = try? encoder.encode(object),
             let jsonString = String(data: jsonData, encoding: .utf8) else {
-                error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+                internalError(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
         }
 
-        error("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        internalError(message, info: jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func error(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
-        error("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    public func error(_ message: StaticString, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalError(message, info: object.debugDescription, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    // MARK: Error Log Level
+    // MARK: Fatal Log Level
 
     @_transparent
-    public func fatal(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+    public func fatal(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+        if let info = info {
+            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        }
         xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
 
         // forcing a crash, so we get a stacktrace
@@ -258,12 +265,12 @@ public struct SteamcLog {
     }
 
     @_transparent
-    public func fatal<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Encodable {
+    public func fatal<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                fatal("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+                fatal(message, info: "Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             }
-            fatal("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            fatal(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
 
         guard let jsonData = try? encoder.encode(object),
@@ -271,12 +278,12 @@ public struct SteamcLog {
                 fatal(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
 
-        fatal("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        fatal(message, info: "\(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     @_transparent
-    public func fatal(_ message: String, _ redacted: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
-        fatal("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    public func fatal(_ message: StaticString, _ redacted: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+        fatal(message, info: "Object redacted due to config.requireRedacted set to true \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Analytics Tracking Helpers
