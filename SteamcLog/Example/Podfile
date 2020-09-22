@@ -1,7 +1,7 @@
 use_frameworks!
 
 target 'SteamcLog_Example' do
-  pod 'SteamcLog', :path => '../'
+  pod 'SteamcLog', :path => '../../'
 
   target 'SteamcLog_Tests' do
     inherit! :search_paths
