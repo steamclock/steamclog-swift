@@ -31,8 +31,7 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '8.0'
   
   s.static_framework = true
-  s.dependency 'Fabric', '~> 1.10.2'
-  s.dependency 'Crashlytics', '~> 3.14.0'
+  s.dependency 'Firebase/Crashlytics'
   s.dependency 'Firebase/Analytics'
   s.dependency 'XCGLogger', '~> 7.0.1'
 end
