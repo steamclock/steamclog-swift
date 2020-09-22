@@ -26,17 +26,17 @@ FOUNDATION_EXPORT const unsigned char ObjcExceptionBridgingVersionString[];
 
  @note Loosely based on the code here: https://stackoverflow.com/a/35003095/144857 and here: https://github.com/williamFalcon/SwiftTryCatch
  */
-NS_INLINE void _try_objc(void(^_Nonnull tryBlock)(void), void(^_Nonnull catchBlock)(NSException* _Nonnull exception), void(^_Nonnull finallyBlock)(void)) {
-    @try {
-        tryBlock();
-    }
-    @catch (NSException* exception) {
-        catchBlock(exception);
-    }
-    @finally {
-        finallyBlock();
-    }
-}
+//NS_INLINE void _try_objc(void(^_Nonnull tryBlock)(void), void(^_Nonnull catchBlock)(NSException* _Nonnull exception), void(^_Nonnull finallyBlock)(void)) {
+//    @try {
+//        tryBlock();
+//    }
+//    @catch (NSException* exception) {
+//        catchBlock(exception);
+//    }
+//    @finally {
+//        finallyBlock();
+//    }
+//}
 
 /**
  Throw an Objective-C exception
@@ -45,7 +45,7 @@ NS_INLINE void _try_objc(void(^_Nonnull tryBlock)(void), void(^_Nonnull catchBlo
 
  @note Loosely based on the code here: https://github.com/williamFalcon/SwiftTryCatch
  */
-NS_INLINE void _throw_objc(NSException* _Nonnull exception)
-{
-    @throw exception;
-}
+//NS_INLINE void _throw_objc(NSException* _Nonnull exception)
+//{
+//    @throw exception;
+//}

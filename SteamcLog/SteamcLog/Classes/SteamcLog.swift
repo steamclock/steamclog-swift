@@ -6,8 +6,7 @@
 //  Copyright (c) 2020 Steamclock Software, Ltd. All rights reserved.
 //
 
-import Crashlytics
-import Fabric
+import FirebaseCore
 import FirebaseAnalytics
 import Foundation
 import XCGLogger
@@ -40,7 +39,7 @@ public struct SteamcLog {
         crashlyticsDestination = CrashlyticsDestination(identifier: "steamclog.crashlyticsDestination")
         setLoggingDetails(destination: &crashlyticsDestination, outputLevel: config.logLevel.crashlytics)
         xcgLogger.add(destination: crashlyticsDestination)
-        Fabric.with([Crashlytics.self])
+        FirebaseApp.configure()
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
