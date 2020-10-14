@@ -1,0 +1,44 @@
+{
+  "name": "SteamcLog",
+  "version": "0.3.2",
+  "summary": "A short description of SteamcLog.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/steamclock/SteamcLog",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "brendan@steamclock.com": "brendan@steamclock.com"
+  },
+  "source": {
+    "git": "https://github.com/steamclog/SteamcLog.git",
+    "tag": "0.3.2"
+  },
+  "source_files": "SteamcLog/Classes/**/*",
+  "platforms": {
+    "ios": "11.0"
+  },
+  "dependencies": {
+    "XCGLogger": [
+      "~> 7.0.1"
+    ],
+    "Sentry": [
+      "~> 5.1"
+    ]
+  },
+  "subspecs": [
+    {
+      "name": "Netable",
+      "source_files": [
+        "Netable/*",
+        "SteamcLog/Classes/**/*"
+      ],
+      "dependencies": {
+        "Netable": [
+
+        ]
+      }
+    }
+  ]
+}

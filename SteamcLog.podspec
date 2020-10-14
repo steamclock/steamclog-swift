@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'SteamcLog'
-  s.version          = '0.1.0'
+  s.version          = '0.4.0'
   s.summary          = 'A short description of SteamcLog.'
 
 # This description is used to generate tags and improve search results.
@@ -22,17 +22,17 @@ TODO: Add long description of the pod here.
                        DESC
 
   s.homepage         = 'https://github.com/steamclock/SteamcLog'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'brendan@steamclock.com' => 'brendan@steamclock.com' }
   s.source           = { :git => 'https://github.com/steamclog/SteamcLog.git', :tag => s.version.to_s }
-  s.source_files     = 'SteamcLog/SteamcLog/Classes/**/*'
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
-  s.ios.deployment_target = '8.0'
+  s.source_files     = 'SteamcLog/Classes/**/*'
+  s.ios.deployment_target = '11.0'
   
-  s.static_framework = true
-  s.dependency 'Fabric', '~> 1.10.2'
-  s.dependency 'Crashlytics', '~> 3.14.0'
-  s.dependency 'Firebase/Analytics'
   s.dependency 'XCGLogger', '~> 7.0.1'
+  s.dependency 'Sentry', '~> 5.1'
+
+  s.subspec 'Netable' do |ss|
+    ss.source_files = 'Netable/*', 'SteamcLog/Classes/**/*'
+    ss.dependency 'Netable'
+  end
 end

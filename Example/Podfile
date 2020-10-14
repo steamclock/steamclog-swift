@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'SteamcLog_Example' do
+  pod 'SteamcLog/Netable', :path => '../'
+
+  target 'SteamcLog_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

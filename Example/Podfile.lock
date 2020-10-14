@@ -1,0 +1,41 @@
+PODS:
+  - Netable (0.10.1)
+  - ObjcExceptionBridging (1.0.1):
+    - ObjcExceptionBridging/ObjcExceptionBridging (= 1.0.1)
+  - ObjcExceptionBridging/ObjcExceptionBridging (1.0.1)
+  - Sentry (5.1.9):
+    - Sentry/Core (= 5.1.9)
+  - Sentry/Core (5.1.9)
+  - SteamcLog/Netable (0.3.2):
+    - Netable
+    - Sentry (~> 5.1)
+    - XCGLogger (~> 7.0.1)
+  - XCGLogger (7.0.1):
+    - XCGLogger/Core (= 7.0.1)
+  - XCGLogger/Core (7.0.1):
+    - ObjcExceptionBridging
+
+DEPENDENCIES:
+  - SteamcLog/Netable (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - Netable
+    - ObjcExceptionBridging
+    - Sentry
+    - XCGLogger
+
+EXTERNAL SOURCES:
+  SteamcLog:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Netable: ca524b746fcd8cf2a295565223c6a6c26c444c6e
+  ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
+  Sentry: 81f7f2bd3cb041137ea7efcde3aa5ad0d5a67632
+  SteamcLog: 34f56c1fe9673dbd8ae02b05bf59e1c9374aac1f
+  XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+
+PODFILE CHECKSUM: b4b676ae45ee0013755910214feeb62126de8f0a
+
+COCOAPODS: 1.9.1

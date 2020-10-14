@@ -118,3 +118,21 @@ clog.info("Here's a simple model", sampleUser)
 And the log will output:
 
 `User(name: "Name", uuid: <redacted>, email: "hi@steamclock.com", created: <redacted>)`
+
+## Using SteamcLog with Netable
+
+If you're also using [Netable](https://github.com/steamclock/netable), you can pipe your logs directly from Netable into SteamcLog.
+
+First, in your Podfile, change
+```
+pod 'SteamcLog', :git => "git@github.com:steamclock/steamclog.git"
+```
+to
+```
+pod 'SteamcLog/Netable', :git => "git@github.com:steamclock/steamclog.git"
+```
+
+Then, when you create your Netable instance, set the log destination to `RedactedLogDestination` and pass in a reference to your Steamclog instance, like so:
+```
+let netable = Netable(baseURL: URL(string: "https://api.thecatapi.com/v1/")!, logDestination: RedactedLogDestination(clog: clog)
+```
