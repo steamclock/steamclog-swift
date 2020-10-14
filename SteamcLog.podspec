@@ -21,10 +21,10 @@ Pod::Spec.new do |s|
 TODO: Add long description of the pod here.
                        DESC
 
-  s.homepage         = 'https://github.com/steamclock/SteamcLog'
+  s.homepage         = 'https://github.com/steamclock/steamclog-swift'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'brendan@steamclock.com' => 'brendan@steamclock.com' }
-  s.source           = { :git => 'https://github.com/steamclog/SteamcLog.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/steamclock/steamclog-swift', :tag => s.version.to_s }
   s.source_files     = 'SteamcLog/Classes/**/*'
   s.ios.deployment_target = '11.0'
   
