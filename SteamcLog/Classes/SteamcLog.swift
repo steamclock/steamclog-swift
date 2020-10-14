@@ -216,6 +216,39 @@ public struct SteamcLog {
         warn("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    // MARK: Non-static NonFatal Log Level
+
+    private func internalUserReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+    public func userReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalUserReport(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+    public func userReport<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+        if config.requireRedacted {
+            guard let redacted = object as? Redacted else {
+                internalUserReport("\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            internalUserReport("\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
+        }
+
+        guard let jsonData = try? encoder.encode(object),
+              let jsonString = String(data: jsonData, encoding: .utf8) else {
+            internalUserReport(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
+        }
+
+        internalUserReport(jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+    public func userReport(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        internalUserReport("\(message): \(object.debugDescription)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
     // MARK: Nonfatal Log Level
 
     private func internalError(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
