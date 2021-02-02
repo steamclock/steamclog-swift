@@ -30,21 +30,32 @@ class SentryDestination: BaseQueuedDestination {
     }
 
     override open func output(logDetails: LogDetails, message: String) {
-        if logDetails.level == .severe {
-            // Note: text from fatalError does not currently seem to be captured (might be a bug on Sentry's side)
-            // so for fatal errors also log a breadcrumb with the error text, so we at least have it somewhere, putting them in a
-            // different category, just so they stand out more
-            let breadcrumb = Breadcrumb(level: .fatal, category: "fatal")
+        // Unpleasant hack: log file rotation failure is sent from inside XCGLogger (so is hard to control),
+        // has the full filename in it (so is different every time), and can happen on any call-stack (because it just happens on
+        // whatever call happens to rotate the log), so does not get de-duplicate well.
+        // Convert to a warning breadcumb and a fixed string error. Not fully suppressing, for now,
+        // becausue there are problaby things we could do (super verbose logging) that would exacerbate this,
+        // so we should be watching how frequently it happens, just in case.
+        if (logDetails.level == .error) && message.contains("Unable to rotate file") {
+            let breadcrumb = Breadcrumb(level: .warning, category: "steamclog")
             breadcrumb.message = logDetails.message
             SentrySDK.addBreadcrumb(crumb: breadcrumb)
-        } else if logDetails.level == .error {
+
+            let event = Event(level: logDetails.level.sentryLevel)
+            event.message = "Unable to rotate log file"
+            SentrySDK.capture(event: event)
+
+            return
+        }
+
+        if logDetails.level == .error {
             let event = Event(level: logDetails.level.sentryLevel)
             event.message = logDetails.message
             SentrySDK.capture(event: event)
-        } else {
-            let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
-            breadcrumb.message = logDetails.message
-            SentrySDK.addBreadcrumb(crumb: breadcrumb)
         }
+
+        let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
+        breadcrumb.message = logDetails.message
+        SentrySDK.addBreadcrumb(crumb: breadcrumb)
     }
 }
