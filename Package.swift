@@ -14,7 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/DaveWoodCom/XCGLogger", from: "7.0.0"),
-        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "5.1.0"),
+        .package(url: "https://github.com/getsentry/sentry-cocoa", from: "7.0.0"),
     ],
     targets: [
         .target(
