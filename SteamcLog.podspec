@@ -29,7 +29,7 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '11.0'
   
   s.dependency 'XCGLogger', '~> 7.0.1'
-  s.dependency 'Sentry', '~> 7.0.0'
+  s.dependency 'Sentry', '~> 7'
 
   s.subspec 'Netable' do |ss|
     ss.source_files = 'Netable/*', 'SteamcLog/Classes/**/*'
