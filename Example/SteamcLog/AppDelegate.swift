@@ -9,11 +9,13 @@
 import SteamcLog
 import UIKit
 
-#if DEBUG
-var clog = SteamcLog(Config(sentryKey: "", logLevel: .debug, sentryDebug: true))
-#else
-var clog = SteamcLog(Config(sentryKey: "", logLevel: .develop, sentryDebug: true))
-#endif
+var clog = SteamcLog(
+    Config(
+        sentryKey: "",
+        logLevel: .releaseAdvanced,
+        sentryDebug: true
+    )
+)
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
