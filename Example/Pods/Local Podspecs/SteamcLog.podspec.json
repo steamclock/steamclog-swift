@@ -1,9 +1,9 @@
 {
   "name": "SteamcLog",
-  "version": "0.3.2",
+  "version": "0.5.4",
   "summary": "A short description of SteamcLog.",
   "description": "TODO: Add long description of the pod here.",
-  "homepage": "https://github.com/steamclock/SteamcLog",
+  "homepage": "https://github.com/steamclock/steamclog-swift",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
@@ -12,8 +12,8 @@
     "brendan@steamclock.com": "brendan@steamclock.com"
   },
   "source": {
-    "git": "https://github.com/steamclog/SteamcLog.git",
-    "tag": "0.3.2"
+    "git": "https://github.com/steamclock/steamclog-swift",
+    "tag": "0.5.4"
   },
   "source_files": "SteamcLog/Classes/**/*",
   "platforms": {
@@ -24,7 +24,7 @@
       "~> 7.0.1"
     ],
     "Sentry": [
-      "~> 5.1"
+      "~> 7"
     ]
   },
   "subspecs": [

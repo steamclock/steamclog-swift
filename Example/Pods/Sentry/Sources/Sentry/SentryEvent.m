@@ -3,8 +3,11 @@
 #import "NSDictionary+SentrySanitize.h"
 #import "SentryBreadcrumb.h"
 #import "SentryClient.h"
+#import "SentryCurrentDate.h"
 #import "SentryDebugMeta.h"
 #import "SentryException.h"
+#import "SentryId.h"
+#import "SentryMessage.h"
 #import "SentryMeta.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
@@ -23,33 +26,29 @@ NS_ASSUME_NONNULL_BEGIN
 {
     self = [super init];
     if (self) {
-        self.eventId =
-            [[[NSUUID UUID].UUIDString stringByReplacingOccurrencesOfString:@"-"
-                                                                 withString:@""] lowercaseString];
+        self.eventId = [[SentryId alloc] init];
         self.level = level;
         self.platform = @"cocoa";
     }
     return self;
 }
 
-- (instancetype)initWithJSON:(NSData *)json
+- (instancetype)initWithError:(NSError *)error
 {
-    self = [self initWithLevel:kSentryLevelInfo];
-    if (self) {
-        self.json = json;
-    }
+    self = [self initWithLevel:kSentryLevelError];
+    self.error = error;
     return self;
 }
 
 - (NSDictionary<NSString *, id> *)serialize
 {
     if (nil == self.timestamp) {
-        self.timestamp = [NSDate date];
+        self.timestamp = [SentryCurrentDate date];
     }
 
     NSMutableDictionary *serializedData = @{
-        @"event_id" : self.eventId,
-        @"timestamp" : [self.timestamp sentry_toIso8601String],
+        @"event_id" : self.eventId.sentryIdString,
+        @"timestamp" : @(self.timestamp.timeIntervalSince1970),
         @"platform" : @"cocoa",
     }
                                               .mutableCopy;
@@ -133,23 +132,25 @@ NS_ASSUME_NONNULL_BEGIN
 
     [serializedData setValue:self.context forKey:@"contexts"];
 
-    [serializedData setValue:self.message forKey:@"message"];
+    if (nil != self.message) {
+        [serializedData setValue:[self.message serialize] forKey:@"message"];
+    }
     [serializedData setValue:self.logger forKey:@"logger"];
     [serializedData setValue:self.serverName forKey:@"server_name"];
     [serializedData setValue:self.type forKey:@"type"];
     if (nil != self.type && [self.type isEqualToString:@"transaction"]) {
         if (nil != self.startTimestamp) {
-            [serializedData setValue:[self.startTimestamp sentry_toIso8601String]
+            [serializedData setValue:@(self.startTimestamp.timeIntervalSince1970)
                               forKey:@"start_timestamp"];
         } else {
             // start timestamp should never be empty
-            [serializedData setValue:[self.timestamp sentry_toIso8601String]
+            [serializedData setValue:@(self.timestamp.timeIntervalSince1970)
                               forKey:@"start_timestamp"];
         }
     }
 }
 
-- (NSMutableArray *_Nullable)serializeBreadcrumbs
+- (NSArray *_Nullable)serializeBreadcrumbs
 {
     NSMutableArray *crumbs = [NSMutableArray new];
     for (SentryBreadcrumb *crumb in self.breadcrumbs) {
