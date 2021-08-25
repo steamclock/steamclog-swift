@@ -1,4 +1,5 @@
 #import "SentrySystemEventsBreadcrumbs.h"
+#import "SentryBreadcrumb.h"
 #import "SentryLog.h"
 #import "SentrySDK.h"
 
@@ -16,7 +17,15 @@
     [self start:currentDevice];
 #else
     [SentryLog logWithMessage:@"NO iOS -> [SentrySystemEventsBreadcrumbs.start] does nothing."
-                     andLevel:kSentryLogLevelDebug];
+                     andLevel:kSentryLevelDebug];
+#endif
+}
+
+- (void)stop
+{
+#if TARGET_OS_IOS
+    NSNotificationCenter *defaultCenter = [NSNotificationCenter defaultCenter];
+    [defaultCenter removeObserver:self];
 #endif
 }
 
@@ -32,7 +41,7 @@
     } else {
         [SentryLog logWithMessage:@"currentDevice is null, it won't be able to record breadcrumbs "
                                   @"for device battery and orientation."
-                         andLevel:kSentryLogLevelDebug];
+                         andLevel:kSentryLevelDebug];
     }
     [self initKeyboardVisibilityObserver];
     [self initScreenshotObserver];
@@ -92,7 +101,7 @@
         float w3cLevel = (currentLevel * 100);
         batteryData[@"level"] = @(w3cLevel);
     } else {
-        [SentryLog logWithMessage:@"batteryLevel is unknown." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"batteryLevel is unknown." andLevel:kSentryLevelDebug];
     }
 
     batteryData[@"plugged"] = @(isPlugged);
@@ -122,7 +131,7 @@
 
     // Ignore changes in device orientation if unknown, face up, or face down.
     if (!UIDeviceOrientationIsValidInterfaceOrientation(currentOrientation)) {
-        [SentryLog logWithMessage:@"currentOrientation is unknown." andLevel:kSentryLogLevelDebug];
+        [SentryLog logWithMessage:@"currentOrientation is unknown." andLevel:kSentryLevelDebug];
         return;
     }
 

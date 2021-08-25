@@ -2,37 +2,76 @@
 #import "SentryDsn.h"
 #import "SentryError.h"
 #import "SentryLog.h"
+#import "SentryMeta.h"
 #import "SentrySDK.h"
+#import "SentrySdkInfo.h"
+
+@interface
+SentryOptions ()
+
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultSampleRate;
+@property (nullable, nonatomic, copy, readonly) NSNumber *defaultTracesSampleRate;
+
+@end
 
 @implementation SentryOptions
 
 + (NSArray<NSString *> *)defaultIntegrations
 {
     return @[
-        @"SentryCrashIntegration", @"SentryAutoBreadcrumbTrackingIntegration",
-        @"SentryAutoSessionTrackingIntegration"
+        @"SentryCrashIntegration", @"SentryFramesTrackingIntegration",
+        @"SentryAutoBreadcrumbTrackingIntegration", @"SentryAutoSessionTrackingIntegration",
+        @"SentryAppStartTrackingIntegration", @"SentryOutOfMemoryTrackingIntegration",
+        @"SentryPerformanceTrackingIntegration", @"SentryNetworkTrackingIntegration"
     ];
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.enabled = @NO;
-
-        // TODO: Remove this side effect
-        SentrySDK.logLevel = kSentryLogLevelError;
-        self.logLevel = kSentryLogLevelError;
-
-        self.debug = @NO;
+        self.enabled = YES;
+        self.diagnosticLevel = kSentryLevelDebug;
+        self.debug = NO;
         self.maxBreadcrumbs = defaultMaxBreadcrumbs;
+        self.maxCacheItems = 30;
         self.integrations = SentryOptions.defaultIntegrations;
-        self.sampleRate = @1;
-        self.enableAutoSessionTracking = @NO;
+        _defaultSampleRate = @1;
+        self.sampleRate = _defaultSampleRate;
+        self.enableAutoSessionTracking = YES;
+        self.enableOutOfMemoryTracking = YES;
         self.sessionTrackingIntervalMillis = [@30000 unsignedIntValue];
-        self.attachStacktrace = @NO;
+        self.attachStacktrace = YES;
+        self.stitchAsyncCode = NO;
+        self.maxAttachmentSize = 20 * 1024 * 1024;
+        self.sendDefaultPii = NO;
+        self.enableAutoPerformanceTracking = YES;
+        _defaultTracesSampleRate = nil;
+        self.tracesSampleRate = _defaultTracesSampleRate;
+
+        // Use the name of the bundle’s executable file as inAppInclude, so SentryInAppLogic
+        // marks frames coming from there as inApp. With this approach, the SDK marks public
+        // frameworks such as UIKitCore, CoreFoundation, GraphicsServices, and so forth, as not
+        // inApp. For private frameworks, such as Sentry, dynamic and static frameworks differ.
+        // Suppose you use dynamic frameworks inside your app. In that case, the SDK marks these as
+        // not inApp as these frameworks are located in the application bundle, but their location
+        // is different from the main executable.  In case you have a private framework that should
+        // be inApp you can add it to inAppInclude. When using static frameworks, the frameworks end
+        // up in the main executable. Therefore, the SDK currently can't detect if a frame of the
+        // main executable originates from the application or a private framework and marks all of
+        // them as inApp. To fix this, the user can use stack trace rules on Sentry.
+        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
+        NSString *bundleExecutable = infoDict[@"CFBundleExecutable"];
+        if (nil == bundleExecutable) {
+            _inAppIncludes = [NSArray new];
+        } else {
+            _inAppIncludes = @[ bundleExecutable ];
+        }
+
+        _inAppExcludes = [NSArray new];
+        _sdkInfo = [[SentrySdkInfo alloc] initWithName:SentryMeta.sdkName
+                                            andVersion:SentryMeta.versionString];
 
         // Set default release name
-        NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
         if (nil != infoDict) {
             self.releaseName =
                 [NSString stringWithFormat:@"%@@%@+%@", infoDict[@"CFBundleIdentifier"],
@@ -50,7 +89,7 @@
         if (nil != error && nil != *error) {
             [SentryLog
                 logWithMessage:[NSString stringWithFormat:@"Failed to initialize: %@", *error]
-                      andLevel:kSentryLogLevelError];
+                      andLevel:kSentryLevelError];
             return nil;
         }
     }
@@ -64,51 +103,38 @@
 
     if (nil == error) {
         _dsn = dsn;
-        self.enabled = @YES;
     } else {
-        self.enabled = @NO;
-        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@", error];
-        [SentryLog logWithMessage:errorMessage andLevel:kSentryLogLevelError];
+        NSString *errorMessage = [NSString stringWithFormat:@"Could not parse the DSN: %@.", error];
+        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
     }
 }
 
 /**
- populates all `SentryOptions` values from `options` dict using
- fallbacks/defaults if needed.
+ * Populates all `SentryOptions` values from `options` dict using fallbacks/defaults if needed.
  */
 - (void)validateOptions:(NSDictionary<NSString *, id> *)options
        didFailWithError:(NSError *_Nullable *_Nullable)error
 {
     if (nil != options[@"debug"]) {
-        self.debug = @([options[@"debug"] boolValue]);
+        self.debug = [options[@"debug"] boolValue];
     }
 
-    if ([self.debug isEqual:@YES]) {
-        // In other SDKs there's debug=true + diagnosticLevel where we can
-        // control how chatty the SDK is. Ideally we'd support all the levels
-        // here, and perhaps name it `diagnosticLevel` to align more.
-        if ([@"verbose" isEqual:options[@"logLevel"]]) {
-            SentrySDK.logLevel = kSentryLogLevelVerbose;
-            _logLevel = kSentryLogLevelVerbose;
-        } else {
-            SentrySDK.logLevel = kSentryLogLevelDebug;
-            _logLevel = kSentryLogLevelDebug;
+    if ([options[@"diagnosticLevel"] isKindOfClass:[NSString class]]) {
+        for (SentryLevel level = 0; level <= kSentryLevelFatal; level++) {
+            if ([SentryLevelNames[level] isEqualToString:options[@"diagnosticLevel"]]) {
+                self.diagnosticLevel = level;
+                break;
+            }
         }
     }
 
-    if (nil == [options valueForKey:@"dsn"]
-        || ![[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
-        self.enabled = @NO;
-        [SentryLog logWithMessage:@"DSN is empty, will disable the SDK"
-                         andLevel:kSentryLogLevelDebug];
-        return;
+    NSString *dsn = @"";
+    if (nil != [options valueForKey:@"dsn"] &&
+        [[options valueForKey:@"dsn"] isKindOfClass:[NSString class]]) {
+        dsn = [options valueForKey:@"dsn"];
     }
 
-    self.parsedDsn = [[SentryDsn alloc] initWithString:[options valueForKey:@"dsn"]
-                                      didFailWithError:error];
-    if (nil != error && nil != *error) {
-        self.enabled = @NO;
-    }
+    self.parsedDsn = [[SentryDsn alloc] initWithString:dsn didFailWithError:error];
 
     if ([options[@"release"] isKindOfClass:[NSString class]]) {
         self.releaseName = options[@"release"];
@@ -123,13 +149,15 @@
     }
 
     if (nil != options[@"enabled"]) {
-        self.enabled = @([options[@"enabled"] boolValue]);
-    } else {
-        self.enabled = @YES;
+        self.enabled = [options[@"enabled"] boolValue];
     }
 
-    if (nil != options[@"maxBreadcrumbs"]) {
+    if ([options[@"maxBreadcrumbs"] isKindOfClass:[NSNumber class]]) {
         self.maxBreadcrumbs = [options[@"maxBreadcrumbs"] unsignedIntValue];
+    }
+
+    if ([options[@"maxCacheItems"] isKindOfClass:[NSNumber class]]) {
+        self.maxCacheItems = [options[@"maxCacheItems"] unsignedIntValue];
     }
 
     if (nil != options[@"beforeSend"]) {
@@ -140,17 +168,25 @@
         self.beforeBreadcrumb = options[@"beforeBreadcrumb"];
     }
 
+    if (nil != options[@"onCrashedLastRun"]) {
+        self.onCrashedLastRun = options[@"onCrashedLastRun"];
+    }
+
     if (nil != options[@"integrations"]) {
         self.integrations = options[@"integrations"];
     }
 
     NSNumber *sampleRate = options[@"sampleRate"];
-    if (nil != sampleRate && [sampleRate floatValue] >= 0 && [sampleRate floatValue] <= 1.0) {
+    if (nil != sampleRate) {
         self.sampleRate = sampleRate;
     }
 
     if (nil != options[@"enableAutoSessionTracking"]) {
-        self.enableAutoSessionTracking = @([options[@"enableAutoSessionTracking"] boolValue]);
+        self.enableAutoSessionTracking = [options[@"enableAutoSessionTracking"] boolValue];
+    }
+
+    if (nil != options[@"enableOutOfMemoryTracking"]) {
+        self.enableOutOfMemoryTracking = [options[@"enableOutOfMemoryTracking"] boolValue];
     }
 
     if (nil != options[@"sessionTrackingIntervalMillis"]) {
@@ -159,8 +195,100 @@
     }
 
     if (nil != options[@"attachStacktrace"]) {
-        self.attachStacktrace = @([options[@"attachStacktrace"] boolValue]);
+        self.attachStacktrace = [options[@"attachStacktrace"] boolValue];
     }
+
+    if (nil != options[@"stitchAsyncCode"]) {
+        self.stitchAsyncCode = [options[@"stitchAsyncCode"] boolValue];
+    }
+
+    if (nil != options[@"maxAttachmentSize"]) {
+        self.maxAttachmentSize = [options[@"maxAttachmentSize"] unsignedIntValue];
+    }
+
+    if (nil != options[@"sendDefaultPii"]) {
+        self.sendDefaultPii = [options[@"sendDefaultPii"] boolValue];
+    }
+
+    if (nil != options[@"enableAutoPerformanceTracking"]) {
+        self.enableAutoPerformanceTracking = [options[@"enableAutoPerformanceTracking"] boolValue];
+    }
+
+    NSNumber *tracesSampleRate = options[@"tracesSampleRate"];
+    if (nil != tracesSampleRate) {
+        self.tracesSampleRate = tracesSampleRate;
+    }
+
+    if (nil != options[@"tracesSampler"]) {
+        self.tracesSampler = options[@"tracesSampler"];
+    }
+
+    NSPredicate *isNSString = [NSPredicate predicateWithBlock:^BOOL(
+        id object, NSDictionary *bindings) { return [object isKindOfClass:[NSString class]]; }];
+
+    if ([options[@"inAppIncludes"] isKindOfClass:[NSArray class]]) {
+        NSArray<NSString *> *inAppIncludes =
+            [options[@"inAppIncludes"] filteredArrayUsingPredicate:isNSString];
+        _inAppIncludes = [_inAppIncludes arrayByAddingObjectsFromArray:inAppIncludes];
+    }
+
+    if ([options[@"inAppExcludes"] isKindOfClass:[NSArray class]]) {
+        _inAppExcludes = [options[@"inAppExcludes"] filteredArrayUsingPredicate:isNSString];
+    }
+
+    if ([options[@"urlSessionDelegate"] conformsToProtocol:@protocol(NSURLSessionDelegate)]) {
+        self.urlSessionDelegate = options[@"urlSessionDelegate"];
+    }
+}
+
+- (void)addInAppInclude:(NSString *)inAppInclude
+{
+    _inAppIncludes = [self.inAppIncludes arrayByAddingObject:inAppInclude];
+}
+
+- (void)addInAppExclude:(NSString *)inAppExclude
+{
+    _inAppExcludes = [self.inAppExcludes arrayByAddingObject:inAppExclude];
+}
+
+- (void)setSampleRate:(NSNumber *)sampleRate
+{
+    if (sampleRate == nil) {
+        _sampleRate = nil;
+    } else if ([self isValidSampleRate:sampleRate]) {
+        _sampleRate = sampleRate;
+    } else {
+        _sampleRate = _defaultSampleRate;
+    }
+}
+
+- (BOOL)isValidSampleRate:(NSNumber *)sampleRate
+{
+    // Same valid range, so we can reuse the logic.
+    return [self isValidTracesSampleRate:sampleRate];
+}
+
+- (void)setTracesSampleRate:(NSNumber *)tracesSampleRate
+{
+    if (tracesSampleRate == nil) {
+        _tracesSampleRate = nil;
+    } else if ([self isValidTracesSampleRate:tracesSampleRate]) {
+        _tracesSampleRate = tracesSampleRate;
+    } else {
+        _tracesSampleRate = _defaultTracesSampleRate;
+    }
+}
+
+- (BOOL)isValidTracesSampleRate:(NSNumber *)tracesSampleRate
+{
+    double rate = [tracesSampleRate doubleValue];
+    return rate >= 0 && rate <= 1.0;
+}
+
+- (BOOL)isTracingEnabled
+{
+    return (_tracesSampleRate != nil && [_tracesSampleRate doubleValue] > 0)
+        || _tracesSampler != nil;
 }
 
 @end

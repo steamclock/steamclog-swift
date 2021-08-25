@@ -1,13 +1,16 @@
 #import "SentryCrashReportConverter.h"
 #import "NSDate+SentryExtras.h"
 #import "SentryBreadcrumb.h"
-#import "SentryCrashStackEntryMapper.h"
+#import "SentryCrashStackCursor.h"
 #import "SentryDebugMeta.h"
 #import "SentryEvent.h"
 #import "SentryException.h"
 #import "SentryFrame.h"
 #import "SentryHexAddressFormatter.h"
+#import "SentryInAppLogic.h"
+#import "SentryLog.h"
 #import "SentryMechanism.h"
+#import "SentryMechanismMeta.h"
 #import "SentryStacktrace.h"
 #import "SentryThread.h"
 #import "SentryUser.h"
@@ -22,19 +25,34 @@ SentryCrashReportConverter ()
 @property (nonatomic, strong) NSArray *threads;
 @property (nonatomic, strong) NSDictionary *systemContext;
 @property (nonatomic, strong) NSString *diagnosis;
+@property (nonatomic, strong) SentryInAppLogic *inAppLogic;
 
 @end
 
 @implementation SentryCrashReportConverter
 
-- (instancetype)initWithReport:(NSDictionary *)report
+- (instancetype)initWithReport:(NSDictionary *)report inAppLogic:(SentryInAppLogic *)inAppLogic
 {
     self = [super init];
     if (self) {
         self.report = report;
-        self.binaryImages = report[@"binary_images"];
+        self.inAppLogic = inAppLogic;
         self.systemContext = report[@"system"];
-        self.userContext = report[@"user"];
+
+        NSDictionary *userContextUnMerged = report[@"user"];
+        if (userContextUnMerged == nil) {
+            userContextUnMerged = [NSDictionary new];
+        }
+
+        // The SentryCrashIntegration used userInfo to put in scope data. This had a few downsides.
+        // Now sentry_sdk_scope contains scope data. To be backwards compatible, to still support
+        // data from userInfo, and to not have to do many changes in here we merge both dictionaries
+        // here. For more details please check out SentryCrashScopeObserver.
+        NSMutableDictionary *userContextMerged =
+            [[NSMutableDictionary alloc] initWithDictionary:userContextUnMerged];
+        [userContextMerged addEntriesFromDictionary:report[@"sentry_sdk_scope"]];
+        [userContextMerged removeObjectForKey:@"sentry_sdk_scope"];
+        self.userContext = userContextMerged;
 
         NSDictionary *crashContext;
         // This is an incomplete crash report
@@ -44,9 +62,29 @@ SentryCrashReportConverter ()
             crashContext = report[@"crash"];
         }
 
+        if (nil != report[@"recrash_report"][@"binary_images"]) {
+            self.binaryImages = report[@"recrash_report"][@"binary_images"];
+        } else {
+            self.binaryImages = report[@"binary_images"];
+        }
+
         self.diagnosis = crashContext[@"diagnosis"];
         self.exceptionContext = crashContext[@"error"];
-        self.threads = crashContext[@"threads"];
+        [self initThreads:crashContext[@"threads"]];
+    }
+    return self;
+}
+
+- (void)initThreads:(NSArray<NSDictionary *> *)threads
+{
+    if (nil != threads && [threads isKindOfClass:[NSArray class]]) {
+        // SentryCrash sometimes produces recrash_reports where an element of threads is a
+        // NSString instead of a NSDictionary. When this happens we can't read the details of
+        // the thread, but we have to discard it. Otherwise we would crash.
+        NSPredicate *onlyNSDictionary = [NSPredicate predicateWithBlock:^BOOL(id object,
+            NSDictionary *bindings) { return [object isKindOfClass:[NSDictionary class]]; }];
+        self.threads = [threads filteredArrayUsingPredicate:onlyNSDictionary];
+
         for (NSUInteger i = 0; i < self.threads.count; i++) {
             NSDictionary *thread = self.threads[i];
             if ([thread[@"crashed"] boolValue]) {
@@ -55,51 +93,60 @@ SentryCrashReportConverter ()
             }
         }
     }
-    return self;
 }
 
-- (SentryEvent *)convertReportToEvent
+- (SentryEvent *_Nullable)convertReportToEvent
 {
-    SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
-    if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
-        event.timestamp = [NSDate
-            dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
-    } else {
-        event.timestamp = [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+    @try {
+        SentryEvent *event = [[SentryEvent alloc] initWithLevel:kSentryLevelFatal];
+        if ([self.report[@"report"][@"timestamp"] isKindOfClass:NSNumber.class]) {
+            event.timestamp = [NSDate
+                dateWithTimeIntervalSince1970:[self.report[@"report"][@"timestamp"] integerValue]];
+        } else {
+            event.timestamp =
+                [NSDate sentry_fromIso8601String:self.report[@"report"][@"timestamp"]];
+        }
+        event.debugMeta = [self convertDebugMeta];
+        event.threads = [self convertThreads];
+        event.exceptions = [self convertExceptions];
+
+        event.dist = self.userContext[@"dist"];
+        event.environment = self.userContext[@"environment"];
+        event.context = self.userContext[@"context"];
+        event.extra = self.userContext[@"extra"];
+        event.tags = self.userContext[@"tags"];
+        //    event.level we do not set the level here since this always resulted
+        //    from a fatal crash
+
+        event.user = [self convertUser];
+        event.breadcrumbs = [self convertBreadcrumbs];
+
+        // The releaseName must be set on the userInfo of SentryCrash.sharedInstance
+        event.releaseName = self.userContext[@"release"];
+
+        // We want to set the release and dist to the version from the crash report
+        // itself otherwise it can happend that we have two different version when
+        // the app crashes right before an app update #218 #219
+        NSDictionary *appContext = event.context[@"app"];
+        if (nil == event.releaseName && appContext[@"app_identifier"] && appContext[@"app_version"]
+            && appContext[@"app_build"]) {
+            event.releaseName =
+                [NSString stringWithFormat:@"%@@%@+%@", appContext[@"app_identifier"],
+                          appContext[@"app_version"], appContext[@"app_build"]];
+        }
+
+        if (nil == event.dist && appContext[@"app_build"]) {
+            event.dist = appContext[@"app_build"];
+        }
+
+        return event;
+    } @catch (NSException *exception) {
+        NSString *errorMessage =
+            [NSString stringWithFormat:@"Could not convert report:%@", exception.description];
+        [SentryLog logWithMessage:errorMessage andLevel:kSentryLevelError];
     }
-    event.debugMeta = [self convertDebugMeta];
-    event.threads = [self convertThreads];
-    event.exceptions = [self convertExceptions];
 
-    // The releaseName must be set on the userInfo of SentryCrash.sharedInstance
-    event.releaseName = self.userContext[@"release"];
-
-    event.dist = self.userContext[@"dist"];
-    event.environment = self.userContext[@"environment"];
-    event.context = self.userContext[@"context"];
-    event.extra = self.userContext[@"extra"];
-    event.tags = self.userContext[@"tags"];
-    //    event.level we do not set the level here since this always resulted
-    //    from a fatal crash
-
-    event.user = [self convertUser];
-    event.breadcrumbs = [self convertBreadcrumbs];
-
-    NSDictionary *appContext = event.context[@"app"];
-    // We want to set the release and dist to the version from the crash report
-    // itself otherwise it can happend that we have two different version when
-    // the app crashes right before an app update #218 #219
-    if (nil == event.releaseName && appContext[@"app_identifier"] && appContext[@"app_version"]
-        && appContext[@"app_build"]) {
-        event.releaseName = [NSString stringWithFormat:@"%@@%@+%@", appContext[@"app_identifier"],
-                                      appContext[@"app_version"], appContext[@"app_build"]];
-    }
-
-    if (nil == event.dist && appContext[@"app_build"]) {
-        event.dist = appContext[@"app_build"];
-    }
-
-    return event;
+    return nil;
 }
 
 - (SentryUser *_Nullable)convertUser
@@ -184,7 +231,6 @@ SentryCrashReportConverter ()
 }
 
 - (SentryThread *_Nullable)threadAtIndex:(NSInteger)threadIndex
-                  stripCrashedStacktrace:(BOOL)stripCrashedStacktrace
 {
     if (threadIndex >= [self.threads count]) {
         return nil;
@@ -218,7 +264,7 @@ SentryCrashReportConverter ()
     frame.instructionAddress = sentry_formatHexAddress(frameDictionary[@"instruction_addr"]);
     frame.imageAddress = sentry_formatHexAddress(binaryImage[@"image_addr"]);
     frame.package = binaryImage[@"name"];
-    BOOL isInApp = [SentryCrashStackEntryMapper isInApp:binaryImage[@"name"]];
+    BOOL isInApp = [self.inAppLogic isInApp:binaryImage[@"name"]];
     frame.inApp = @(isInApp);
     if (frameDictionary[@"symbol_name"]) {
         frame.function = frameDictionary[@"symbol_name"];
@@ -235,10 +281,24 @@ SentryCrashReportConverter ()
     }
 
     NSMutableArray *frames = [NSMutableArray arrayWithCapacity:frameCount];
-    for (NSInteger i = frameCount - 1; i >= 0; i--) {
-        [frames addObject:[self stackFrameAtIndex:i inThreadIndex:threadIndex]];
+    SentryFrame *lastFrame = nil;
+
+    for (NSInteger i = 0; i < frameCount; i++) {
+        NSDictionary *frameDictionary = [self rawStackTraceForThreadIndex:threadIndex][i];
+        uintptr_t instructionAddress
+            = (uintptr_t)[frameDictionary[@"instruction_addr"] unsignedLongLongValue];
+        if (instructionAddress == SentryCrashSC_ASYNC_MARKER) {
+            if (lastFrame != nil) {
+                lastFrame.stackStart = @(YES);
+            }
+            // skip the marker frame
+            continue;
+        }
+        lastFrame = [self stackFrameAtIndex:i inThreadIndex:threadIndex];
+        [frames addObject:lastFrame];
     }
-    return frames;
+
+    return [[frames reverseObjectEnumerator] allObjects];
 }
 
 - (SentryStacktrace *)stackTraceForThreadIndex:(NSInteger)threadIndex
@@ -253,13 +313,13 @@ SentryCrashReportConverter ()
 
 - (SentryThread *_Nullable)crashedThread
 {
-    return [self threadAtIndex:self.crashedThreadIndex stripCrashedStacktrace:NO];
+    return [self threadAtIndex:self.crashedThreadIndex];
 }
 
 - (NSArray<SentryDebugMeta *> *)convertDebugMeta
 {
     NSMutableArray<SentryDebugMeta *> *result = [NSMutableArray new];
-    for (NSDictionary *sourceImage in self.report[@"binary_images"]) {
+    for (NSDictionary *sourceImage in self.binaryImages) {
         SentryDebugMeta *debugMeta = [[SentryDebugMeta alloc] init];
         debugMeta.uuid = sourceImage[@"uuid"];
         debugMeta.type = @"apple";
@@ -325,7 +385,11 @@ SentryCrashReportConverter ()
 
     [self enhanceValueFromNotableAddresses:exception];
     exception.mechanism = [self extractMechanismOfType:exceptionType];
-    exception.thread = [self crashedThread];
+
+    SentryThread *crashedThread = [self crashedThread];
+    exception.threadId = crashedThread.threadId;
+    exception.stacktrace = crashedThread.stacktrace;
+
     if (nil != self.diagnosis && self.diagnosis.length > 0
         && ![self.diagnosis containsString:exception.value]) {
         exception.value = [exception.value
@@ -336,16 +400,6 @@ SentryCrashReportConverter ()
 
 - (SentryException *)parseNSException
 {
-    //    if ([self.exceptionContext[@"nsexception"][@"name"]
-    //    containsString:@"NativeScript encountered a fatal error:"]) {
-    //        // TODO parsing here
-    //        SentryException *exception = [[SentryException alloc]
-    //        initWithValue:self.exceptionContext[@"nsexception"][@"reason"]
-    //                                                                       type:self.exceptionContext[@"nsexception"][@"name"]];
-    //        // exception.thread set here with parsed js stacktrace
-    //
-    //        return exception;
-    //    }
     NSString *reason = @"";
     if (nil != self.exceptionContext[@"nsexception"][@"reason"]) {
         reason = self.exceptionContext[@"nsexception"][@"reason"];
@@ -390,14 +444,14 @@ SentryCrashReportConverter ()
     if (nil != self.exceptionContext[@"mach"]) {
         mechanism.handled = @(NO);
 
-        NSMutableDictionary *meta = [NSMutableDictionary new];
+        SentryMechanismMeta *meta = [[SentryMechanismMeta alloc] init];
 
         NSMutableDictionary *machException = [NSMutableDictionary new];
         [machException setValue:self.exceptionContext[@"mach"][@"exception_name"] forKey:@"name"];
         [machException setValue:self.exceptionContext[@"mach"][@"exception"] forKey:@"exception"];
         [machException setValue:self.exceptionContext[@"mach"][@"subcode"] forKey:@"subcode"];
         [machException setValue:self.exceptionContext[@"mach"][@"code"] forKey:@"code"];
-        [meta setValue:machException forKey:@"mach_exception"];
+        meta.machException = machException;
 
         if (nil != self.exceptionContext[@"signal"]) {
             NSMutableDictionary *signal = [NSMutableDictionary new];
@@ -405,7 +459,7 @@ SentryCrashReportConverter ()
             [signal setValue:self.exceptionContext[@"signal"][@"code"] forKey:@"code"];
             [signal setValue:self.exceptionContext[@"signal"][@"code_name"] forKey:@"code_name"];
             [signal setValue:self.exceptionContext[@"signal"][@"name"] forKey:@"name"];
-            [meta setValue:signal forKey:@"signal"];
+            meta.signal = signal;
         }
 
         mechanism.meta = meta;
@@ -424,7 +478,7 @@ SentryCrashReportConverter ()
 {
     NSMutableArray *result = [NSMutableArray new];
     for (NSInteger threadIndex = 0; threadIndex < (NSInteger)self.threads.count; threadIndex++) {
-        SentryThread *thread = [self threadAtIndex:threadIndex stripCrashedStacktrace:YES];
+        SentryThread *thread = [self threadAtIndex:threadIndex];
         if (thread && nil != thread.stacktrace) {
             [result addObject:thread];
         }
