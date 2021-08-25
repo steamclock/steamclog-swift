@@ -42,7 +42,7 @@ class SentryDestination: BaseQueuedDestination {
             SentrySDK.addBreadcrumb(crumb: breadcrumb)
 
             let event = Event(level: logDetails.level.sentryLevel)
-            event.message = "Unable to rotate log file"
+            event.message = SentryMessage(formatted: "Unable to rotate log file")
             SentrySDK.capture(event: event)
 
             return
@@ -50,7 +50,7 @@ class SentryDestination: BaseQueuedDestination {
 
         if logDetails.level == .error {
             let event = Event(level: logDetails.level.sentryLevel)
-            event.message = logDetails.message
+            event.message = SentryMessage(formatted: logDetails.message)
             SentrySDK.capture(event: event)
         }
 
