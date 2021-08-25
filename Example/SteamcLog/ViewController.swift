@@ -17,9 +17,7 @@ private enum Event: String, AnalyticsEvent {
 
 class ViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        /// Print a simple message at each output level
+    @IBAction func runTests() {
         clog.verbose("May your beer be laid under an enchantment of surpassing excellence for seven years!")
         clog.debug("And some things that should not have been forgotten were lost. History became legend. Legend became myth.")
         clog.info("No admittance except on party business.")
