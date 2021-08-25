@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Un-released
 
+## [0.5.3]
+- Fix Sentry version syntax in the podspec to include all minor versions
+
 ## [0.5.2]
 - Update Sentry dependency to v7.2.1 
 
