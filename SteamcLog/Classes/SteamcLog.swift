@@ -34,14 +34,12 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
-        // Set up default destinations
-        let options = Options()
-        options.dsn = config.sentryKey
-        options.debug = NSNumber(value: config.sentryDebug)
-        options.attachStacktrace = NSNumber(value: config.sentryAttachStacktrace)
-        options.enableAutoSessionTracking = NSNumber(value: config.sentryAutoSessionTracking)
-
-        SentrySDK.start(options: options)
+        SentrySDK.start { options in
+            options.dsn = config.sentryKey
+            options.debug = config.sentryDebug
+            options.attachStacktrace = config.sentryAttachStacktrace
+            options.enableAutoSessionTracking = config.sentryAutoSessionTracking
+        }
 
         sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
         setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.sentry)
