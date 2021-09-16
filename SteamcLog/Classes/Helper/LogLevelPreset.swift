@@ -24,7 +24,7 @@ public enum LogLevelPreset: String, Codable {
         }
     }
 
-    var sentry: LogLevel {
+    var remote: LogLevel {
         switch self {
         case .debugVerbose: return .none
         case .debug: return .none
@@ -33,7 +33,7 @@ public enum LogLevelPreset: String, Codable {
         }
     }
 
-    var file: LogLevel {
+    var disk: LogLevel {
         switch self {
         case .debugVerbose: return .verbose
         case .debug: return .none
@@ -42,7 +42,7 @@ public enum LogLevelPreset: String, Codable {
         }
     }
 
-    var system: LogLevel {
+    var console: LogLevel {
         switch self {
         case .debugVerbose: return .verbose
         case .debug: return .debug
