@@ -28,17 +28,17 @@ public enum LogLevelPreset: String, Codable {
         switch self {
         case .debugVerbose: return .none
         case .debug: return .none
-        case .release: return .warn
-        case .releaseAdvanced: return .info
+        case .release: return .info
+        case .releaseAdvanced: return .warn
         }
     }
 
     var disk: LogLevel {
         switch self {
         case .debugVerbose: return .verbose
-        case .debug: return .none
-        case .release: return .none
-        case .releaseAdvanced: return .verbose
+        case .debug: return .debug
+        case .release: return .info
+        case .releaseAdvanced: return .debug
         }
     }
 
