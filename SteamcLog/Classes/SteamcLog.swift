@@ -13,7 +13,7 @@ import XCGLogger
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination.outputLevel = config.logLevel.console.xcgLevel
+            sentryDestination.outputLevel = config.logLevel.remote.xcgLevel
             fileDestination.outputLevel = config.logLevel.disk.xcgLevel
             systemDestination.outputLevel = config.logLevel.console.xcgLevel
         }
@@ -42,7 +42,7 @@ public struct SteamcLog {
         }
 
         sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
-        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.console)
+        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.remote)
         xcgLogger.add(destination: sentryDestination)
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
