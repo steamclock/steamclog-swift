@@ -10,9 +10,16 @@ import Foundation
 
 public enum LogLevelPreset: String, Codable {
 
+    /// console: verbose, disk: verbose, remote: none
     case debugVerbose
+
+    /// console: debug, disk: debug, remote: none
     case debug
+
+    /// console: none, disk: info, remote: info
     case release
+
+    /// console: none, disk: debug, remote: debug
     case releaseAdvanced
 
     var global: LogLevel {
@@ -29,7 +36,7 @@ public enum LogLevelPreset: String, Codable {
         case .debugVerbose: return .none
         case .debug: return .none
         case .release: return .info
-        case .releaseAdvanced: return .warn
+        case .releaseAdvanced: return .debug
         }
     }
 
