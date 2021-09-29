@@ -50,7 +50,7 @@ public struct Config {
      */
     public init(
             sentryKey: String,
-            logLevel: LogLevelPreset = .develop,
+            logLevel: LogLevelPreset = .debug,
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),

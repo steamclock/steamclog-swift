@@ -13,9 +13,9 @@ import XCGLogger
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination.outputLevel = config.logLevel.sentry.xcgLevel
-            fileDestination.outputLevel = config.logLevel.file.xcgLevel
-            systemDestination.outputLevel = config.logLevel.system.xcgLevel
+            sentryDestination.outputLevel = config.logLevel.remote.xcgLevel
+            fileDestination.outputLevel = config.logLevel.disk.xcgLevel
+            systemDestination.outputLevel = config.logLevel.console.xcgLevel
         }
     }
 
@@ -42,19 +42,19 @@ public struct SteamcLog {
         }
 
         sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
-        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.sentry)
+        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.remote)
         xcgLogger.add(destination: sentryDestination)
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
                                                       shouldAppend: true,
                                                       maxTimeInterval: config.autoRotateConfig.fileRotationTime)
-        setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.file)
+        setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.disk)
         xcgLogger.add(destination: fileDestination)
         fileDestination.logQueue = XCGLogger.logQueue
 
         systemDestination = SteamcLogSystemLogDestination(identifier: "steamclog.systemDestination")
-        setLoggingDetails(destination: &systemDestination, outputLevel: config.logLevel.system)
+        setLoggingDetails(destination: &systemDestination, outputLevel: config.logLevel.console)
         xcgLogger.add(destination: systemDestination)
 
         xcgLogger.logAppDetails()

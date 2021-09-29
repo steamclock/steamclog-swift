@@ -9,57 +9,62 @@
 import Foundation
 
 public enum LogLevelPreset: String, Codable {
-    /// Disk: verbose, system: verbose, remote: none, analytics: disabled
-    case firehose
-    /// Disk: none, system: debug, remote: none, analytics: disabled
-    case develop
-    /// Disk: verbose, system: none, remote: warn, analytics: enabled
-    case releaseAdvanced
-    /// Disk: none, system: none, remote: warn, analytics: enabled
+
+    /// console: verbose, disk: verbose, remote: none
+    case debugVerbose
+
+    /// console: debug, disk: debug, remote: none
+    case debug
+
+    /// console: none, disk: info, remote: info
     case release
+
+    /// console: none, disk: debug, remote: debug
+    case releaseAdvanced
 
     var global: LogLevel {
         switch self {
-        case .firehose: return .info
-        case .develop: return .info
-        case .releaseAdvanced: return .info
+        case .debugVerbose: return .info
+        case .debug: return .info
         case .release: return .warn
+        case .releaseAdvanced: return .info
         }
     }
 
-    var sentry: LogLevel {
+    var remote: LogLevel {
         switch self {
-        case .firehose: return .none
-        case .develop: return .none
-        case .releaseAdvanced: return .info
-        case .release: return .warn
+        case .debugVerbose: return .none
+        case .debug: return .none
+        case .release: return .info
+        case .releaseAdvanced: return .debug
         }
     }
 
-    var file: LogLevel {
+    var disk: LogLevel {
         switch self {
-        case .firehose: return .verbose
-        case .develop: return .none
-        case .releaseAdvanced: return .verbose
+        case .debugVerbose: return .verbose
+        case .debug: return .debug
+        case .release: return .info
+        case .releaseAdvanced: return .debug
+        }
+    }
+
+    var console: LogLevel {
+        switch self {
+        case .debugVerbose: return .verbose
+        case .debug: return .debug
         case .release: return .none
-        }
-    }
-
-    var system: LogLevel {
-        switch self {
-        case .firehose: return .verbose
-        case .develop: return .debug
         case .releaseAdvanced: return .none
-        case .release: return .none
         }
     }
 
+    // TODO 2021-09-16: If analytics are by default no longer supported, should we remove this?
     var analyticsEnabled: Bool {
         switch self {
-        case .firehose: return false
-        case .develop: return false
-        case .releaseAdvanced: return true
+        case .debugVerbose: return false
+        case .debug: return false
         case .release: return true
+        case .releaseAdvanced: return true
         }
     }
 }
