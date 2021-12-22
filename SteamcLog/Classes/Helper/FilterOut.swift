@@ -13,13 +13,4 @@ import Foundation
  * Error should be blocked from being logged as an error by the crash reporting
  * destination.
  */
-public protocol FilterOut {
-    func shouldBlock(error: Error) -> Bool
-}
-
-public class NoFilter: FilterOut {
-    public init() { }
-    public func shouldBlock(error: Error) -> Bool {
-        return false
-    }
-}
+public typealias FilterOut = (Error) -> Bool

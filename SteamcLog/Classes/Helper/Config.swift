@@ -60,7 +60,7 @@ public struct Config {
             sentryDebug: Bool = false,
             sentryAutoSessionTracking: Bool = true,
             sentryAttachStacktrace: Bool = true,
-            filtering: FilterOut = NoFilter()) {
+            filtering: @escaping FilterOut = { _ in false }) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
