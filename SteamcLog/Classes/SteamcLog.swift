@@ -262,6 +262,17 @@ public struct SteamcLog {
     }
 
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+
+        if let error = object as? Error, config.filtering.shouldBlock(error: error) {
+            info("\(error) on blocked list and has been blocked from being captured as an error: \(error.localizedDescription)",
+                 functionName: functionName,
+                 fileName: fileName,
+                 lineNumber: lineNumber
+            )
+            return
+        }
+
+
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
