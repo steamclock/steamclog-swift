@@ -19,7 +19,7 @@ var clog = SteamcLog(
         sentryKey: "",
         logLevel: .debugVerbose,
         sentryDebug: true,
-        filtering: { error in
+        filterOut: { error in
             if let error = error as? CustomError, error == .filteredError {
                 return true
             }
