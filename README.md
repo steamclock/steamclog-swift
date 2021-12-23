@@ -50,7 +50,7 @@ _Firebase Crashlytics is no longer a supported destination for crash reporting_
 SteamcLog has a number of configuration options
 
 ### logLevel: LogLevelPreset
-Destination logging levels; it is recommended to use the defaults set by Steamclog instead of initializing these manually. In special cases where more data is desired, update this property.
+Destination logging levels; it is recommended to use the defaults set by Steamclog instead of initializing these manually. In special cases where more data is desired, update this property. See technical documentation for more details on the available presets.
 
 ### requireRedacted: Bool
 Default value is `false`.
