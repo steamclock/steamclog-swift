@@ -34,6 +34,14 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
+        SentrySDK.configureScope { scope in
+            #if DEBUG
+            scope.setTag(value: "debug", key: "environment")
+            #else
+            scope.setTag(value: "prod", key: "environment")
+            #endif
+        }
+
         SentrySDK.start { options in
             options.dsn = config.sentryKey
             options.debug = config.sentryDebug
