@@ -37,7 +37,7 @@ public struct Config {
     internal let sentryAttachStacktrace: Bool
 
     /// Toggles the ability to filter out errors from being reported to Sentry
-    internal let filterOut: FilterOut
+    internal let sentryFilter: SentryFilter
 
     /*
      * Create a new SteamcLog configuration to use.
@@ -60,7 +60,7 @@ public struct Config {
             sentryDebug: Bool = false,
             sentryAutoSessionTracking: Bool = true,
             sentryAttachStacktrace: Bool = true,
-            filterOut: @escaping FilterOut = { error in false }) {
+            sentryFilter: @escaping SentryFilter = { error in false }) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
@@ -69,6 +69,6 @@ public struct Config {
         self.sentryDebug = sentryDebug
         self.sentryAutoSessionTracking = sentryAutoSessionTracking
         self.sentryAttachStacktrace = sentryAttachStacktrace
-        self.filterOut = filterOut
+        self.sentryFilter = sentryFilter
     }
 }

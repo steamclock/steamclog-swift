@@ -64,7 +64,7 @@
 		20A3A9A5C9F63C1C2799AD59AB9D8FFB /* SentryMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = FB7D013E8DEAB7E074B47BBCB3A27EFC /* SentryMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		21FB896505B3255EEF062335B3C1F6E8 /* SentryCrash.h in Headers */ = {isa = PBXBuildFile; fileRef = 5CB5C8994430D01BE86C32B52D8B1FFC /* SentryCrash.h */; settings = {ATTRIBUTES = (Project, ); }; };
 		2348DC7FBE7952A88ABFDD9A5DA41557 /* SentryCrashExceptionApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 28A217EF1661FF834B40CB52E5F50FF0 /* SentryCrashExceptionApplication.m */; };
-		23A83446278658C400C885C5 /* FilterOut.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A83445278658C400C885C5 /* FilterOut.swift */; };
+		23A83446278658C400C885C5 /* SentryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23A83445278658C400C885C5 /* SentryFilter.swift */; };
 		249D53F6EDE5ABBCC1ACBADEC2D1F16F /* SentryTransactionContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 16E6CA28110347053DA12398AE8B7B5C /* SentryTransactionContext.m */; };
 		24BC16E444FF64B643511DD3FCCEF7B8 /* SentryCrashMemory.c in Sources */ = {isa = PBXBuildFile; fileRef = FB822F952AF830B522567B3AE9A8542B /* SentryCrashMemory.c */; };
 		25B1561D7084BCD0BD5E1043E925B040 /* DelayedOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66715977B54B99EE843B72DAD6462AAE /* DelayedOperations.swift */; };
@@ -593,7 +593,7 @@
 		22025F0C45AC69C9333CA415BD2391B3 /* SentryCrashCPU_arm64.c */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.c; name = SentryCrashCPU_arm64.c; path = Sources/SentryCrash/Recording/Tools/SentryCrashCPU_arm64.c; sourceTree = "<group>"; };
 		2300663A75C22056C5F58243CB4613A7 /* SentryHub+Private.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = "SentryHub+Private.h"; path = "Sources/Sentry/include/SentryHub+Private.h"; sourceTree = "<group>"; };
 		2350A984FA1461831BFC9641C7994161 /* SentryTracesSampler.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SentryTracesSampler.h; path = Sources/Sentry/include/SentryTracesSampler.h; sourceTree = "<group>"; };
-		23A83445278658C400C885C5 /* FilterOut.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilterOut.swift; sourceTree = "<group>"; };
+		23A83445278658C400C885C5 /* SentryFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SentryFilter.swift; sourceTree = "<group>"; };
 		24AC7B26EFC1D7FBB705640C35B61D75 /* SentryAsynchronousOperation.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SentryAsynchronousOperation.h; path = Sources/Sentry/include/SentryAsynchronousOperation.h; sourceTree = "<group>"; };
 		24D4096EE0C03CCD7F259DA2C0BAD717 /* Base64LogFormatter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Base64LogFormatter.swift; path = Sources/XCGLogger/LogFormatters/Base64LogFormatter.swift; sourceTree = "<group>"; };
 		253A800A4F2E25DB9FAE2A1124AE04D0 /* SentryLevelMapper.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = SentryLevelMapper.h; path = Sources/Sentry/include/SentryLevelMapper.h; sourceTree = "<group>"; };
@@ -1610,7 +1610,7 @@
 				5B0F69EE808D115D4F46C78B1668ABDA /* AutoRotateConfig.swift */,
 				71B396E12278B6AC08246F0F5380F0B6 /* Config.swift */,
 				E31582D85AE1CACD6483D54CAEBDAD9A /* DictionaryEncoder.swift */,
-				23A83445278658C400C885C5 /* FilterOut.swift */,
+				23A83445278658C400C885C5 /* SentryFilter.swift */,
 				E3CA0E4BF6B6DA23B5192402280D29B5 /* LogLevel.swift */,
 				C5C18CA225355106D2896259D629C2C6 /* LogLevelPreset.swift */,
 				93D5697AF5F88E95FF6D8FAEF37A7E62 /* Redactable.swift */,
@@ -2585,7 +2585,7 @@
 				A4856D4BAC807B5372414AB7837DC905 /* Netable+RedactedLogDestination.swift in Sources */,
 				A5893448EDCC9A3DACA959126397A98D /* Redactable.swift in Sources */,
 				07CA2A852E2F3D1924F05046375EC9F7 /* SentryLogDestination.swift in Sources */,
-				23A83446278658C400C885C5 /* FilterOut.swift in Sources */,
+				23A83446278658C400C885C5 /* SentryFilter.swift in Sources */,
 				E6515D68950C6FDB2B933623E4AD74A2 /* SteamcLog-dummy.m in Sources */,
 				BE4569A9FDE1AFF34CE7634DC646133F /* SteamcLog.swift in Sources */,
 				6C59BE3AD6B7CFA0F965791E9594329A /* SteamcLogSystemLogDestination.swift in Sources */,
