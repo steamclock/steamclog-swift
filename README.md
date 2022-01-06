@@ -1,5 +1,6 @@
 # SteamcLog
-[Current Proposal Spec](https://docs.google.com/document/d/1GeFAMBn_ZrIP7qVLzcYlCfqDnPiCrgMa0JdrU8HRx94/edit?usp=sharing)
+[Technical Documentation](https://coda.io/d/SteamcLog-Public-Documentation_dYDBWMQYscM/SteamcLog-Technical-Documentation_suPjU)
+[Android Repo](https://github.com/steamclock/steamclog-android)
 
 - [SteamcLog](#steamclog)
   * [Installation](#installation)
@@ -19,7 +20,7 @@ Add the following to your podfile then run `pod install`
 pod 'SteamcLog', :git => "git@github.com:steamclock/steamclog.git"
 ```
 
-Note: If your project is using Crashlytics, Fabric, or XCGLogger, you can remove those from the podfile, as they'll be imported as dependencies for SteamcLog.
+Note: If your project is using Sentry or XCGLogger, you can remove those from the podfile, as they'll be imported as dependencies for SteamcLog.
 
 In your AppDelegate (or a logging manager), set-up a global instance of SteamcLog:
 
@@ -42,26 +43,14 @@ class AppDelegate: UIApplicationDelegate {
 
 See configuration documentation for details on `logLevel` [here](#configuration).
 
-For Crashlytics support, follow the instructions from [the official Crashlytics docs](https://firebase.google.com/docs/crashlytics/get-started?platform=ios), skipping the podfile changes. 
-
+_Firebase Crashlytics is no longer a supported destination for crash reporting_
 
 ## Configuration
 
 SteamcLog has a number of configuration options
 
 ### logLevel: LogLevelPreset
-Default value is: `develop`.
-There are four log level presets available, each of which has different logging outputs.
-
-| LogLevelPreset    | Disk Level | System Level | Remote Level | 
-|-------------------|------------|--------------|--------------|
-| `firehose`        | verbose    | verbose      | none         |
-| `develop`         | none       | debug        | none         |
-| `release`         | none       | none         | warn         |
-| `releaseAdvanced` | verbose    | none         | warn         |
-
-In most cases, you'll be able to get by using `firehose` or `develop` on debug builds, and `release` or `releaseAdvanced` for production builds. 
-Note that if you're using `releaseAdvanced` you must build in a way for the client to email you the disk logs.
+Destination logging levels; it is recommended to use the defaults set by Steamclog instead of initializing these manually. In special cases where more data is desired, update this property. See technical documentation for more details on the available presets.
 
 ### requireRedacted: Bool
 Default value is `false`.
@@ -82,7 +71,7 @@ From there, you can use `clog` anywhere in your application with the following l
 - `clog.debug` - Info that is interesting to developers, any information that may be helpful when debugging. Should be stored to system logs for debug builds but never stored in production.
 - `clog.info` - Routine app operations, used to document changes in state within the application. Minimum level of log stored in device logs in production.
 - `clog.warn` - Developer concerns or incorrect state etc. Something’s definitely gone wrong, but there’s a path to recover
-- `clog.error` - Something has gone wrong, report to a remote service (like Crashlytics)
+- `clog.error` - Something has gone wrong, report to a remote service (like Sentry)
 - `clog.fatal` - Something has gone wrong and we cannot recover, so force the app to close.
 
 Each of these functions has the following 3 available signatures
