@@ -8,6 +8,7 @@
     + [logLevel: LogLevelPreset](#loglevel-loglevelpreset)
     + [requireRedacted: Bool](#requireredacted-bool)
     + [autoRotateConfig: AutoRotateConfig](#autorotateconfig-autorotateconfig)
+    - [sentryFilter: SentryFilter](#sentryfilter-sentryfilter)
   * [Usage](#usage)
   * [Exporting Logs](#exporting-logs)
     + [Variable Redaction](#variable-redaction)
@@ -62,6 +63,22 @@ By default, logs will rotate every 10 minutes, and store 10 archived log files.
 
 `AutoRotateConfig` has the following fields:
 **fileRotationTime: TimeInterval**: The number of seconds before the log file is rotated and archived.
+
+### sentryFilter: SentryFilter
+By default, all error objects will be sent to Sentry when submitted via the `error` call. 
+`SentryFilter` allows you to change this behaviour at the SteamcLog Config-level.
+ 
+```swift
+Config(
+    // other fields
+    sentryFilter: { error in
+        if let error = error as? CustomError {
+            return true // CustomError errors will no longer be submitted to Sentry
+        }
+        return false
+    }
+)
+```
 
 ## Usage
 

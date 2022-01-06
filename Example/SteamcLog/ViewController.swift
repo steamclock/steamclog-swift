@@ -24,6 +24,9 @@ class ViewController: UIViewController {
         clog.warn("All we have to decide is what to do with the time that is given to us.")
         clog.error("I don’t know half of you half as well as I should like and I like less than half of you half as well as you deserve.")
 
+        clog.error("Reported error", CustomError.reportedError)
+        clog.error("Filtered error", CustomError.filteredError)
+
         // Uncomment to test fatal errors.
         // clog.fatal("It's the job that's never started as takes longest to finish.")
 
