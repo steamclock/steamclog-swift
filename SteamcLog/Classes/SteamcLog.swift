@@ -264,7 +264,7 @@ public struct SteamcLog {
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
 
         if let error = object as? Error, config.sentryFilter(error) {
-            info("\(error) on blocked list and has been blocked from being captured as an error: \(error.localizedDescription)",
+            info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
                  functionName: functionName,
                  fileName: fileName,
                  lineNumber: lineNumber
