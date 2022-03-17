@@ -47,6 +47,7 @@ public struct SteamcLog {
             options.debug = config.sentryDebug
             options.attachStacktrace = config.sentryAttachStacktrace
             options.enableAutoSessionTracking = config.sentryAutoSessionTracking
+            options.tracesSampleRate = 0.0
         }
 
         sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
