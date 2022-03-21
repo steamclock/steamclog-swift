@@ -13,7 +13,7 @@ import XCGLogger
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination.outputLevel = config.logLevel.remote.xcgLevel
+            sentryDestination?.outputLevel = config.logLevel.remote.xcgLevel
             fileDestination.outputLevel = config.logLevel.disk.xcgLevel
             systemDestination.outputLevel = config.logLevel.console.xcgLevel
         }
@@ -23,7 +23,7 @@ public struct SteamcLog {
     @usableFromInline internal let encoder = JSONEncoder()
 
     private var fileDestination: FileDestination!
-    private var sentryDestination: SentryDestination!
+    private var sentryDestination: SentryDestination?
     private var systemDestination: SteamcLogSystemLogDestination!
 
     public init(_ config: Config) {
@@ -34,25 +34,27 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
-        SentrySDK.configureScope { scope in
-            #if DEBUG
-            scope.setTag(value: "debug", key: "environment")
-            #else
-            scope.setTag(value: "prod", key: "environment")
-            #endif
-        }
+        if let sentry = config.sentryConfig {
+            SentrySDK.configureScope { scope in
+                #if DEBUG
+                scope.setTag(value: "debug", key: "environment")
+                #else
+                scope.setTag(value: "prod", key: "environment")
+                #endif
+            }
 
-        SentrySDK.start { options in
-            options.dsn = config.sentryKey
-            options.debug = config.sentryDebug
-            options.attachStacktrace = config.sentryAttachStacktrace
-            options.enableAutoSessionTracking = config.sentryAutoSessionTracking
-            options.tracesSampleRate = 0.0
-        }
+            SentrySDK.start { options in
+                options.dsn = sentry.key
+                options.debug = sentry.debug
+                options.attachStacktrace = sentry.attachStackTrace
+                options.enableAutoSessionTracking = sentry.autoSessionTracking
+                options.tracesSampleRate = 0.0
+            }
 
-        sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
-        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.remote)
-        xcgLogger.add(destination: sentryDestination)
+            sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
+            setLoggingDetails(destination: &sentryDestination!, outputLevel: config.logLevel.remote)
+            xcgLogger.add(destination: sentryDestination! )
+        }
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
@@ -272,7 +274,7 @@ public struct SteamcLog {
 
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
 
-        if let error = object as? Error, config.sentryFilter(error) {
+        if let error = object as? Error, let sentryConfig = config.sentryConfig, sentryConfig.filter(error) {
             info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
                  functionName: functionName,
                  fileName: fileName,

@@ -50,28 +50,47 @@ _Firebase Crashlytics is no longer a supported destination for crash reporting_
 
 SteamcLog has a number of configuration options
 
-### logLevel: LogLevelPreset
+#### logLevel: LogLevelPreset
 Destination logging levels; it is recommended to use the defaults set by Steamclog instead of initializing these manually. In special cases where more data is desired, update this property. See technical documentation for more details on the available presets.
 
-### requireRedacted: Bool
+#### requireRedacted: Bool
 Default value is `false`.
 Require that all logged objects conform to Redacted or are all redacted by default.
 
-### autoRotateConfig: AutoRotateConfig
+#### autoRotateConfig: AutoRotateConfig
 By default, logs will rotate every 10 minutes, and store 10 archived log files.
 `AutoRotateConfig` allows customization for the auto-rotating behaviour. 
 
 `AutoRotateConfig` has the following fields:
 **fileRotationTime: TimeInterval**: The number of seconds before the log file is rotated and archived.
 
-### sentryFilter: SentryFilter
+Additionally, SteamcLog comes with support to log to Sentry:
+
+### Sentry configuration options
+
+#### key: String
+Your Sentry key
+
+#### debug: Bool
+Default value is `false`.
+Sets Sentry to debug mode. More info [here](https://docs.sentry.io/error-reporting/configuration/?platform=swift#debug)
+
+#### autoSessionTracking: Bool
+Default value is `true`.
+Toggle's Sentry's auto session tracking. More info [here](https://docs.sentry.io/platforms/cocoa/?platform=swift#release-health).
+
+#### attachStackTrace: Bool
+Default value is `true`.
+Toggles Sentry automatically attaching stack traces to error reports.
+
+#### filter: SentryFilter
 By default, all error objects will be sent to Sentry when submitted via the `error` call. 
-`SentryFilter` allows you to change this behaviour at the SteamcLog Config-level.
+This allows you to change this behaviour at the SteamcLog Config-level, by passing in a function that filters errors from being logged.
  
 ```swift
-Config(
+SentryConfig(
     // other fields
-    sentryFilter: { error in
+    filter: { error in
         if let error = error as? CustomError {
             return true // CustomError errors will no longer be submitted to Sentry
         }
