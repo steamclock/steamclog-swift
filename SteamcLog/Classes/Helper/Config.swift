@@ -21,9 +21,6 @@ public struct Config {
     /// Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal let requireRedacted: Bool
 
-    /// Sentry configuration. If this is nil, Sentry won't be initialized.
-    internal let sentryConfig: SentryConfig?
-
     /*
      * Create a new SteamcLog configuration to use.
      *
@@ -32,7 +29,6 @@ public struct Config {
      *   - requireRedacted: If true, all logged objects must conform to `Redacted` or be redacted by default. Default is false.
      *   - identifier: The indentifier to note logs under. Default is "steamclog".
      *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
-     *   - sentryConfig: Sentry configuration. If this is nil, Sentry won't be initialized.
      */
     public init(
             logLevel: LogLevelPreset = .debug,
@@ -44,6 +40,5 @@ public struct Config {
         self.logLevel = logLevel
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
-        self.sentryConfig = sentryConfig
     }
 }

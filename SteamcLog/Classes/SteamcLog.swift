@@ -19,6 +19,9 @@ public struct SteamcLog {
         }
     }
 
+    // Sentry configuration options. If this is not set (or set to nil during creation), Sentry will not be used.
+    public var sentryConfig: SentryConfig?
+
     @usableFromInline internal var xcgLogger: XCGLogger!
     @usableFromInline internal let encoder = JSONEncoder()
 
@@ -26,7 +29,15 @@ public struct SteamcLog {
     private var sentryDestination: SentryDestination?
     private var systemDestination: SteamcLogSystemLogDestination!
 
-    public init(_ config: Config) {
+    /*
+     * Create your SteamcLog object.
+     * We recommend setting up a global instance of SteamcLog, probably in your AppDelegate file.
+     *
+     * - Parameters:
+     *   - config: General configuration options. See Config.swift for details.
+     *   - sentryConfig: Sentry configuration options. If this is `nil`, Sentry will not be used.
+     */
+    public init(_ config: Config, sentryConfig: SentryConfig?) {
         self.config = config
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
 
@@ -34,7 +45,7 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
-        if let sentry = config.sentryConfig {
+        if let sentry = sentryConfig {
             SentrySDK.configureScope { scope in
                 #if DEBUG
                 scope.setTag(value: "debug", key: "environment")
