@@ -34,8 +34,7 @@ public struct Config {
             logLevel: LogLevelPreset = .debug,
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
-            autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
-            sentryConfig: SentryConfig?) {
+            autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
