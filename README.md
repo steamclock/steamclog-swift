@@ -144,6 +144,10 @@ And the log will output:
 
 `User(name: "Name", uuid: <redacted>, email: "hi@steamclock.com", created: <redacted>)`
 
+## Custom Log Destinations
+
+In addition to the Sentry log destination that comes packaged with SteamcLog, you can create your own log destination and attach it to your SteamcLog instance using `attach`.
+
 ## Using SteamcLog with Netable
 
 If you're also using [Netable](https://github.com/steamclock/netable), you can pipe your logs directly from Netable into SteamcLog.

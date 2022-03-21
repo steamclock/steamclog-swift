@@ -104,6 +104,19 @@ public struct SteamcLog {
 
     // MARK: - Public Methods
 
+    /*
+     * Attach a new custom log destination to the current logger
+     *
+     * - Parameters:
+     *   - destination: The new destination to attach to the logger.
+     *   - outputLevel: The minimum log level that will be sent to the destination.
+     */
+    public func attach(destination: BaseQueuedDestination, outputLevel: LogLevel) {
+        var newDest = destination
+        setLoggingDetails(destination: &newDest, outputLevel: outputLevel)
+        xcgLogger.add(destination: newDest)
+    }
+
     // MARK: All Log Level
 
     private func internalVerbose(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
