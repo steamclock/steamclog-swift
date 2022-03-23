@@ -71,17 +71,22 @@ Additionally, SteamcLog comes with support to log to Sentry:
 #### key: String
 Your Sentry key
 
-#### debug: Bool
-Default value is `false`.
-Sets Sentry to debug mode. More info [here](https://docs.sentry.io/error-reporting/configuration/?platform=swift#debug)
+#### attachStackTrace: Bool
+Default value is `true`.
+Toggles Sentry automatically attaching stack traces to error reports.
 
 #### autoSessionTracking: Bool
 Default value is `true`.
 Toggle's Sentry's auto session tracking. More info [here](https://docs.sentry.io/platforms/cocoa/?platform=swift#release-health).
 
-#### attachStackTrace: Bool
-Default value is `true`.
-Toggles Sentry automatically attaching stack traces to error reports.
+#### debug: Bool
+Default value is `false`.
+Sets Sentry to debug mode. More info [here](https://docs.sentry.io/error-reporting/configuration/?platform=swift#debug)
+
+#### tracesSampleRate: NSNumber
+Default value is 0.0.
+Sets the percentage of the tracing data that is collected by Sentry. Values must be between 0 and 1, and values larger than 1 will be set to 1.
+Note that setting this to anything greater than 0 can cause projects to blow past their usage quotas by generating far more events than normal.
 
 #### filter: SentryFilter
 By default, all error objects will be sent to Sentry when submitted via the `error` call. 
