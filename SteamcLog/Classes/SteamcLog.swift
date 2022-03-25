@@ -13,20 +13,31 @@ import XCGLogger
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination.outputLevel = config.logLevel.remote.xcgLevel
+            sentryDestination?.outputLevel = config.logLevel.remote.xcgLevel
             fileDestination.outputLevel = config.logLevel.disk.xcgLevel
             systemDestination.outputLevel = config.logLevel.console.xcgLevel
         }
     }
 
+    // Sentry configuration options. If this is not set (or set to nil during creation), Sentry will not be used.
+    public var sentryConfig: SentryConfig?
+
     @usableFromInline internal var xcgLogger: XCGLogger!
     @usableFromInline internal let encoder = JSONEncoder()
 
     private var fileDestination: FileDestination!
-    private var sentryDestination: SentryDestination!
+    private var sentryDestination: SentryDestination?
     private var systemDestination: SteamcLogSystemLogDestination!
 
-    public init(_ config: Config) {
+    /*
+     * Create your SteamcLog object.
+     * We recommend setting up a global instance of SteamcLog, probably in your AppDelegate file.
+     *
+     * - Parameters:
+     *   - config: General configuration options. See Config.swift for details.
+     *   - sentryConfig: Sentry configuration options. If this is `nil`, Sentry will not be used.
+     */
+    public init(_ config: Config, sentryConfig: SentryConfig?) {
         self.config = config
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
 
@@ -34,25 +45,27 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
-        SentrySDK.configureScope { scope in
-            #if DEBUG
-            scope.setTag(value: "debug", key: "environment")
-            #else
-            scope.setTag(value: "prod", key: "environment")
-            #endif
-        }
+        if let sentry = sentryConfig {
+            SentrySDK.configureScope { scope in
+                #if DEBUG
+                scope.setTag(value: "debug", key: "environment")
+                #else
+                scope.setTag(value: "prod", key: "environment")
+                #endif
+            }
 
-        SentrySDK.start { options in
-            options.dsn = config.sentryKey
-            options.debug = config.sentryDebug
-            options.attachStacktrace = config.sentryAttachStacktrace
-            options.enableAutoSessionTracking = config.sentryAutoSessionTracking
-            options.tracesSampleRate = 0.0
-        }
+            SentrySDK.start { options in
+                options.dsn = sentry.key
+                options.debug = sentry.debug
+                options.attachStacktrace = sentry.attachStackTrace
+                options.enableAutoSessionTracking = sentry.autoSessionTracking
+                options.tracesSampleRate = sentry.tracesSampleRate
+            }
 
-        sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
-        setLoggingDetails(destination: &sentryDestination, outputLevel: config.logLevel.remote)
-        xcgLogger.add(destination: sentryDestination)
+            sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
+            setLoggingDetails(destination: &sentryDestination!, outputLevel: config.logLevel.remote)
+            xcgLogger.add(destination: sentryDestination! )
+        }
 
         fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
                                                       identifier: "steamclog.fileDestination",
@@ -90,6 +103,19 @@ public struct SteamcLog {
     }()
 
     // MARK: - Public Methods
+
+    /*
+     * Attach a new custom log destination to the current logger
+     *
+     * - Parameters:
+     *   - destination: The new destination to attach to the logger.
+     *   - outputLevel: The minimum log level that will be sent to the destination.
+     */
+    public func attach(destination: BaseQueuedDestination, outputLevel: LogLevel) {
+        var newDest = destination
+        setLoggingDetails(destination: &newDest, outputLevel: outputLevel)
+        xcgLogger.add(destination: newDest)
+    }
 
     // MARK: All Log Level
 
@@ -272,7 +298,7 @@ public struct SteamcLog {
 
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
 
-        if let error = object as? Error, config.sentryFilter(error) {
+        if let error = object as? Error, let sentry = sentryConfig, sentry.filter(error) {
             info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
                  functionName: functionName,
                  fileName: fileName,
