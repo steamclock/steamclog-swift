@@ -245,6 +245,21 @@ public struct SteamcLog {
         warn("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    @_disfavoredOverload
+    public func warn<T>(_ message: String, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
+        if config.requireRedacted {
+            guard let redacted = error as? Redacted else {
+                warn("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+                return
+            }
+            warn("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
+        }
+
+        warn("\(message): \(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+
     public func warn(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
         warn("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
@@ -326,6 +341,31 @@ public struct SteamcLog {
         internalError(message, info: jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    @_disfavoredOverload
+    public func error<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
+
+        if let sentry = sentryConfig, sentry.filter(error) {
+            info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
+                 functionName: functionName,
+                 fileName: fileName,
+                 lineNumber: lineNumber
+            )
+            return
+        }
+
+
+        if config.requireRedacted {
+            guard let redacted = error as? Redacted else {
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
+                return
+            }
+            internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
+        }
+
+        internalError(message, info: "\(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
     public func error(_ message: StaticString, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
         internalError(message, info: object.debugDescription, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
@@ -359,6 +399,19 @@ public struct SteamcLog {
         }
 
         fatal(message, info: "\(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    }
+
+    @_transparent
+    @_disfavoredOverload
+    public func fatal<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Error {
+        if config.requireRedacted {
+            guard let redacted = error as? Redacted else {
+                fatal(message, info: "Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            }
+            fatal(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        }
+
+        fatal(message, info: "\(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     @_transparent
