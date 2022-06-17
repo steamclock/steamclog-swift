@@ -315,7 +315,7 @@ public struct SteamcLog {
 
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
 
-        if let error = object as? Error, config.suppressError?(error) ?? false {
+        if let error = object as? Error, config.suppressError(error) {
             warn("[suppressed] \(message)", object, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
@@ -341,7 +341,7 @@ public struct SteamcLog {
     @_disfavoredOverload
     public func error<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
 
-        if config.suppressError?(error) ?? false {
+        if config.suppressError(error) {
             warn("[suppressed] \(message)", error, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }

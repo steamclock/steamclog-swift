@@ -23,7 +23,7 @@ public struct Config {
 
     /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
     /// Useful for stoping certain types of failures (network errors, etc) from being logged off device.
-    let suppressError: ((Error) -> Bool)?
+    let suppressError: (Error) -> Bool
 
 
     /*
@@ -41,7 +41,7 @@ public struct Config {
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
-            suppressError: ((Error) -> Bool)? = nil) {
+            suppressError: @escaping (Error) -> Bool = { _ in false }) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
