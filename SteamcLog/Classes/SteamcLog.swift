@@ -39,6 +39,8 @@ public struct SteamcLog {
      */
     public init(_ config: Config, sentryConfig: SentryConfig?) {
         self.config = config
+        self.sentryConfig = sentryConfig
+        
         xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
 
         xcgLogger.setup(
@@ -313,15 +315,10 @@ public struct SteamcLog {
 
     public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
 
-        if let error = object as? Error, let sentry = sentryConfig, sentry.filter(error) {
-            info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
-                 functionName: functionName,
-                 fileName: fileName,
-                 lineNumber: lineNumber
-            )
+        if let error = object as? Error, config.suppressError?(error) ?? false {
+            warn("[suppressed] \(message)", object, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
-
 
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
@@ -344,12 +341,8 @@ public struct SteamcLog {
     @_disfavoredOverload
     public func error<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
 
-        if let sentry = sentryConfig, sentry.filter(error) {
-            info("\(error) included in sentryFilter and has been blocked from being captured as an error: \(error.localizedDescription)",
-                 functionName: functionName,
-                 fileName: fileName,
-                 lineNumber: lineNumber
-            )
+        if config.suppressError?(error) ?? false {
+            warn("[suppressed] \(message)", error, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
 

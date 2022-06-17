@@ -26,9 +26,6 @@ public struct SentryConfig {
     /// Sets the percentage of the tracing data that is collected by Sentry. Default is 0.
     let tracesSampleRate: NSNumber
 
-    /// Toggles the ability to filter out errors from being reported to Sentry
-    let filter: SentryFilter
-
     /*
      * Create a new Sentry Configuration to use.
      *
@@ -38,20 +35,17 @@ public struct SentryConfig {
      *   - autoSessionTracking: Enable SentrySDK auto session tracking. Default is false.
      *   - debug: Enable debug mode for SentrySDK. Default is false.
      *   - tracesSampleRate: Sets the percentage of the tracing data that is collected by Sentry.
-     *   - filter: Toggles the ability to filter out errors from being reported to Sentry
      */
     public init(
             key: String,
             attachStacktrace: Bool = true,
             autoSessionTracking: Bool = true,
             debug: Bool = false,
-            tracesSampleRate: NSNumber = 0.0,
-            filter: @escaping SentryFilter = { error in false }) {
+            tracesSampleRate: NSNumber = 0.0) {
         self.key = key
         self.attachStackTrace = attachStacktrace
         self.autoSessionTracking = autoSessionTracking
         self.debug = debug
         self.tracesSampleRate = tracesSampleRate
-        self.filter = filter
     }
 }
