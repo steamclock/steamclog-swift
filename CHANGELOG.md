@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0]
+- Add warn/error/fatal entry points that explicitly take an `Error` conforming object as a parameter, for recording more error details
+- Add support, when passing in an Error-conforming object, for downgrading errors to warnings based on a user-supplied predicate and the contents of the error instances
+
 ## [2.0.0]
 - Split Sentry configuration into a separate, optional struct to make not using Sentry a little easier
 - Updated LogLevelPreset names and mapped LogLevels (#91)
