@@ -21,6 +21,11 @@ public struct Config {
     /// Require that all logged objects conform to Redacted or are all redacted by default.
     @usableFromInline internal let requireRedacted: Bool
 
+    /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
+    /// Useful for stoping certain types of failures (network errors, etc) from being logged off device.
+    let suppressError: (Error) -> Bool
+
+
     /*
      * Create a new SteamcLog configuration to use.
      *
@@ -29,15 +34,18 @@ public struct Config {
      *   - requireRedacted: If true, all logged objects must conform to `Redacted` or be redacted by default. Default is false.
      *   - identifier: The indentifier to note logs under. Default is "steamclog".
      *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
+     *   - suppressError: Downgrade some errors to warnings if this test returns true
      */
     public init(
             logLevel: LogLevelPreset = .debug,
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
-            autoRotateConfig: AutoRotateConfig = AutoRotateConfig()) {
+            autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
+            suppressError: @escaping (Error) -> Bool = { _ in false }) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
+        self.suppressError = suppressError
     }
 }
