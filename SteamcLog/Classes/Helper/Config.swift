@@ -9,6 +9,12 @@
 import Foundation
 
 public struct Config {
+    public enum ExtraInfoPurpose {
+        case userReport
+        case error
+        case fatal
+    }
+
     /// Global log threshold, logs under this level will be ignored
     internal let logLevel: LogLevelPreset
 
@@ -23,8 +29,15 @@ public struct Config {
 
     /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
     /// Useful for stoping certain types of failures (network errors, etc) from being logged off device.
-    let suppressError: (Error) -> Bool
+    internal let suppressError: (Error) -> Bool
 
+    /// Attach detailed logs from disk (if available) to all user reports. Default is false.
+    internal let detailedLogsOnUserReports: Bool
+
+    /// Set a callback to collect additional app specific properties to associate with an error, called any time a error/fatal/user report is logged. The `purpose` parameter indicates what sort of error this is, particularly to allow the callee to
+    /// associate more personal data with user reports (wher eprivacy issues are less of a concern). Note: unlike the extra info passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
+    /// the callback must handle and privacy preservation or redaction
+    @usableFromInline internal let extraInfo: (ExtraInfoPurpose) -> [String: Any]?
 
     /*
      * Create a new SteamcLog configuration to use.
@@ -41,11 +54,15 @@ public struct Config {
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
-            suppressError: @escaping (Error) -> Bool = { _ in false }) {
+            suppressError: @escaping (Error) -> Bool = { _ in false },
+            detailedLogsOnUserReports: Bool = false,
+            extraInfo: @escaping (ExtraInfoPurpose) -> [String: Any]? = { _ in return nil}) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier
         self.autoRotateConfig = autoRotateConfig
         self.suppressError = suppressError
+        self.detailedLogsOnUserReports = detailedLogsOnUserReports
+        self.extraInfo = extraInfo
     }
 }
