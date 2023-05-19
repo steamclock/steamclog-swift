@@ -269,7 +269,12 @@ public struct SteamcLog {
     // MARK: Non-static NonFatal Log Level
 
     private func internalUserReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        let userInfo: [String: Any] = [
+            UserInfoKeys.extraInfo: config.extraInfo(.userReport) as Any,
+            UserInfoKeys.detailedLogURL: (config.detailedLogsOnUserReports ? logFilePath : nil) as Any
+        ]
+
+        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
     }
 
     public func userReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -306,7 +311,11 @@ public struct SteamcLog {
             xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
 
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        let userInfo: [String: Any] = [
+            UserInfoKeys.extraInfo: config.extraInfo(.error) as Any,
+        ]
+
+        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
     }
 
     public func error(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -370,7 +379,12 @@ public struct SteamcLog {
         if let info = info {
             xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
-        xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+
+        let userInfo: [String: Any] = [
+            UserInfoKeys.extraInfo: config.extraInfo(.fatal) as Any,
+        ]
+
+        xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
 
         // forcing a crash, so we get a stacktrace
         let cleanfileName = ("\(fileName)" as NSString).lastPathComponent.replacingOccurrences(of: ".swift", with: "")

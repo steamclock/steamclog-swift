@@ -39,7 +39,7 @@ class SentryDestination: BaseQueuedDestination {
         if (logDetails.level == .error) && message.contains("Unable to rotate file") {
             let breadcrumb = Breadcrumb(level: .warning, category: "steamclog")
             breadcrumb.message = logDetails.message
-            SentrySDK.addBreadcrumb(crumb: breadcrumb)
+            SentrySDK.addBreadcrumb(breadcrumb)
 
             let event = Event(level: logDetails.level.sentryLevel)
             event.message = SentryMessage(formatted: "Unable to rotate log file")
@@ -51,11 +51,16 @@ class SentryDestination: BaseQueuedDestination {
         if logDetails.level == .error {
             let event = Event(level: logDetails.level.sentryLevel)
             event.message = SentryMessage(formatted: logDetails.message)
-            SentrySDK.capture(event: event)
+            event.extra = logDetails.userInfo[UserInfoKeys.extraInfo] as? [String: Any]
+            SentrySDK.capture(event: event) { scope in
+                if let logURL = logDetails.userInfo[UserInfoKeys.detailedLogURL] as? URL {
+                    scope.addAttachment(Attachment(path: logURL.path))
+                }
+            }
         }
 
         let breadcrumb = Breadcrumb(level: logDetails.level.sentryLevel, category: "steamclog")
         breadcrumb.message = logDetails.message
-        SentrySDK.addBreadcrumb(crumb: breadcrumb)
+        SentrySDK.addBreadcrumb(breadcrumb)
     }
 }
