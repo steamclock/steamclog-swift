@@ -35,7 +35,7 @@ public struct Config {
     internal let detailedLogsOnUserReports: Bool
 
     /// Set a callback to collect additional app specific properties to associate with an error, called any time a error/fatal/user report is logged. The `purpose` parameter indicates what sort of error this is, particularly to allow the callee to
-    /// associate more personal data with user reports (wher eprivacy issues are less of a concern). Note: unlike the extra info passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
+    /// associate more personal data with user reports (where privacy issues are less of a concern). Note: unlike the extra info passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
     /// the callback must handle and privacy preservation or redaction
     @usableFromInline internal let extraInfo: (ExtraInfoPurpose) -> [String: Any]?
 
