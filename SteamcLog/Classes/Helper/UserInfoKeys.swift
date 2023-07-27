@@ -10,5 +10,5 @@ import Foundation
 
 @usableFromInline enum UserInfoKeys {
     @usableFromInline static let extraInfo = "steamclogExtraInfo"
-    @usableFromInline static let detailedLogURL = "steamclogDetailedLogURL"
+    @usableFromInline static let detailedLogURLs = "steamclogDetailedLogURLs"
 }

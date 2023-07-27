@@ -53,8 +53,9 @@ class SentryDestination: BaseQueuedDestination {
             event.message = SentryMessage(formatted: logDetails.message)
             event.extra = logDetails.userInfo[UserInfoKeys.extraInfo] as? [String: Any]
             SentrySDK.capture(event: event) { scope in
-                if let logURL = logDetails.userInfo[UserInfoKeys.detailedLogURL] as? URL {
-                    scope.addAttachment(Attachment(path: logURL.path))
+                let urls = (logDetails.userInfo[UserInfoKeys.detailedLogURLs] as? [URL]) ?? []
+                for url in urls {
+                    scope.addAttachment(Attachment(path: url.path))
                 }
             }
         }

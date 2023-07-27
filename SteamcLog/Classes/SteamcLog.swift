@@ -104,6 +104,23 @@ public struct SteamcLog {
         return urls[urls.endIndex - 1].appendingPathComponent("steamclog.txt")
     }()
 
+    private let previousLogFilePath: URL? = {
+        // get a list of cache directories
+        let urls = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
+
+        // grab the set of archived logs from the cache directory
+        let cacheDir = urls[urls.endIndex - 1]
+        let allFiles = (try? FileManager.default.contentsOfDirectory(atPath: cacheDir.path)) ?? []
+        let archivedLogs = allFiles.filter{ $0.contains("steamclog_") }
+
+        // slightly hacky, but we know the archive filenames are constructed such that alphabetical sort does do time sorting
+        if let newestArchivedLog = archivedLogs.sorted().last {
+            return cacheDir.appendingPathComponent(newestArchivedLog)
+        }
+
+        return nil
+    }()
+
     // MARK: - Public Methods
 
     /*
@@ -269,9 +286,15 @@ public struct SteamcLog {
     // MARK: Non-static NonFatal Log Level
 
     private func internalUserReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        var detailedLogPaths: [URL] = []
+
+        if config.detailedLogsOnUserReports {
+            detailedLogPaths = [logFilePath, previousLogFilePath].compactMap({$0})
+        }
+
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.userReport) as Any,
-            UserInfoKeys.detailedLogURL: (config.detailedLogsOnUserReports ? logFilePath : nil) as Any
+            UserInfoKeys.detailedLogURLs: detailedLogPaths
         ]
 
         xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
