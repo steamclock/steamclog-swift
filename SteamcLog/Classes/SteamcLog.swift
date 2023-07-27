@@ -289,7 +289,7 @@ public struct SteamcLog {
         var detailedLogPaths: [URL] = []
 
         if config.detailedLogsOnUserReports {
-            detailedLogPaths = [logFilePath, previousLogFilePath].compactMap({$0})
+            detailedLogPaths = [logFilePath, previousLogFilePath].compactMap { $0 }
         }
 
         let userInfo: [String: Any] = [
