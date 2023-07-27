@@ -95,14 +95,38 @@ public struct SteamcLog {
         destination.showDate = true
     }
 
-    // Adapted from XCGLogger demo app here: https://github.com/DaveWoodCom/XCGLogger/blob/master/DemoApps/iOSDemo/iOSDemo/AppDelegate.swift
-    // Path for the log file in the cachesDirectory
-    private let logFilePath: URL = {
-        // get a list of cache directories
+    private let cacheDirectory: URL = {
         let urls = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
-        // grab the last one, then add steamclog.txt to create the path for the log file
-        return urls[urls.endIndex - 1].appendingPathComponent("steamclog.txt")
+
+        // Not completely clear what multiple urls in this array mean (something to do with the various "domains" in the mask, I think),
+        // why the last one is the one we want to use, why this doesn't use "urls.last!", or if that array could ever be empty.
+        // This specifically duplicates the way that XCGLogger.AutoRotatingFileDestination and the XCGLogger sample code do it,
+        // on the theory that the XCGLogger author maybe does understand those things :-)
+        return urls[urls.endIndex - 1]
     }()
+
+    // Path for the log file in the cache directory
+    private var logFilePath: URL {
+        get {
+            return cacheDirectory.appendingPathComponent("steamclog.txt")
+        }
+    }
+
+    // Path for the previous log file in the cache directory
+    private var previousLogFilePath: URL? {
+        get {
+            // grab the set of archived logs from the cache directory
+            let allFiles = (try? FileManager.default.contentsOfDirectory(atPath: cacheDirectory.path)) ?? []
+            let archivedLogs = allFiles.filter{ $0.contains("steamclog_") }
+            
+            // slightly hacky, but we know the archive filenames are constructed such that alphabetical sort does do time sorting
+            if let newestArchivedLog = archivedLogs.sorted().last {
+                return cacheDirectory.appendingPathComponent(newestArchivedLog)
+            }
+            
+            return nil
+        }
+    }
 
     // MARK: - Public Methods
 
@@ -269,9 +293,15 @@ public struct SteamcLog {
     // MARK: Non-static NonFatal Log Level
 
     private func internalUserReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        var detailedLogPaths: [URL] = []
+
+        if config.detailedLogsOnUserReports {
+            detailedLogPaths = [logFilePath, previousLogFilePath].compactMap { $0 }
+        }
+
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.userReport) as Any,
-            UserInfoKeys.detailedLogURL: (config.detailedLogsOnUserReports ? logFilePath : nil) as Any
+            UserInfoKeys.detailedLogURLs: detailedLogPaths
         ]
 
         xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
