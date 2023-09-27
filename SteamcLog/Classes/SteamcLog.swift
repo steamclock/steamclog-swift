@@ -482,6 +482,10 @@ public struct SteamcLog {
         return logFilePath
     }
 
+    public func previousLogFileURL() -> URL? {
+        return previousLogFilePath
+    }
+
     public func getLogFileContents(functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> String? {
         do {
             let fileData = try Data(contentsOf: logFilePath)
