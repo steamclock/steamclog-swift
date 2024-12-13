@@ -10,6 +10,14 @@ import Foundation
 import Sentry
 import XCGLogger
 
+public struct SteamcLogUser {
+    public var userId: String
+
+    public init(userId: String) {
+        self.userId = userId
+    }
+}
+
 public struct SteamcLog {
     public var config: Config! {
         didSet {
