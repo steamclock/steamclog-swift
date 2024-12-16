@@ -456,6 +456,17 @@ public struct SteamcLog {
         fatal(message, info: "Object redacted due to config.requireRedacted set to true \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    // MARK: User Related Helpers
+
+    public func setUser(userId: String?) {
+        guard let userId = userId else {
+            SentrySDK.setUser(nil)
+            return
+        }
+        let sentryUser = User(userId: userId)
+        SentrySDK.setUser(sentryUser)
+    }
+
     // MARK: Analytics Tracking Helpers
 
     @available(*, deprecated, message: "No analytics platform currently supported.")
