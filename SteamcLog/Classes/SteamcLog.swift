@@ -10,14 +10,6 @@ import Foundation
 import Sentry
 import XCGLogger
 
-public struct SteamcLogUser {
-    public var userId: String
-
-    public init(userId: String) {
-        self.userId = userId
-    }
-}
-
 public struct SteamcLog {
     public var config: Config! {
         didSet {
@@ -466,12 +458,12 @@ public struct SteamcLog {
 
     // MARK: User Related Helpers
 
-    public func setUser(_ user: SteamcLogUser?) {
-        guard let user = user else {
+    public func setUser(userId: String?) {
+        guard let userId = userId else {
             SentrySDK.setUser(nil)
             return
         }
-        let sentryUser = User(userId: user.userId)
+        let sentryUser = User(userId: userId)
         SentrySDK.setUser(sentryUser)
     }
 
