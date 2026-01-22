@@ -145,15 +145,15 @@ public struct SteamcLog {
 
     // MARK: All Log Level
 
-    private func internalVerbose(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.verbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    private func internalVerbose(_ message: String, functionName: String, fileName: String, lineNumber: Int) {
+        xcgLogger.logln(.verbose, functionName: functionName, fileName: fileName, lineNumber: lineNumber) { message }
     }
 
-    public func verbose(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func verbose(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalVerbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func verbose<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func verbose<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 verbose("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -172,21 +172,21 @@ public struct SteamcLog {
         verbose("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func verbose(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func verbose(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         verbose("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Debug Log Level
 
-    private func internalDebug(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.debug(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    private func internalDebug(_ message: String, functionName: String, fileName: String, lineNumber: Int) {
+        xcgLogger.logln(functionName: functionName, fileName: fileName, lineNumber: lineNumber) { message }
     }
 
-    public func debug(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func debug(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalDebug(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func debug<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func debug<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 debug("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -205,21 +205,21 @@ public struct SteamcLog {
         debug("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func debug(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func debug(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         debug("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Info Log Level
 
-    private func internalInfo(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.info(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    private func internalInfo(_ message: String, functionName: String, fileName: String, lineNumber: Int) {
+        xcgLogger.logln(.info, functionName: functionName, fileName: fileName, lineNumber: lineNumber) { message }
     }
 
-    public func info(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func info(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalInfo(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func info<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func info<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 info("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -238,21 +238,21 @@ public struct SteamcLog {
         info("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func info(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func info(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         info("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Warn Log Level
 
-    private func internalWarn(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.warning(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+    private func internalWarn(_ message: String, functionName: String, fileName: String, lineNumber: Int) {
+        xcgLogger.logln(.warning, functionName: functionName, fileName: fileName, lineNumber: lineNumber) { message }
     }
 
-    public func warn(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func warn(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalWarn(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func warn<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func warn<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 warn("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -272,7 +272,7 @@ public struct SteamcLog {
     }
 
     @_disfavoredOverload
-    public func warn<T>(_ message: String, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
+    public func warn<T>(_ message: String, _ error: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Error {
         if config.requireRedacted {
             guard let redacted = error as? Redacted else {
                 warn("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -286,13 +286,13 @@ public struct SteamcLog {
     }
 
 
-    public func warn(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func warn(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         warn("\(message): \(object)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Non-static NonFatal Log Level
 
-    private func internalUserReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    private func internalUserReport(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         var detailedLogPaths: [URL] = []
 
         if config.detailedLogsOnUserReports {
@@ -304,14 +304,14 @@ public struct SteamcLog {
             UserInfoKeys.detailedLogURLs: detailedLogPaths
         ]
 
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        xcgLogger.logln(.error, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo) { message }
     }
 
-    public func userReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func userReport(_ message: String, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalUserReport(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func userReport<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func userReport<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 internalUserReport("\(message): Object redacted due to config.requireRedacted set to true")
@@ -330,29 +330,29 @@ public struct SteamcLog {
         internalUserReport(jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func userReport(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func userReport(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalUserReport("\(message): \(object.debugDescription)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Nonfatal Log Level
 
-    private func internalError(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    private func internalError(_ message: String, info: String? = nil, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         if let info = info {
-            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            xcgLogger.logln(.info, functionName: functionName, fileName: fileName, lineNumber: lineNumber) { info }
         }
 
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.error) as Any,
         ]
 
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        xcgLogger.logln(.error, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo) { message }
     }
 
-    public func error(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func error(_ message: String, info: String? = nil, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalError(message, info: info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func error<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
+    public func error<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Encodable {
 
         if let error = object as? Error, config.suppressError(error) {
             warn("[suppressed] \(message)", object, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -378,7 +378,7 @@ public struct SteamcLog {
     }
 
     @_disfavoredOverload
-    public func error<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Error {
+    public func error<T>(_ message: String, _ error: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: Error {
 
         if config.suppressError(error) {
             warn("[suppressed] \(message)", error, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -398,23 +398,23 @@ public struct SteamcLog {
         internalError(message, info: "\(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
-    public func error(_ message: StaticString, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+    public func error(_ message: String, _ object: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) {
         internalError(message, info: object.debugDescription, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: Fatal Log Level
 
     @_transparent
-    public func fatal(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+    public func fatal(_ message: String, info: String? = nil, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) -> Never {
         if let info = info {
-            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            xcgLogger.logln(.info, functionName: functionName, fileName: fileName, lineNumber: lineNumber) { info }
         }
 
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.fatal) as Any,
         ]
 
-        xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        xcgLogger.logln(.severe, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo) { message }
 
         // forcing a crash, so we get a stacktrace
         let cleanfileName = ("\(fileName)" as NSString).lastPathComponent.replacingOccurrences(of: ".swift", with: "")
@@ -422,7 +422,7 @@ public struct SteamcLog {
     }
 
     @_transparent
-    public func fatal<T>(_ message: StaticString, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Encodable {
+    public func fatal<T>(_ message: String, _ object: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) -> Never where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
                 fatal(message, info: "Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -440,7 +440,7 @@ public struct SteamcLog {
 
     @_transparent
     @_disfavoredOverload
-    public func fatal<T>(_ message: StaticString, _ error: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never where T: Error {
+    public func fatal<T>(_ message: String, _ error: T, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) -> Never where T: Error {
         if config.requireRedacted {
             guard let redacted = error as? Redacted else {
                 fatal(message, info: "Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -452,7 +452,7 @@ public struct SteamcLog {
     }
 
     @_transparent
-    public func fatal(_ message: StaticString, _ redacted: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
+    public func fatal(_ message: String, _ redacted: Redacted, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) -> Never {
         fatal(message, info: "Object redacted due to config.requireRedacted set to true \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
@@ -470,7 +470,7 @@ public struct SteamcLog {
     // MARK: Analytics Tracking Helpers
 
     @available(*, deprecated, message: "No analytics platform currently supported.")
-    public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T.RawValue == String {
+    public func track<T: RawRepresentable>(id: T, data: [String: Any]? = nil, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T.RawValue == String {
         guard config.logLevel.analyticsEnabled else {
             info("Skipped logging analytics event: \(id) ...", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
@@ -479,7 +479,7 @@ public struct SteamcLog {
     }
     
     @available(*, deprecated, message: "No analytics platform currently supported.")
-    public func track<T, U>(id: T, encodable: U, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: AnalyticsEvent, U: Encodable {
+    public func track<T, U>(id: T, encodable: U, functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) where T: AnalyticsEvent, U: Encodable {
         guard let data = try? DictionaryEncoder().encode(encodable) else {
             warn("Failed to encode \(encodable) to dictionary.")
             return
@@ -497,7 +497,7 @@ public struct SteamcLog {
         return previousLogFilePath
     }
 
-    public func getLogFileContents(functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> String? {
+    public func getLogFileContents(functionName: String = #function, fileName: String = #file, lineNumber: Int = #line) -> String? {
         do {
             let fileData = try Data(contentsOf: logFilePath)
             return String(data: fileData, encoding: .utf8)
