@@ -456,6 +456,65 @@ public struct SteamcLog {
         fatal(message, info: "Object redacted due to config.requireRedacted set to true \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
+    // MARK: Non-static Helper
+
+    /// Forwards a dynamically constructed (non-static) message from external sources.
+    ///
+    /// Intended use
+    /// - This API exists primarily to forward logs originating from libraries, frameworks, or other logging systems into SteamcLog.
+    ///   It helps preserve the original message while routing it through the same destinations (console, file, Sentry) as the rest of your app.
+    ///
+    /// CAUTION
+    /// - Prefer the typed, level-specific APIs (e.g., `debug(_:)`, `info(_:)`, `warn(_:)`, `error(_:info:)`, `fatal(_:)`) that take
+    ///   `StaticString` where possible. Those functions help group identical issues together upstream (e.g., in Sentry)
+    ///   because the message string is stable.
+    /// - Using this forwarding API with a non-static `String` at `.error` (or higher) can produce many distinct log entries in Sentry,
+    ///   fragmenting analytics and making it harder to correlate and track the same underlying error.
+    /// - Treat this as a last resort for app-generated logs; prefer the other logging functions whenever you can.
+    ///
+    /// Guidance
+    /// - If you must forward dynamic data, keep the `message` as stable as possible and place changing values in `object` so they can be
+    ///   serialized or redacted. Alternatively, prefer `error(_:info:)` where the primary message is a `StaticString`.
+    ///
+    /// Parameters
+    /// - level: The log level. Be especially cautious with `.error` and above due to analytics fragmentation.
+    /// - message: A non-static `String` from an external source.
+    /// - object: Optional associated value to include for additional context (may be serialized or redacted).
+    /// - functionName: The calling function from the external or bridging context.
+    /// - fileName: The calling file from the external or bridging context.
+    /// - lineNumber: The calling line from the external or bridging context.
+    public func forwardedLog(level: LogLevel, message: String, object: Any?, functionName: String, fileName: String, lineNumber: Int) {
+        xcgLogger.logln(level.xcgLevel, functionName: functionName, fileName: fileName, lineNumber: lineNumber) {
+            var info: String?
+
+            if let object {
+                if config.requireRedacted {
+                    if let redacted = object as? Redacted {
+                        info = redacted.debugDescription
+                    } else {
+                        info = "Object redacted due to config.requireRedacted set to true"
+                    }
+                } else if let error = object as? Error {
+                    info = error.localizedDescription
+                } else if
+                    let encodable = object as? Encodable,
+                    let jsonData = try? encoder.encode(encodable),
+                    let jsonString = String(data: jsonData, encoding: .utf8)
+                {
+                    info = jsonString
+                } else {
+                    info = String(describing: object)
+                }
+            }
+
+            if let info {
+                return "\(message)\n\(info)"
+            } else {
+                return message
+            }
+        }
+    }
+
     // MARK: User Related Helpers
 
     public func setUser(userId: String?) {
@@ -507,3 +566,4 @@ public struct SteamcLog {
         return nil
     }
 }
+
