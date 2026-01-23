@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.3.2]
-- Added a new helper method to forward logs from different resources that are not static.
+- Added a new helper method to forward logs from different sources that are not static.
 
 ## [2.3.1]
 - Added a new helper method to set a user for tracking and observability purposes.
