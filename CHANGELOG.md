@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.4.0]
+## [3.0.0]
 - Update to use 9.x versions of Sentry SDK. Minimum iOS version is now 15.0, matching Sentry 9.
 - Drop CocoaPods support. SteamcLog is now only distributed through Swift Package Manager.
 - The Netable integration (`RedactedLogDestination`) is now the `SteamcLogNetable` SPM product, and supports Netable 2.x.

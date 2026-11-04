@@ -23,7 +23,7 @@ https://github.com/steamclock/steamclog-swift
 
 Or add it to your `Package.swift`:
 ```swift
-.package(url: "https://github.com/steamclock/steamclog-swift", from: "2.4.0")
+.package(url: "https://github.com/steamclock/steamclog-swift", from: "3.0.0")
 ```
 
 Note: If your project is using Sentry or XCGLogger, you can remove those dependencies, as they'll be imported as dependencies for SteamcLog.
