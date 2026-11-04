@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0]
+- Update to use 9.x versions of Sentry SDK. Minimum iOS version is now 15.0, matching Sentry 9.
+
 ## [2.3.2]
 - Added a new helper method to forward logs from different sources that are not static.
 
