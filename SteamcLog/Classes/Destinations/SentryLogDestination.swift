@@ -52,8 +52,12 @@ class SentryDestination: BaseQueuedDestination {
             let event = Event(level: logDetails.level.sentryLevel)
             event.message = SentryMessage(formatted: logDetails.message)
             event.extra = logDetails.userInfo[UserInfoKeys.extraInfo] as? [String: Any]
+            let urls = (logDetails.userInfo[UserInfoKeys.detailedLogURLs] as? [URL]) ?? []
+            if !urls.isEmpty {
+                // Make sure the attached log file has every line logged so far, including this one.
+                flushPendingLogWrites()
+            }
             SentrySDK.capture(event: event) { scope in
-                let urls = (logDetails.userInfo[UserInfoKeys.detailedLogURLs] as? [URL]) ?? []
                 for url in urls {
                     scope.addAttachment(Attachment(path: url.path))
                 }
