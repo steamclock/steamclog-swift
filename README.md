@@ -16,12 +16,17 @@
 An open source library that consolidates/formalizes the logging setup and usage across all of Steamclock's projects.
 
 ## Installation
-Add the following to your podfile then run `pod install`
+SteamcLog is distributed with Swift Package Manager. In Xcode, go to File > Add Package Dependencies and enter:
 ```
-pod 'SteamcLog', :git => "git@github.com:steamclock/steamclog.git"
+https://github.com/steamclock/steamclog-swift
 ```
 
-Note: If your project is using Sentry or XCGLogger, you can remove those from the podfile, as they'll be imported as dependencies for SteamcLog.
+Or add it to your `Package.swift`:
+```swift
+.package(url: "https://github.com/steamclock/steamclog-swift", from: "2.4.0")
+```
+
+Note: If your project is using Sentry or XCGLogger, you can remove those dependencies, as they'll be imported as dependencies for SteamcLog.
 
 In your AppDelegate (or a logging manager), set-up a global instance of SteamcLog:
 
@@ -157,14 +162,7 @@ In addition to the Sentry log destination that comes packaged with SteamcLog, yo
 
 If you're also using [Netable](https://github.com/steamclock/netable), you can pipe your logs directly from Netable into SteamcLog.
 
-First, in your Podfile, change
-```
-pod 'SteamcLog', :git => "git@github.com:steamclock/steamclog.git"
-```
-to
-```
-pod 'SteamcLog/Netable', :git => "git@github.com:steamclock/steamclog.git"
-```
+First, add the `SteamcLogNetable` product from this package to your target, alongside `SteamcLog`, and `import SteamcLogNetable` wherever you create your Netable instance.
 
 Then, when you create your Netable instance, set the log destination to `RedactedLogDestination` and pass in a reference to your Steamclog instance, like so:
 ```

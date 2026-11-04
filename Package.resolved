@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Netable",
+        "repositoryURL": "https://github.com/steamclock/netable",
+        "state": {
+          "branch": null,
+          "revision": "d1dc982cd6a0ec0db37e6d3873069f929422c074",
+          "version": "2.3.0"
+        }
+      },
+      {
         "package": "Sentry",
         "repositoryURL": "https://github.com/getsentry/sentry-cocoa",
         "state": {
