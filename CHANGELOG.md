@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+- `fatal` now waits (up to 1 second) for pending log file writes before crashing, so the fatal line is no longer lost from the log file.
+- User reports with `detailedLogsOnUserReports` now wait (up to 1 second) for pending log file writes before attaching the log, so the attachment includes the latest lines, including the report itself.
+- `userReport(_:_:)` with an object now keeps the message; before, only the object's JSON or redacted description was sent.
+- `error` and `userReport` with `requireRedacted` set and a non-`Redacted` object now record the caller's file, function and line instead of SteamcLog's.
+
 ## [2.3.2]
 - Added a new helper method to forward logs from different sources that are not static.
 

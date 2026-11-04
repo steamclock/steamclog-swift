@@ -10,6 +10,15 @@ import Foundation
 import Sentry
 import XCGLogger
 
+/// Waits up to `timeout` seconds for pending log file writes to finish.
+/// The file destination writes on `XCGLogger.logQueue`, so a log call returns before its line is on disk.
+/// The timeout keeps a stuck disk from hanging the caller, which may be the main thread.
+@usableFromInline internal func flushPendingLogWrites(timeout: TimeInterval = 1) {
+    let flushed = DispatchSemaphore(value: 0)
+    XCGLogger.logQueue.async { flushed.signal() }
+    _ = flushed.wait(timeout: .now() + timeout)
+}
+
 public struct SteamcLog {
     public var config: Config! {
         didSet {
@@ -47,6 +56,16 @@ public struct SteamcLog {
             level: config.logLevel.global.xcgLevel
         )
 
+        // Added before the Sentry destination: XCGLogger hands a log to destinations in the order they were added,
+        // so a user report's own line is queued for the file before Sentry flushes and attaches it.
+        fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
+                                                      identifier: "steamclog.fileDestination",
+                                                      shouldAppend: true,
+                                                      maxTimeInterval: config.autoRotateConfig.fileRotationTime)
+        setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.disk)
+        xcgLogger.add(destination: fileDestination)
+        fileDestination.logQueue = XCGLogger.logQueue
+
         if let sentry = sentryConfig {
             SentrySDK.configureScope { scope in
                 #if DEBUG
@@ -68,14 +87,6 @@ public struct SteamcLog {
             setLoggingDetails(destination: &sentryDestination!, outputLevel: config.logLevel.remote)
             xcgLogger.add(destination: sentryDestination! )
         }
-
-        fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
-                                                      identifier: "steamclog.fileDestination",
-                                                      shouldAppend: true,
-                                                      maxTimeInterval: config.autoRotateConfig.fileRotationTime)
-        setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.disk)
-        xcgLogger.add(destination: fileDestination)
-        fileDestination.logQueue = XCGLogger.logQueue
 
         systemDestination = SteamcLogSystemLogDestination(identifier: "steamclog.systemDestination")
         setLoggingDetails(destination: &systemDestination, outputLevel: config.logLevel.console)
@@ -314,10 +325,10 @@ public struct SteamcLog {
     public func userReport<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                internalUserReport("\(message): Object redacted due to config.requireRedacted set to true")
+                internalUserReport("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
-            internalUserReport("\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            internalUserReport("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
 
@@ -327,7 +338,7 @@ public struct SteamcLog {
             return
         }
 
-        internalUserReport(jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        internalUserReport("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func userReport(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -361,7 +372,7 @@ public struct SteamcLog {
 
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
             internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -388,7 +399,7 @@ public struct SteamcLog {
 
         if config.requireRedacted {
             guard let redacted = error as? Redacted else {
-                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
             internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -415,6 +426,9 @@ public struct SteamcLog {
         ]
 
         xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+
+        // The file write is queued, so wait for it, or the fatal line is lost when we crash.
+        flushPendingLogWrites()
 
         // forcing a crash, so we get a stacktrace
         let cleanfileName = ("\(fileName)" as NSString).lastPathComponent.replacingOccurrences(of: ".swift", with: "")
