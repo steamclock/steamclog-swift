@@ -8,6 +8,7 @@
 
 import Netable
 import SteamcLog
+import SteamcLogNetable
 import UIKit
 
 class NetableExampleViewController: UIViewController {
@@ -16,13 +17,11 @@ class NetableExampleViewController: UIViewController {
 
         let netable = Netable(baseURL: URL(string: "https://api.thecatapi.com/v1/")!, logDestination: RedactedLogDestination(clog: clog))
 
-        netable.request(GetCatRequest()) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success:
+        Task { @MainActor in
+            do {
+                try await netable.request(GetCatRequest())
                 clog.info("Success!")
-            case .failure(let error):
+            } catch {
                 let alert = UIAlertController(
                     title: "Uh oh!",
                     message: "Get cat image failed with error: \(error)",
@@ -56,25 +55,23 @@ struct GetCatRequest: Request {
         return ["mime_type": "jpg,png"]
     }
 
-    func finalize(raw: RawResource) -> Result<FinalResource, NetableError> {
+    func finalize(raw: RawResource) async throws -> FinalResource {
         guard let catImage = raw.first else {
-            return .failure(NetableError.resourceExtractionError("The expected cat image array is empty"))
+            throw NetableError.resourceExtractionError("The expected cat image array is empty")
         }
 
         guard let url = URL(string: catImage.url) else {
-            return .failure(NetableError.resourceExtractionError("The expected cat image url is invalid"))
+            throw NetableError.resourceExtractionError("The expected cat image url is invalid")
         }
 
-        do {
-            let data = try Data(contentsOf: url)
-
-            if let image = UIImage(data: data) {
-                return .success(image)
-            } else {
-                return .failure(NetableError.resourceExtractionError("Could not create image from the cat image data"))
-            }
-        } catch {
-            return .failure(NetableError.resourceExtractionError("Could not load contents of the cat image url"))
+        guard let data = try? Data(contentsOf: url) else {
+            throw NetableError.resourceExtractionError("Could not load contents of the cat image url")
         }
+
+        guard let image = UIImage(data: data) else {
+            throw NetableError.resourceExtractionError("Could not create image from the cat image data")
+        }
+
+        return image
     }
 }
