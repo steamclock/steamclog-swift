@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import XCGLogger
 
 public struct AutoRotateConfig {
     /// The number of seconds before the log file will be rotated out.
     let fileRotationTime: TimeInterval
 
-    /// More information available in https://github.com/DaveWoodCom/XCGLogger#automatic-log-file-rotation and https://github.com/DaveWoodCom/XCGLogger/blob/master/Sources/XCGLogger/Destinations/AutoRotatingFileDestination.swift
-    public init(fileRotationTime: TimeInterval = AutoRotatingFileDestination.autoRotatingFileDefaultMaxTimeInterval) {
+    /// Log files are also rotated once they pass 1MB, and the 10 most recent archives are kept.
+    public init(fileRotationTime: TimeInterval = 600) {
         self.fileRotationTime = fileRotationTime
     }
 }

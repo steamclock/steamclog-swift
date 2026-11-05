@@ -8,26 +8,19 @@
 
 import Foundation
 import Sentry
-import XCGLogger
 
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination?.outputLevel = config.logLevel.remote.xcgLevel
-            fileDestination.outputLevel = config.logLevel.disk.xcgLevel
-            systemDestination.outputLevel = config.logLevel.console.xcgLevel
+            dispatcher.apply(config.logLevel)
         }
     }
 
     // Sentry configuration options. If this is not set (or set to nil during creation), Sentry will not be used.
     public var sentryConfig: SentryConfig?
 
-    @usableFromInline internal var xcgLogger: XCGLogger!
+    @usableFromInline internal let dispatcher: LogDispatcher
     @usableFromInline internal let encoder = JSONEncoder()
-
-    private var fileDestination: FileDestination!
-    private var sentryDestination: SentryDestination?
-    private var systemDestination: SteamcLogSystemLogDestination!
 
     /*
      * Create your SteamcLog object.
@@ -40,12 +33,7 @@ public struct SteamcLog {
     public init(_ config: Config, sentryConfig: SentryConfig?) {
         self.config = config
         self.sentryConfig = sentryConfig
-        
-        xcgLogger = XCGLogger(identifier: config.identifier, includeDefaultDestinations: false)
-
-        xcgLogger.setup(
-            level: config.logLevel.global.xcgLevel
-        )
+        self.dispatcher = LogDispatcher(preset: config.logLevel)
 
         if let sentry = sentryConfig {
             SentrySDK.configureScope { scope in
@@ -64,35 +52,24 @@ public struct SteamcLog {
                 options.tracesSampleRate = sentry.tracesSampleRate
             }
 
-            sentryDestination = SentryDestination(identifier: "steamclog.sentryDestination")
-            setLoggingDetails(destination: &sentryDestination!, outputLevel: config.logLevel.remote)
-            xcgLogger.add(destination: sentryDestination! )
+            dispatcher.add(SentryDestination(), outputLevel: .remote)
         }
 
-        fileDestination = AutoRotatingFileDestination(writeToFile: logFilePath,
-                                                      identifier: "steamclog.fileDestination",
-                                                      shouldAppend: true,
-                                                      maxTimeInterval: config.autoRotateConfig.fileRotationTime)
-        setLoggingDetails(destination: &fileDestination, outputLevel: config.logLevel.disk)
-        xcgLogger.add(destination: fileDestination)
-        fileDestination.logQueue = XCGLogger.logQueue
+        let file = FileLogDestination(fileURL: logFilePath, maxTimeInterval: config.autoRotateConfig.fileRotationTime)
+        dispatcher.add(file, outputLevel: .disk)
+        file.onInternalLog = { [weak dispatcher, unowned file] level, message in
+            dispatcher?.logInternal(level, message, excluding: file)
+        }
+        file.open()
 
-        systemDestination = SteamcLogSystemLogDestination(identifier: "steamclog.systemDestination")
-        setLoggingDetails(destination: &systemDestination, outputLevel: config.logLevel.console)
-        xcgLogger.add(destination: systemDestination)
+        dispatcher.add(SteamcLogSystemLogDestination(category: config.identifier), outputLevel: .console)
 
-        xcgLogger.logAppDetails()
+        // The file destination already wrote these details when it opened.
+        dispatcher.logInternal(.info, LogEntry.appDetails, excluding: file)
     }
 
-    private func setLoggingDetails<T: BaseQueuedDestination>(destination: inout T, outputLevel: LogLevel) {
-        destination.outputLevel = outputLevel.xcgLevel
-        destination.showLogIdentifier = false
-        destination.showFunctionName = true
-        destination.showThreadName = true
-        destination.showFileName = true
-        destination.showLineNumber = true
-        destination.showLevel = true
-        destination.showDate = true
+    @usableFromInline internal func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: StaticString, fileName: StaticString, lineNumber: Int, userInfo: [String: Any] = [:]) {
+        dispatcher.log(level, message(), functionName: "\(functionName)", fileName: "\(fileName)", lineNumber: lineNumber, userInfo: userInfo)
     }
 
     private let cacheDirectory: URL = {
@@ -100,8 +77,7 @@ public struct SteamcLog {
 
         // Not completely clear what multiple urls in this array mean (something to do with the various "domains" in the mask, I think),
         // why the last one is the one we want to use, why this doesn't use "urls.last!", or if that array could ever be empty.
-        // This specifically duplicates the way that XCGLogger.AutoRotatingFileDestination and the XCGLogger sample code do it,
-        // on the theory that the XCGLogger author maybe does understand those things :-)
+        // This duplicates the way XCGLogger (our previous logging backend) did it, so the log file stays in the same place.
         return urls[urls.endIndex - 1]
     }()
 
@@ -135,18 +111,17 @@ public struct SteamcLog {
      *
      * - Parameters:
      *   - destination: The new destination to attach to the logger.
-     *   - outputLevel: The minimum log level that will be sent to the destination.
+     *   - outputLevel: Which level the destination receives. `.console`, `.disk` or `.remote` follow that level of the
+     *     current preset and update whenever `config` changes. `.fixed(level)` always uses `level`.
      */
-    public func attach(destination: BaseQueuedDestination, outputLevel: LogLevel) {
-        var newDest = destination
-        setLoggingDetails(destination: &newDest, outputLevel: outputLevel)
-        xcgLogger.add(destination: newDest)
+    public func attach(destination: SteamcLogDestination, outputLevel: DestinationLevel) {
+        dispatcher.add(destination, outputLevel: outputLevel)
     }
 
     // MARK: All Log Level
 
     private func internalVerbose(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.verbose(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        log(.verbose, message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func verbose(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -179,7 +154,7 @@ public struct SteamcLog {
     // MARK: Debug Log Level
 
     private func internalDebug(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.debug(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        log(.debug, message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func debug(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -212,7 +187,7 @@ public struct SteamcLog {
     // MARK: Info Log Level
 
     private func internalInfo(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.info(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        log(.info, message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func info(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -245,7 +220,7 @@ public struct SteamcLog {
     // MARK: Warn Log Level
 
     private func internalWarn(_ message: String, functionName: StaticString, fileName: StaticString, lineNumber: Int) {
-        xcgLogger.warning(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        log(.warn, message, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func warn(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -304,7 +279,7 @@ public struct SteamcLog {
             UserInfoKeys.detailedLogURLs: detailedLogPaths
         ]
 
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        log(.error, "\(message)", functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
     }
 
     public func userReport(_ message: String, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -338,14 +313,14 @@ public struct SteamcLog {
 
     private func internalError(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
         if let info = info {
-            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            log(.info, info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
 
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.error) as Any,
         ]
 
-        xcgLogger.error(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        log(.error, "\(message)", functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
     }
 
     public func error(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -407,14 +382,14 @@ public struct SteamcLog {
     @_transparent
     public func fatal(_ message: StaticString, info: String? = nil, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> Never {
         if let info = info {
-            xcgLogger.info(info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            log(.info, info, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
         }
 
         let userInfo: [String: Any] = [
             UserInfoKeys.extraInfo: config.extraInfo(.fatal) as Any,
         ]
 
-        xcgLogger.severe(message, functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        log(.fatal, "\(message)", functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
 
         // forcing a crash, so we get a stacktrace
         let cleanfileName = ("\(fileName)" as NSString).lastPathComponent.replacingOccurrences(of: ".swift", with: "")
@@ -484,7 +459,7 @@ public struct SteamcLog {
     /// - fileName: The calling file from the external or bridging context.
     /// - lineNumber: The calling line from the external or bridging context.
     public func forwardedLog(level: LogLevel, message: String, object: Any?, functionName: String, fileName: String, lineNumber: Int) {
-        xcgLogger.logln(level.xcgLevel, functionName: functionName, fileName: fileName, lineNumber: lineNumber) {
+        dispatcher.log(level, {
             var info: String?
 
             if let object {
@@ -512,7 +487,7 @@ public struct SteamcLog {
             } else {
                 return message
             }
-        }
+        }(), functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     // MARK: User Related Helpers

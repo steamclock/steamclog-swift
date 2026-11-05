@@ -15,10 +15,10 @@ public struct Config {
         case fatal
     }
 
-    /// Global log threshold, logs under this level will be ignored
+    /// Minimum log levels for each destination (console, disk, remote). See `LogLevelPreset`.
     internal let logLevel: LogLevelPreset
 
-    /// Identifier used for XCGLogger destinations
+    /// Identifier used as the os.log category for console logs
     internal let identifier: String // TODO: Should this be bundle name or something? Do we have access to that from inside the package?
 
     /// Allows customization of auto rotating of log files. By default, file will rotate every 600 seconds.

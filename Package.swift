@@ -16,19 +16,22 @@ let package = Package(
             targets: ["SteamcLogNetable"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/DaveWoodCom/XCGLogger", from: "7.0.0"),
         .package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.0.0"),
         .package(url: "https://github.com/steamclock/netable", from: "2.0.0"),
     ],
     targets: [
         .target(
             name: "SteamcLog",
-            dependencies: ["XCGLogger", .product(name: "Sentry", package: "sentry-cocoa")],
+            dependencies: [.product(name: "Sentry", package: "sentry-cocoa")],
             path: "SteamcLog"),
         .target(
             name: "SteamcLogNetable",
             dependencies: ["SteamcLog", .product(name: "Netable", package: "netable")],
             path: "Netable"),
+        .testTarget(
+            name: "SteamcLogTests",
+            dependencies: ["SteamcLog"],
+            path: "Tests"),
     ],
     swiftLanguageVersions: [.v5]
 )

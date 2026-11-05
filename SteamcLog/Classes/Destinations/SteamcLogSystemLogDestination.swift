@@ -7,21 +7,43 @@
 //
 
 import Foundation
-import XCGLogger
+import os
 
-class SteamcLogSystemLogDestination: AppleSystemLogDestination {
-    override func output(logDetails: LogDetails, message: String) {
+class SteamcLogSystemLogDestination: SteamcLogDestination {
+    private let logger: Logger
+
+    init(category: String) {
+        logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? category, category: category)
+    }
+
+    func write(_ entry: LogEntry) {
         let emoji: String
+        let type: OSLogType
 
-        switch logDetails.level {
-        case .error, .severe:
-            emoji = "🚫"
-        case .warning:
-            emoji = "⚠️"
-        default:
+        switch entry.level {
+        case .verbose, .debug:
             emoji = ""
+            type = .debug
+        case .info:
+            emoji = ""
+            type = .info
+        case .warn:
+            emoji = "⚠️ "
+            type = .default
+        case .error:
+            emoji = "🚫 "
+            type = .error
+        case .fatal:
+            emoji = "🚫 "
+            type = .fault
+        case .none:
+            emoji = ""
+            type = .default
         }
 
-        super.output(logDetails: logDetails, message: emoji.isEmpty ? message : "\(emoji) \(message)")
+        // os.log adds its own timestamp. Messages are marked public because the old NSLog output was never redacted,
+        // and SteamcLog's own `Redacted` handling is what keeps sensitive values out of logs.
+        let message = "\(emoji)\(entry.formattedWithoutDate)"
+        logger.log(level: type, "\(message, privacy: .public)")
     }
 }
