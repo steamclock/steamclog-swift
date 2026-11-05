@@ -22,6 +22,21 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(chatty.entries[0].formattedMessage.hasSuffix(" [Info] [main] [B.swift:7] f() > hello"))
     }
 
+    /// Goes through SteamcLog's real init, so the file destination is wired up the way apps get it.
+    func testSteamcLogWritesToLogFile() throws {
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let file = try XCTUnwrap(clog.dispatcher.destinations.compactMap { $0 as? FileLogDestination }.first)
+
+        clog.debug("end to end")
+        clog.verbose("below the disk level")
+        file.queue.sync {}
+
+        let contents = try XCTUnwrap(clog.getLogFileContents())
+        XCTAssertTrue(contents.contains("[Debug] [main] [LoggingTests.swift:"))
+        XCTAssertTrue(contents.contains("testSteamcLogWritesToLogFile() > end to end"))
+        XCTAssertFalse(contents.contains("below the disk level"))
+    }
+
     func testFileRotatesBySizeAndKeepsTenArchives() throws {
         let fileManager = FileManager.default
         let dir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

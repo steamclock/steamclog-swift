@@ -54,7 +54,8 @@ final class FileLogDestination: SteamcLogDestination {
     }
 
     /// Opens (or creates) the log file. Call once, after `onInternalLog` is set.
-    func open() {
+    /// `rotationNote` is written first when reopening after a rotation, as XCGLogger did.
+    func open(rotationNote: String? = nil) {
         let fileManager = FileManager.default
         let appending = fileManager.fileExists(atPath: fileURL.path)
         if !appending {
@@ -71,6 +72,10 @@ final class FileLogDestination: SteamcLogDestination {
             handle = nil
             onInternalLog?(.error, "Attempt to open log file for \(appending ? "appending" : "writing") failed: \(error.localizedDescription)")
             return
+        }
+
+        if let rotationNote {
+            writeInternal(rotationNote)
         }
 
         let opened = "SteamcLog \(appending ? "appending" : "writing") log to: \(fileURL.absoluteString)"
@@ -93,13 +98,13 @@ final class FileLogDestination: SteamcLogDestination {
     private func append(_ line: String) {
         let data = Data("\(line)\n".utf8)
         try? handle?.write(contentsOf: data)
-        currentSize += UInt64(data.count)
+        // Counts characters without the newline, as XCGLogger did, so files rotate at the same points as before.
+        currentSize += UInt64(line.count)
 
         if shouldRotate {
             try? handle?.close()
             handle = nil
-            archive()
-            open()
+            open(rotationNote: archive())
         }
     }
 
@@ -108,7 +113,9 @@ final class FileLogDestination: SteamcLogDestination {
         return maxTimeInterval > 0 && Date().timeIntervalSince(startDate) >= maxTimeInterval
     }
 
-    private func archive() {
+    /// Returns a "Rotated file" note when the file was moved.
+    @discardableResult
+    private func archive() -> String? {
         defer {
             currentSize = 0
             startDate = Date()
@@ -121,14 +128,18 @@ final class FileLogDestination: SteamcLogDestination {
             .appendingPathExtension(fileExtension)
 
         // Already rotated this second, keep writing to the current file.
-        guard !fileManager.fileExists(atPath: archiveURL.path) else { return }
+        guard !fileManager.fileExists(atPath: archiveURL.path) else { return nil }
 
         do {
             try fileManager.moveItem(at: fileURL, to: archiveURL)
-            onInternalLog?(.info, "Rotated file \(fileURL.path) to \(archiveURL.path)")
         } catch {
             onInternalLog?(.error, "\(Self.rotationFailedPrefix) \(fileURL.path) to \(archiveURL.path): \(error.localizedDescription)")
+            return nil
         }
+
+        let note = "Rotated file \(fileURL.path) to \(archiveURL.path)"
+        onInternalLog?(.info, note)
+        return note
     }
 
     private func cleanUpArchives() {
