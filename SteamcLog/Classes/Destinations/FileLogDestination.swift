@@ -11,11 +11,9 @@ import Foundation
 /// Writes logs to a file, archiving it alongside as `<name>_yyyy-MM-dd_HHmmss.<ext>` once it gets too old or too big.
 /// Behaves the same as the XCGLogger `AutoRotatingFileDestination` it replaces.
 final class FileLogDestination: SteamcLogDestination {
-    static let rotationFailedPrefix = "Unable to rotate file"
     static let maxFileSize: UInt64 = 1_048_576
     static let maxArchivedFiles = 10
 
-    var outputLevel: LogLevel = .debug
 
     /// Reports housekeeping lines (file opened, rotated, failures) to the other destinations.
     var onInternalLog: ((LogLevel, String) -> Void)?
@@ -90,8 +88,8 @@ final class FileLogDestination: SteamcLogDestination {
         }
     }
 
+    /// Header lines are info level. Every preset's disk level is info or lower, so these are always written.
     private func writeInternal(_ message: String) {
-        guard LogLevel.info.rawValue >= outputLevel.rawValue else { return }
         append(LogEntry(level: .info, message: message, isInternal: true).formattedMessage)
     }
 
@@ -133,7 +131,10 @@ final class FileLogDestination: SteamcLogDestination {
         do {
             try fileManager.moveItem(at: fileURL, to: archiveURL)
         } catch {
-            onInternalLog?(.error, "\(Self.rotationFailedPrefix) \(fileURL.path) to \(archiveURL.path): \(error.localizedDescription)")
+            // Details (which differ per device) go out as a warning, and the error itself has a fixed message,
+            // so Sentry groups every rotation failure into one issue.
+            onInternalLog?(.warn, "Unable to rotate file \(fileURL.path) to \(archiveURL.path): \(error.localizedDescription)")
+            onInternalLog?(.error, "Unable to rotate log file")
             return nil
         }
 

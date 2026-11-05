@@ -10,7 +10,6 @@ import Foundation
 import os
 
 class SteamcLogSystemLogDestination: SteamcLogDestination {
-    var outputLevel: LogLevel = .debug
     private let logger: Logger
 
     init(category: String) {

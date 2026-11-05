@@ -12,21 +12,15 @@ import Sentry
 public struct SteamcLog {
     public var config: Config! {
         didSet {
-            sentryDestination?.outputLevel = config.logLevel.remote
-            fileDestination.outputLevel = config.logLevel.disk
-            systemDestination.outputLevel = config.logLevel.console
+            dispatcher.apply(config.logLevel)
         }
     }
 
     // Sentry configuration options. If this is not set (or set to nil during creation), Sentry will not be used.
     public var sentryConfig: SentryConfig?
 
-    @usableFromInline internal let dispatcher = LogDispatcher()
+    @usableFromInline internal let dispatcher: LogDispatcher
     @usableFromInline internal let encoder = JSONEncoder()
-
-    private var fileDestination: FileLogDestination!
-    private var sentryDestination: SentryDestination?
-    private var systemDestination: SteamcLogSystemLogDestination!
 
     /*
      * Create your SteamcLog object.
@@ -39,6 +33,7 @@ public struct SteamcLog {
     public init(_ config: Config, sentryConfig: SentryConfig?) {
         self.config = config
         self.sentryConfig = sentryConfig
+        self.dispatcher = LogDispatcher(preset: config.logLevel)
 
         if let sentry = sentryConfig {
             SentrySDK.configureScope { scope in
@@ -57,20 +52,17 @@ public struct SteamcLog {
                 options.tracesSampleRate = sentry.tracesSampleRate
             }
 
-            sentryDestination = SentryDestination()
-            dispatcher.add(sentryDestination!, outputLevel: config.logLevel.remote)
+            dispatcher.add(SentryDestination(), outputLevel: .remote)
         }
 
         let file = FileLogDestination(fileURL: logFilePath, maxTimeInterval: config.autoRotateConfig.fileRotationTime)
-        fileDestination = file
-        dispatcher.add(file, outputLevel: config.logLevel.disk)
+        dispatcher.add(file, outputLevel: .disk)
         file.onInternalLog = { [weak dispatcher, unowned file] level, message in
             dispatcher?.logInternal(level, message, excluding: file)
         }
         file.open()
 
-        systemDestination = SteamcLogSystemLogDestination(category: config.identifier)
-        dispatcher.add(systemDestination, outputLevel: config.logLevel.console)
+        dispatcher.add(SteamcLogSystemLogDestination(category: config.identifier), outputLevel: .console)
 
         // The file destination already wrote these details when it opened.
         dispatcher.logInternal(.info, LogEntry.appDetails, excluding: file)
@@ -119,9 +111,10 @@ public struct SteamcLog {
      *
      * - Parameters:
      *   - destination: The new destination to attach to the logger.
-     *   - outputLevel: The minimum log level that will be sent to the destination.
+     *   - outputLevel: Which level the destination receives. `.console`, `.disk` or `.remote` follow that level of the
+     *     current preset and update whenever `config` changes. `.fixed(level)` always uses `level`.
      */
-    public func attach(destination: SteamcLogDestination, outputLevel: LogLevel) {
+    public func attach(destination: SteamcLogDestination, outputLevel: DestinationLevel) {
         dispatcher.add(destination, outputLevel: outputLevel)
     }
 

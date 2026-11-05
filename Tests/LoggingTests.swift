@@ -3,16 +3,15 @@ import XCTest
 
 final class LoggingTests: XCTestCase {
     private class Collector: SteamcLogDestination {
-        var outputLevel: LogLevel = .debug
         var entries: [LogEntry] = []
         func write(_ entry: LogEntry) { entries.append(entry) }
     }
 
     func testDispatcherRespectsDestinationLevels() {
-        let dispatcher = LogDispatcher()
+        let dispatcher = LogDispatcher(preset: .debug)
         let chatty = Collector(), quiet = Collector()
-        dispatcher.add(chatty, outputLevel: .verbose)
-        dispatcher.add(quiet, outputLevel: .warn)
+        dispatcher.add(chatty, outputLevel: .fixed(.verbose))
+        dispatcher.add(quiet, outputLevel: .fixed(.warn))
 
         dispatcher.log(.info, "hello", functionName: "f()", fileName: "/a/B.swift", lineNumber: 7)
         dispatcher.log(.error, "uh oh", functionName: "f()", fileName: "/a/B.swift", lineNumber: 8)
@@ -20,6 +19,37 @@ final class LoggingTests: XCTestCase {
         XCTAssertEqual(chatty.entries.map(\.message), ["hello", "uh oh"])
         XCTAssertEqual(quiet.entries.map(\.message), ["uh oh"])
         XCTAssertTrue(chatty.entries[0].formattedMessage.hasSuffix(" [Info] [main] [B.swift:7] f() > hello"))
+    }
+
+    func testChangingConfigUpdatesDestinationsFollowingThePreset() {
+        var clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let followsConsole = Collector(), fixed = Collector()
+        clog.attach(destination: followsConsole, outputLevel: .console)
+        clog.attach(destination: fixed, outputLevel: .fixed(.info))
+
+        clog.debug("debug preset")
+        clog.info("debug preset info")
+
+        // Release turns the console off entirely.
+        clog.config = Config(logLevel: .release)
+        clog.debug("release preset")
+        clog.info("release preset info")
+
+        XCTAssertEqual(followsConsole.entries.map(\.message), ["debug preset", "debug preset info"])
+        XCTAssertEqual(fixed.entries.map(\.message), ["debug preset info", "release preset info"])
+    }
+
+    /// Swapping config while other threads log shouldn't crash (run with Thread Sanitizer to catch regressions).
+    func testChangingConfigWhileLoggingFromOtherThreads() {
+        var clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let reader = clog
+        DispatchQueue.concurrentPerform(iterations: 4) { worker in
+            if worker == 0 {
+                for i in 0..<500 { clog.config = Config(logLevel: i.isMultiple(of: 2) ? .release : .debug) }
+            } else {
+                for i in 0..<500 { reader.info("worker \(worker) line \(i)") }
+            }
+        }
     }
 
     /// Goes through SteamcLog's real init, so the file destination is wired up the way apps get it.
@@ -35,6 +65,35 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(contents.contains("[Debug] [main] [LoggingTests.swift:"))
         XCTAssertTrue(contents.contains("testSteamcLogWritesToLogFile() > end to end"))
         XCTAssertFalse(contents.contains("below the disk level"))
+    }
+
+    func testRotationFailureIsReportedWithStableErrorAndLoggingContinues() throws {
+        let fileManager = FileManager.default
+        let dir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer {
+            try? fileManager.setAttributes([.posixPermissions: 0o755], ofItemAtPath: dir.path)
+            try? fileManager.removeItem(at: dir)
+        }
+
+        let url = dir.appendingPathComponent("steamclog.txt")
+        let file = FileLogDestination(fileURL: url, maxTimeInterval: 600)
+        var reported: [(LogLevel, String)] = []
+        file.onInternalLog = { reported.append(($0, $1)) }
+        file.open()
+
+        // Read-only directory, so the archive move fails.
+        try fileManager.setAttributes([.posixPermissions: 0o555], ofItemAtPath: dir.path)
+
+        let entry = LogEntry(level: .info, message: String(repeating: "x", count: 1000), functionName: "f()", fileName: "/a/B.swift", lineNumber: 7)
+        for _ in 0..<1100 { file.write(entry) }
+        file.write(LogEntry(level: .info, message: "still logging", functionName: "f()", fileName: "/a/B.swift", lineNumber: 8))
+        file.queue.sync {}
+
+        XCTAssertTrue(reported.contains { $0.0 == .warn && $0.1.hasPrefix("Unable to rotate file \(url.path)") }, "\(reported)")
+        XCTAssertTrue(reported.contains { $0.0 == .error && $0.1 == "Unable to rotate log file" }, "\(reported)")
+        XCTAssertFalse(reported.contains { $0.0 == .error && $0.1 != "Unable to rotate log file" }, "\(reported)")
+        XCTAssertTrue(try String(contentsOf: url, encoding: .utf8).contains("f() > still logging"))
     }
 
     func testFileRotatesBySizeAndKeepsTenArchives() throws {

@@ -162,15 +162,19 @@ A destination is any class conforming to `SteamcLogDestination`:
 
 ```swift
 class MyDestination: SteamcLogDestination {
-    var outputLevel: LogLevel = .debug
-
     func write(_ entry: LogEntry) {
         print(entry.formattedMessage)
     }
 }
 
-clog.attach(destination: MyDestination(), outputLevel: .info)
+// Follows the console level of the current preset, and updates if `clog.config` changes.
+clog.attach(destination: MyDestination(), outputLevel: .console)
+
+// Or always receives info and above, whatever the preset.
+clog.attach(destination: MyDestination(), outputLevel: .fixed(.info))
 ```
+
+`.console`, `.disk` and `.remote` follow that level of the current `LogLevelPreset`, the same way SteamcLog's built-in destinations do.
 
 ## Using SteamcLog with Netable
 
