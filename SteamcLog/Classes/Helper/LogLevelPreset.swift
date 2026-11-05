@@ -22,15 +22,6 @@ public enum LogLevelPreset: String, Codable {
     /// console: none, disk: debug, remote: debug
     case releaseAdvanced
 
-    var global: LogLevel {
-        switch self {
-        case .debugVerbose: return .info
-        case .debug: return .info
-        case .release: return .warn
-        case .releaseAdvanced: return .info
-        }
-    }
-
     var remote: LogLevel {
         switch self {
         case .debugVerbose: return .none
