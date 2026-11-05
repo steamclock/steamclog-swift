@@ -26,7 +26,7 @@ Or add it to your `Package.swift`:
 .package(url: "https://github.com/steamclock/steamclog-swift", from: "3.0.0")
 ```
 
-Note: If your project is using Sentry or XCGLogger, you can remove those dependencies, as they'll be imported as dependencies for SteamcLog.
+Note: If your project is using Sentry, you can remove that dependency, as it'll be imported as a dependency for SteamcLog.
 
 In your AppDelegate (or a logging manager), set-up a global instance of SteamcLog:
 
@@ -157,6 +157,20 @@ And the log will output:
 ## Custom Log Destinations
 
 In addition to the Sentry log destination that comes packaged with SteamcLog, you can create your own log destination and attach it to your SteamcLog instance using `attach`.
+
+A destination is any class conforming to `SteamcLogDestination`:
+
+```swift
+class MyDestination: SteamcLogDestination {
+    var outputLevel: LogLevel = .debug
+
+    func write(_ entry: LogEntry) {
+        print(entry.formattedMessage)
+    }
+}
+
+clog.attach(destination: MyDestination(), outputLevel: .info)
+```
 
 ## Using SteamcLog with Netable
 
