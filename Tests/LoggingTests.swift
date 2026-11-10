@@ -85,6 +85,66 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(try String(contentsOf: XCTUnwrap(withSystemLog.last), encoding: .utf8).contains(marker))
     }
 
+    /// Stands in for Sentry, which reads the log file as soon as it's handed a user report.
+    func testUserReportIsOnDiskBeforeLaterDestinationsSeeIt() throws {
+        final class FileReader: SteamcLogDestination {
+            let url: URL
+            var seen: [(message: String, fileName: String, onDisk: Bool)] = []
+            init(url: URL) { self.url = url }
+            func write(_ entry: LogEntry) {
+                let contents = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
+                seen.append((entry.message, entry.fileName, contents.contains(entry.message)))
+            }
+        }
+
+        let clog = SteamcLog(Config(logLevel: .debug, requireRedacted: true, detailedLogsOnUserReports: true), sentryConfig: nil)
+        let reader = FileReader(url: clog.logFileURL())
+        clog.attach(destination: reader, outputLevel: .fixed(.error))
+
+        let marker = UUID().uuidString
+        clog.userReport("report \(marker)")
+        clog.userReport("with object \(marker)", ["not": "redactable"])
+        clog.error("error with object", ["not": "redactable"])
+
+        XCTAssertEqual(reader.seen.map(\.message), [
+            "report \(marker)",
+            "with object \(marker): Object redacted due to config.requireRedacted set to true",
+            "error with object",
+        ])
+        XCTAssertTrue(reader.seen[0].onDisk)
+        XCTAssertTrue(reader.seen[1].onDisk)
+        // The redacted paths used to report SteamcLog.swift as the call site.
+        XCTAssertTrue(reader.seen.allSatisfy { $0.fileName.hasSuffix("LoggingTests.swift") }, "\(reader.seen.map(\.fileName))")
+    }
+
+    func testUserReportWithObjectKeepsItsMessage() {
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let collector = Collector()
+        clog.attach(destination: collector, outputLevel: .fixed(.error))
+
+        clog.userReport("it broke", ["step": 3])
+
+        XCTAssertEqual(collector.entries.map(\.message), ["it broke: {\"step\":3}"])
+    }
+
+    /// `fatal()` crashes right after logging, so its line has to be written before `write` returns.
+    func testFatalLineIsWrittenBeforeWriteReturns() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+
+        let url = dir.appendingPathComponent("steamclog.txt")
+        let file = FileLogDestination(fileURL: url, maxTimeInterval: 600)
+        file.open()
+
+        file.write(LogEntry(level: .info, message: "just before", functionName: "f()", fileName: "/a/B.swift", lineNumber: 7))
+        file.write(LogEntry(level: .fatal, message: "the end", functionName: "f()", fileName: "/a/B.swift", lineNumber: 8))
+
+        let contents = try String(contentsOf: url, encoding: .utf8)
+        XCTAssertTrue(contents.contains("f() > just before"))
+        XCTAssertTrue(contents.contains("f() > the end"))
+    }
+
     func testRotationFailureIsReportedWithStableErrorAndLoggingContinues() throws {
         let fileManager = FileManager.default
         let dir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

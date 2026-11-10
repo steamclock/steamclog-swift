@@ -35,6 +35,11 @@ public struct SteamcLog {
         self.sentryConfig = sentryConfig
         self.dispatcher = LogDispatcher(preset: config.logLevel)
 
+        // Added before the Sentry destination. Destinations get each entry in the order they were added, so a user
+        // report's own line is in the log file by the time Sentry attaches it.
+        let file = FileLogDestination(fileURL: logFilePath, maxTimeInterval: config.autoRotateConfig.fileRotationTime)
+        dispatcher.add(file, outputLevel: .disk)
+
         if let sentry = sentryConfig {
             SentrySDK.configureScope { scope in
                 #if DEBUG
@@ -55,8 +60,7 @@ public struct SteamcLog {
             dispatcher.add(SentryDestination(), outputLevel: .remote)
         }
 
-        let file = FileLogDestination(fileURL: logFilePath, maxTimeInterval: config.autoRotateConfig.fileRotationTime)
-        dispatcher.add(file, outputLevel: .disk)
+        // Opened after Sentry is set up, so Sentry still gets the "writing log to" breadcrumb.
         file.onInternalLog = { [weak dispatcher, unowned file] level, message in
             dispatcher?.logInternal(level, message, excluding: file)
         }
@@ -286,10 +290,10 @@ public struct SteamcLog {
     public func userReport<T>(_ message: String, _ object: T, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) where T: Encodable {
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                internalUserReport("\(message): Object redacted due to config.requireRedacted set to true")
+                internalUserReport("\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
-            internalUserReport("\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            internalUserReport("\(message): \(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
             return
         }
 
@@ -299,7 +303,7 @@ public struct SteamcLog {
             return
         }
 
-        internalUserReport(jsonString, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+        internalUserReport("\(message): \(jsonString)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
     public func userReport(_ message: String, _ object: Redacted, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
@@ -333,7 +337,7 @@ public struct SteamcLog {
 
         if config.requireRedacted {
             guard let redacted = object as? Redacted else {
-                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
             internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -360,7 +364,7 @@ public struct SteamcLog {
 
         if config.requireRedacted {
             guard let redacted = error as? Redacted else {
-                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true")
+                internalError(message, info: "\(message): Object redacted due to config.requireRedacted set to true", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
                 return
             }
             internalError(message, info: "\(redacted)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
@@ -549,7 +553,7 @@ public struct SteamcLog {
 
     private func collectLogFileURLs(includeSystemLog: Bool, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> [URL] {
         // File writes are queued, so wait for any that are still pending.
-        dispatcher.destinations.compactMap { $0 as? FileLogDestination }.forEach { $0.queue.sync {} }
+        dispatcher.destinations.compactMap { $0 as? FileLogDestination }.forEach { $0.flush() }
 
         var urls = archivedLogFilePaths + [logFilePath]
 

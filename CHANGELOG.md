@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom destinations now conform to `SteamcLogDestination` (a single `write(_:)` method) instead of subclassing XCGLogger's `BaseQueuedDestination`. `attach(destination:outputLevel:)` takes a `DestinationLevel`: `.console`, `.disk` or `.remote` follow the preset and update when `config` changes, `.fixed(level)` never changes. SteamcLog no longer brings in XCGLogger, so add it directly if your app still uses it.
 - The Netable integration (`RedactedLogDestination`) is now the `SteamcLogNetable` SPM product, and supports Netable 2.x.
 - Added `allLogFileURLs(includeSystemLog:)`, which returns every log file on disk, and can include a dump of the current launch's os.log entries.
+- `fatal` now waits (up to 1 second) for pending log file writes before crashing, so the fatal line is no longer lost from the log file.
+- User reports with `detailedLogsOnUserReports` now wait (up to 1 second) for pending log file writes before attaching the log, so the attachment includes the latest lines, including the report itself.
+- `userReport(_:_:)` with an object now keeps the message; before, only the object's JSON or redacted description was sent.
+- `error` and `userReport` with `requireRedacted` set and a non-`Redacted` object now record the caller's file, function and line instead of SteamcLog's.
 
 ## [2.3.2]
 - Added a new helper method to forward logs from different sources that are not static.

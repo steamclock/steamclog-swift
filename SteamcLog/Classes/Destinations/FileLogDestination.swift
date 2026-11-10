@@ -86,6 +86,22 @@ final class FileLogDestination: SteamcLogDestination {
         queue.async {
             self.append(entry.formattedMessage)
         }
+
+        // Two kinds of line can't be left sitting in the queue: a fatal one, since the app crashes right after, and a
+        // user report that attaches the log files, since Sentry reads them as soon as this returns.
+        let attachesLogFiles = (entry.userInfo[UserInfoKeys.detailedLogURLs] as? [URL])?.isEmpty == false
+        if entry.level == .fatal || attachesLogFiles {
+            flush()
+        }
+    }
+
+    /// Waits up to `timeout` seconds for queued writes to reach the file.
+    /// The timeout keeps a stuck disk from hanging the caller, which may be the main thread, and means a call from
+    /// `queue` itself times out rather than deadlocking.
+    func flush(timeout: TimeInterval = 1) {
+        let flushed = DispatchSemaphore(value: 0)
+        queue.async { flushed.signal() }
+        _ = flushed.wait(timeout: .now() + timeout)
     }
 
     /// Header lines are info level. Every preset's disk level is info or lower, so these are always written.
