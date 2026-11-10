@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace XCGLogger with os.log. Console output now goes through `Logger` (with real os.log levels, so debug and verbose lines only show up in Console.app when debug messages are enabled), and file logging/rotation is built in. Log files keep the same location, line format, and archive naming.
 - Custom destinations now conform to `SteamcLogDestination` (a single `write(_:)` method) instead of subclassing XCGLogger's `BaseQueuedDestination`. `attach(destination:outputLevel:)` takes a `DestinationLevel`: `.console`, `.disk` or `.remote` follow the preset and update when `config` changes, `.fixed(level)` never changes. SteamcLog no longer brings in XCGLogger, so add it directly if your app still uses it.
 - The Netable integration (`RedactedLogDestination`) is now the `SteamcLogNetable` SPM product, and supports Netable 2.x.
+- Added `allLogFileURLs(includeSystemLog:)`, which returns every log file on disk, and can include a dump of the current launch's os.log entries.
 
 ## [2.3.2]
 - Added a new helper method to forward logs from different sources that are not static.

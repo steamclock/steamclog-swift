@@ -67,6 +67,24 @@ final class LoggingTests: XCTestCase {
         XCTAssertFalse(contents.contains("below the disk level"))
     }
 
+    func testAllLogFileURLsIncludesArchivesCurrentFileAndSystemLog() async throws {
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let marker = "export \(UUID().uuidString)"
+        clog.warn(marker)
+
+        let urls = await clog.allLogFileURLs()
+        XCTAssertEqual(urls.last, clog.logFileURL())
+        XCTAssertEqual(urls.dropLast().map(\.lastPathComponent), urls.dropLast().map(\.lastPathComponent).sorted())
+        if let previous = clog.previousLogFileURL() { XCTAssertEqual(urls.dropLast().last, previous) }
+        // No flush here, allLogFileURLs waits for pending writes itself.
+        XCTAssertTrue(try String(contentsOf: clog.logFileURL(), encoding: .utf8).contains(marker))
+
+        let withSystemLog = await clog.allLogFileURLs(includeSystemLog: true)
+        XCTAssertEqual(Array(withSystemLog.dropLast()), urls)
+        XCTAssertEqual(withSystemLog.last?.lastPathComponent, "steamclog-oslog.txt")
+        XCTAssertTrue(try String(contentsOf: XCTUnwrap(withSystemLog.last), encoding: .utf8).contains(marker))
+    }
+
     func testRotationFailureIsReportedWithStableErrorAndLoggingContinues() throws {
         let fileManager = FileManager.default
         let dir = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
