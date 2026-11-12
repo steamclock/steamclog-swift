@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.0.0]
 - Update to use 9.x versions of Sentry SDK. Minimum iOS version is now 15.0, matching Sentry 9.
 - Drop CocoaPods support. SteamcLog is now only distributed through Swift Package Manager.
+- Replace XCGLogger with os.log. Console output now goes through `Logger` (with real os.log levels, so debug and verbose lines only show up in Console.app when debug messages are enabled), and file logging/rotation is built in. Log files keep the same location, line format, and archive naming.
+- Custom destinations now conform to `SteamcLogDestination` (a single `write(_:)` method) instead of subclassing XCGLogger's `BaseQueuedDestination`. `attach(destination:outputLevel:)` takes a `DestinationLevel`: `.console`, `.disk` or `.remote` follow the preset and update when `config` changes, `.fixed(level)` never changes. SteamcLog no longer brings in XCGLogger, so add it directly if your app still uses it.
 - The Netable integration (`RedactedLogDestination`) is now the `SteamcLogNetable` SPM product, and supports Netable 2.x.
 
 ## [2.3.2]

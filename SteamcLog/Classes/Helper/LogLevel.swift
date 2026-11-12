@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import XCGLogger
 
 public enum LogLevel: Int {
     case verbose
@@ -18,15 +17,16 @@ public enum LogLevel: Int {
     case fatal
     case none
 
-    internal var xcgLevel: XCGLogger.Level {
+    /// Name shown in formatted log lines. Matches the names XCGLogger used, so existing log files read the same.
+    internal var name: String {
         switch self {
-        case .verbose: return .verbose
-        case .debug: return .debug
-        case .info: return .info
-        case .warn: return .warning
-        case .error: return .error
-        case .fatal: return .severe
-        case .none: return .none
+        case .verbose: return "Verbose"
+        case .debug: return "Debug"
+        case .info: return "Info"
+        case .warn: return "Warning"
+        case .error: return "Error"
+        case .fatal: return "Severe"
+        case .none: return "None"
         }
     }
 }
