@@ -129,6 +129,10 @@ Each of these functions has the following 3 available signatures
 
 The log file URL is available via `logFileURL() -> URL`, or you can get the log file contents using `clog.getLogFileContents() -> String?`
 
+To bundle up everything for a user report, `await clog.allLogFileURLs() -> [URL]` returns every log file on disk, oldest first: the archived files, then the current one.
+
+Passing `includeSystemLog: true` also writes out everything the app has sent to os.log since launch and adds that file to the end. This picks up lines from other libraries that log through os.log rather than SteamcLog. iOS only lets an app read os.log entries from its current launch, and reading them can take a few seconds. The work happens on a background queue, so it's safe to await from the main actor.
+
 ### Variable Redaction
 
 `Redacted` is a protocol that can be conformed to by a struct or class for marking particular fields as safe for logging. By default, a class/struct conforming to `Redacted` will have all fields marked as redacted, and you can define logging-safe field using the `safeProperties` field.

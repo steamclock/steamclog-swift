@@ -88,20 +88,17 @@ public struct SteamcLog {
         }
     }
 
+    // Archived log files in the cache directory, oldest first
+    private var archivedLogFilePaths: [URL] {
+        let allFiles = (try? FileManager.default.contentsOfDirectory(atPath: cacheDirectory.path)) ?? []
+
+        // slightly hacky, but we know the archive filenames are constructed such that alphabetical sort does do time sorting
+        return allFiles.filter { $0.hasPrefix("steamclog_") }.sorted().map { cacheDirectory.appendingPathComponent($0) }
+    }
+
     // Path for the previous log file in the cache directory
     private var previousLogFilePath: URL? {
-        get {
-            // grab the set of archived logs from the cache directory
-            let allFiles = (try? FileManager.default.contentsOfDirectory(atPath: cacheDirectory.path)) ?? []
-            let archivedLogs = allFiles.filter{ $0.contains("steamclog_") }
-            
-            // slightly hacky, but we know the archive filenames are constructed such that alphabetical sort does do time sorting
-            if let newestArchivedLog = archivedLogs.sorted().last {
-                return cacheDirectory.appendingPathComponent(newestArchivedLog)
-            }
-            
-            return nil
-        }
+        return archivedLogFilePaths.last
     }
 
     // MARK: - Public Methods
@@ -529,6 +526,45 @@ public struct SteamcLog {
 
     public func previousLogFileURL() -> URL? {
         return previousLogFilePath
+    }
+
+    /*
+     * Every log file on disk, oldest first: the archived files, then the current one.
+     *
+     * - Parameters:
+     *   - includeSystemLog: Also writes out everything this process has sent to os.log since launch, and adds that
+     *     file to the end. This picks up lines from other libraries that log through os.log rather than SteamcLog.
+     *     Reading os.log can take a few seconds. The work happens on a background queue, so this is safe to await
+     *     from the main actor.
+     */
+    public func allLogFileURLs(includeSystemLog: Bool = false, functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) async -> [URL] {
+        // Dispatched rather than run inline, since the os.log read blocks its thread and shouldn't tie up the caller's
+        // actor or one of Swift concurrency's threads.
+        await withCheckedContinuation { continuation in
+            DispatchQueue.global(qos: .userInitiated).async {
+                continuation.resume(returning: collectLogFileURLs(includeSystemLog: includeSystemLog, functionName: functionName, fileName: fileName, lineNumber: lineNumber))
+            }
+        }
+    }
+
+    private func collectLogFileURLs(includeSystemLog: Bool, functionName: StaticString, fileName: StaticString, lineNumber: Int) -> [URL] {
+        // File writes are queued, so wait for any that are still pending.
+        dispatcher.destinations.compactMap { $0 as? FileLogDestination }.forEach { $0.queue.sync {} }
+
+        var urls = archivedLogFilePaths + [logFilePath]
+
+        if includeSystemLog {
+            // Named so it doesn't match the "steamclog_" archive prefix, and doesn't get rotated out with them.
+            let systemLogPath = cacheDirectory.appendingPathComponent("steamclog-oslog.txt")
+            do {
+                try SteamcLogSystemLogDestination.dump(to: systemLogPath)
+                urls.append(systemLogPath)
+            } catch {
+                warn("Failed to export os.log entries: \(error)", functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            }
+        }
+
+        return urls
     }
 
     public func getLogFileContents(functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) -> String? {
