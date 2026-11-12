@@ -16,16 +16,15 @@ enum CustomError: Error, Codable {
 
 var clog = SteamcLog(
     Config(
-        sentryKey: "",
         logLevel: .debugVerbose,
-        sentryDebug: true,
-        sentryFilter: { error in
+        suppressError: { error in
             if let error = error as? CustomError, error == .filteredError {
                 return true
             }
             return false
         }
-    )
+    ),
+    sentryConfig: SentryConfig(key: "", debug: true)
 )
 
 @UIApplicationMain
@@ -38,3 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 }
 
+// The window is created from Main.storyboard via the scene manifest in Info.plist.
+class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    var window: UIWindow?
+}

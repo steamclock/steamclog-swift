@@ -6,6 +6,7 @@
 //
 
 import Netable
+import SteamcLog
 
 public class RedactedLogDestination: LogDestination {
     public var clog: SteamcLog
@@ -37,7 +38,8 @@ public class RedactedLogDestination: LogDestination {
             clog.info("Started \(info.method.rawValue) request...")
             clog.info("    URL: \(info.urlString)")
             clog.info("    Headers: \(redacted(headers: info.headers))")
-            clog.info("    Params: \(redacted(params: info.params))")
+        case .requestBody(let body):
+            clog.info("    Params: \(redacted(params: body))")
         case .startupInfo(let baseURL, let logDestination):
             clog.info("Netable started with base url: \(baseURL). Log destination: \(logDestination)")
         }

@@ -1,5 +1,4 @@
 import XCTest
-import SteamcLog
 
 class Tests: XCTestCase {
     
