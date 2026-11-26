@@ -66,7 +66,16 @@ public struct SteamcLog {
     }
 
     @usableFromInline internal func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: StaticString, fileName: StaticString, lineNumber: Int, userInfo: [String: Any] = [:]) {
-        dispatcher.log(level, message(), functionName: "\(functionName)", fileName: "\(fileName)", lineNumber: lineNumber, userInfo: userInfo)
+        dispatcher.log(level, message(), functionName: "\(functionName)", fileName: "\(fileName)", lineNumber: lineNumber, userInfo: checkedUserInfo(userInfo))
+    }
+
+    /// Remote destinations may send the whole error (Sentry includes its NSError user info), so with requireRedacted on,
+    /// only pass along errors that opted in to logging. Checked here so it covers errors the caller put in `userInfo` too.
+    @usableFromInline internal func checkedUserInfo(_ userInfo: [String: Any]) -> [String: Any] {
+        guard config.requireRedacted, let error = userInfo[UserInfoKeys.error], !(error is Redacted) else { return userInfo }
+        var userInfo = userInfo
+        userInfo[UserInfoKeys.error] = nil
+        return userInfo
     }
 
     private let cacheDirectory: URL = {
@@ -311,9 +320,7 @@ public struct SteamcLog {
 
         var userInfo = userInfo
         userInfo[UserInfoKeys.extraInfo] = config.extraInfo(.error)
-        // Remote destinations may send the whole error (Sentry includes its NSError user info), so with
-        // requireRedacted on, only pass along errors that opted in to logging.
-        if let error, !config.requireRedacted || error is Redacted {
+        if let error {
             userInfo[UserInfoKeys.error] = error
         }
 
@@ -464,7 +471,7 @@ public struct SteamcLog {
     ///   (unless `config.requireRedacted` is set and the error isn't `Redacted`).
     public func forwardedLog(level: LogLevel, message: String, object: Any?, functionName: String, fileName: String, lineNumber: Int, userInfo: [String: Any] = [:]) {
         var userInfo = userInfo
-        if let error = object as? Error, !config.requireRedacted || error is Redacted {
+        if let error = object as? Error {
             userInfo[UserInfoKeys.error] = error
         }
 
@@ -496,7 +503,7 @@ public struct SteamcLog {
             } else {
                 return message
             }
-        }(), functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
+        }(), functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: checkedUserInfo(userInfo))
     }
 
     // MARK: User Related Helpers

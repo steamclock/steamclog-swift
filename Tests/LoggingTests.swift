@@ -153,6 +153,12 @@ final class LoggingTests: XCTestCase {
         redacting.error("safe", Safe())
         XCTAssertNil(redactedCollector.entries[0].userInfo[UserInfoKeys.error])
         XCTAssertTrue(redactedCollector.entries[1].userInfo[UserInfoKeys.error] is Safe)
+
+        // An error the caller puts in userInfo themselves goes through the same check.
+        redacting.userReport("report", userInfo: [UserInfoKeys.error: Plain()])
+        redacting.forwardedLog(level: .error, message: "forwarded", object: Plain(), functionName: "f()", fileName: "A.swift", lineNumber: 1)
+        XCTAssertNil(redactedCollector.entries[2].userInfo[UserInfoKeys.error])
+        XCTAssertNil(redactedCollector.entries[3].userInfo[UserInfoKeys.error])
     }
 
     func testSuppressedRedactedErrorIsDowngradedToWarning() {
