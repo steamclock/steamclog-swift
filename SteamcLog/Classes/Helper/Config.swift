@@ -25,6 +25,8 @@ public struct Config {
     internal let autoRotateConfig: AutoRotateConfig
 
     /// Require that all logged objects conform to Redacted or are all redacted by default.
+    /// `userInfo` passed to log calls isn't redacted, since the caller writes it (like the message).
+    /// `Redacted` only controls an error's `debugDescription`: Sentry still sends a `CustomNSError`'s `errorUserInfo` and a `LocalizedError`'s description as-is.
     @usableFromInline internal let requireRedacted: Bool
 
     /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
@@ -35,7 +37,7 @@ public struct Config {
     internal let detailedLogsOnUserReports: Bool
 
     /// Set a callback to collect additional app specific properties to associate with an error, called any time a error/fatal/user report is logged. The `purpose` parameter indicates what sort of error this is, particularly to allow the callee to
-    /// associate more personal data with user reports (where privacy issues are less of a concern). Note: unlike the extra info passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
+    /// associate more personal data with user reports (where privacy issues are less of a concern). Note: unlike the objects passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
     /// the callback must handle and privacy preservation or redaction
     @usableFromInline internal let extraInfo: (ExtraInfoPurpose) -> [String: Any]?
 

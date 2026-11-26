@@ -61,6 +61,8 @@ Destination logging levels; it is recommended to use the defaults set by Steamcl
 #### requireRedacted: Bool
 Default value is `false`.
 Require that all logged objects conform to Redacted or are all redacted by default.
+This covers the objects passed to log calls, not `userInfo`. Those values are written by the caller (like the message), so they're sent to destinations as-is.
+`Redacted` only controls an error's `debugDescription`. If an error also conforms to `CustomNSError` or `LocalizedError`, Sentry still sends its `errorUserInfo` and localized description unredacted, so keep anything sensitive out of those.
 
 #### autoRotateConfig: AutoRotateConfig
 By default, logs will rotate every 10 minutes, and store 10 archived log files.
