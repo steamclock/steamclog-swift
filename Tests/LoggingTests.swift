@@ -155,6 +155,18 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(redactedCollector.entries[1].userInfo[UserInfoKeys.error] is Safe)
     }
 
+    func testSuppressedRedactedErrorIsDowngradedToWarning() {
+        struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
+
+        let collector = Collector()
+        let clog = SteamcLog(Config(logLevel: .debug, suppressError: { $0 is Safe }), sentryConfig: nil)
+        clog.attach(destination: collector, outputLevel: .fixed(.warn))
+        clog.error("cancelled", Safe())
+
+        XCTAssertEqual(collector.entries.map(\.level), [.warn])
+        XCTAssertNil(collector.entries.first?.userInfo[UserInfoKeys.error])
+    }
+
     func testSentryBreadcrumbDataHasAttributesAndCallsite() {
         let entry = LogEntry(level: .info, message: "hi", functionName: "f()", fileName: "/a/B.swift", lineNumber: 7,
                              userInfo: ["screen": "home", UserInfoKeys.extraInfo: ["x": 1]])

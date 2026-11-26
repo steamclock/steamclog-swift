@@ -371,6 +371,11 @@ public struct SteamcLog {
     }
 
     public func error(_ message: StaticString, _ object: Redacted, userInfo: [String: Any] = [:], functionName: StaticString = #function, fileName: StaticString = #file, lineNumber: Int = #line) {
+        if let error = object as? Error, config.suppressError(error) {
+            warn("[suppressed] \(message)", object, userInfo: userInfo, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
+            return
+        }
+
         internalError(message, info: object.debugDescription, error: object as? Error, userInfo: userInfo, functionName: functionName, fileName: fileName, lineNumber: lineNumber)
     }
 
