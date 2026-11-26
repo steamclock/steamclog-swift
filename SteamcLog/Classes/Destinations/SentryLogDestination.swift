@@ -25,20 +25,42 @@ extension LogLevel {
 class SentryDestination: SteamcLogDestination {
 
     func write(_ entry: LogEntry) {
+        // The app's own userInfo, without the keys SteamcLog uses internally.
+        let attributes = entry.userInfo.filter { !UserInfoKeys.all.contains($0.key) }
+
         if entry.level == .error {
-            let event = Event(level: entry.level.sentryLevel)
-            event.message = SentryMessage(formatted: entry.message)
-            event.extra = entry.userInfo[UserInfoKeys.extraInfo] as? [String: Any]
-            SentrySDK.capture(event: event) { scope in
-                let urls = (entry.userInfo[UserInfoKeys.detailedLogURLs] as? [URL]) ?? []
-                for url in urls {
-                    scope.addAttachment(Attachment(path: url.path))
+            let extra = (entry.userInfo[UserInfoKeys.extraInfo] as? [String: Any] ?? [:]).merging(attributes) { steamclog, _ in steamclog }
+            let urls = (entry.userInfo[UserInfoKeys.detailedLogURLs] as? [URL]) ?? []
+            let configure: (Scope) -> Void = { scope in
+                scope.setExtras(extra)
+                urls.forEach { scope.addAttachment(Attachment(path: $0.path)) }
+            }
+
+            // Sentry groups and labels issues by the error's type, so send the error itself when there is one.
+            if let error = entry.userInfo[UserInfoKeys.error] as? Error {
+                SentrySDK.capture(error: error) { scope in
+                    configure(scope)
+                    scope.setExtra(value: entry.message, key: "message")
                 }
+            } else {
+                let event = Event(level: entry.level.sentryLevel)
+                event.message = SentryMessage(formatted: entry.message)
+                SentrySDK.capture(event: event, block: configure)
             }
         }
 
         let breadcrumb = Breadcrumb(level: entry.level.sentryLevel, category: "steamclog")
         breadcrumb.message = entry.message
+        breadcrumb.data = SentryDestination.breadcrumbData(for: entry, attributes: attributes)
         SentrySDK.addBreadcrumb(breadcrumb)
+    }
+
+    static func breadcrumbData(for entry: LogEntry, attributes: [String: Any]) -> [String: Any]? {
+        var data = attributes
+        if !entry.isInternal {
+            data["file"] = "\((entry.fileName as NSString).lastPathComponent):\(entry.lineNumber)"
+            data["function"] = entry.functionName
+        }
+        return data.isEmpty ? nil : data
     }
 }

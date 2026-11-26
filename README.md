@@ -93,6 +93,10 @@ Default value is 0.0.
 Sets the percentage of the tracing data that is collected by Sentry. Values must be between 0 and 1, and values larger than 1 will be set to 1.
 Note that setting this to anything greater than 0 can cause projects to blow past their usage quotas by generating far more events than normal.
 
+#### environment: String
+Default value is `debug` in debug builds and `prod` otherwise.
+Sets Sentry's `environment`, so you can match it to other services (like Datadog's `env`) and filter by it.
+
 #### filter: SentryFilter
 By default, all error objects will be sent to Sentry when submitted via the `error` call. 
 This allows you to change this behaviour at the SteamcLog Config-level, by passing in a function that filters errors from being logged.
@@ -124,6 +128,14 @@ Each of these functions has the following 3 available signatures
 `clog.<level>(_ message: String)`
 `clog.<level>(_ message: String, object: Encodable)`
 `clog.<level>(_ message: String, object: Redacted)`
+
+All but `fatal` also take a `userInfo: [String: Any]`, which is passed through to each destination on `LogEntry.userInfo`. The Sentry destination adds it to breadcrumbs, and to the event's extras for errors:
+
+```swift
+clog.info("Opened cart", userInfo: ["itemCount": 3])
+```
+
+When you log an `Error` with `clog.error`, SteamcLog also adds it under `UserInfoKeys.error`, and Sentry reports it with `capture(error:)` so issues are grouped by the error's type. If `requireRedacted` is set, only errors that conform to `Redacted` are passed along.
 
 ## Exporting Logs
 
