@@ -161,6 +161,23 @@ final class LoggingTests: XCTestCase {
         XCTAssertNil(redactedCollector.entries[3].userInfo[UserInfoKeys.error])
     }
 
+    func testUserInfoIsRedactedAndShownInTheLine() {
+        struct Account: Redacted { let id = "secret"; static var safeProperties = Set<String>() }
+
+        let collector = Collector()
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        clog.attach(destination: collector, outputLevel: .fixed(.info))
+        clog.info("opened", userInfo: ["screen": "home", "account": Account()])
+        XCTAssertTrue(collector.entries[0].formattedMessage.hasSuffix("> opened {account: Account(id: <redacted>), screen: home}"))
+
+        let redacting = SteamcLog(Config(logLevel: .debug, requireRedacted: true), sentryConfig: nil)
+        let redactedCollector = Collector()
+        redacting.attach(destination: redactedCollector, outputLevel: .fixed(.info))
+        redacting.info("opened", userInfo: ["screen": "home", "account": Account()])
+        XCTAssertEqual(redactedCollector.entries[0].userInfo["screen"] as? String, "<redacted>")
+        XCTAssertEqual(redactedCollector.entries[0].userInfo["account"] as? String, "Account(id: <redacted>)")
+    }
+
     func testSuppressedRedactedErrorIsDowngradedToWarning() {
         struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
 

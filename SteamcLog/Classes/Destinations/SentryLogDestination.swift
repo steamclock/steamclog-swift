@@ -25,8 +25,7 @@ extension LogLevel {
 class SentryDestination: SteamcLogDestination {
 
     func write(_ entry: LogEntry) {
-        // The app's own userInfo, without the keys SteamcLog uses internally.
-        let attributes = entry.userInfo.filter { !UserInfoKeys.all.contains($0.key) }
+        let attributes = entry.attributes
 
         if entry.level == .error {
             let extra = (entry.userInfo[UserInfoKeys.extraInfo] as? [String: Any] ?? [:]).merging(attributes) { steamclog, _ in steamclog }

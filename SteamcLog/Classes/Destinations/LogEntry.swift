@@ -33,7 +33,7 @@ public struct LogEntry {
         self.isInternal = isInternal
     }
 
-    /// `2026-01-01 12:00:00.000 [Info] [main] [File.swift:12] function() > message`
+    /// `2026-01-01 12:00:00.000 [Info] [main] [File.swift:12] function() > message {key: value}`
     public var formattedMessage: String {
         "\(LogEntry.dateFormatter.string(from: date)) \(formattedWithoutDate)"
     }
@@ -44,7 +44,14 @@ public struct LogEntry {
             return "[\(level.name)] > \(message)"
         }
         let file = (fileName as NSString).lastPathComponent
-        return "[\(level.name)] [\(threadName)] [\(file):\(lineNumber)] \(functionName) > \(message)"
+        let line = "[\(level.name)] [\(threadName)] [\(file):\(lineNumber)] \(functionName) > \(message)"
+        guard !attributes.isEmpty else { return line }
+        return line + " {" + attributes.sorted { $0.key < $1.key }.map { "\($0.key): \($0.value)" }.joined(separator: ", ") + "}"
+    }
+
+    /// The app's own `userInfo`, without the keys SteamcLog uses internally.
+    var attributes: [String: Any] {
+        userInfo.filter { !UserInfoKeys.all.contains($0.key) }
     }
 
     static let dateFormatter: DateFormatter = {

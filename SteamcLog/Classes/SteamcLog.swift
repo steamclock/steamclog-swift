@@ -69,13 +69,23 @@ public struct SteamcLog {
         dispatcher.log(level, message(), functionName: "\(functionName)", fileName: "\(fileName)", lineNumber: lineNumber, userInfo: checkedUserInfo(userInfo))
     }
 
-    /// Remote destinations may send the whole error (Sentry includes its NSError user info), so with requireRedacted on,
-    /// only pass along errors that opted in to logging. Checked here so it covers errors the caller put in `userInfo` too.
+    /// Applies the redaction rules to `userInfo` once, so every destination sees the same values.
+    /// - `Redacted` values become their `debugDescription`. With requireRedacted on, any other app value becomes `<redacted>`.
+    /// - Remote destinations may send the whole error (Sentry includes its NSError user info), so with requireRedacted on,
+    ///   only errors that opted in to logging are passed along, including ones the caller put in `userInfo` themselves.
     @usableFromInline internal func checkedUserInfo(_ userInfo: [String: Any]) -> [String: Any] {
-        guard config.requireRedacted, let error = userInfo[UserInfoKeys.error], !(error is Redacted) else { return userInfo }
-        var userInfo = userInfo
-        userInfo[UserInfoKeys.error] = nil
-        return userInfo
+        var checked = userInfo
+        for (key, value) in userInfo where !UserInfoKeys.all.contains(key) {
+            if let redacted = value as? Redacted {
+                checked[key] = redacted.debugDescription
+            } else if config.requireRedacted {
+                checked[key] = "<redacted>"
+            }
+        }
+        if config.requireRedacted, let error = userInfo[UserInfoKeys.error], !(error is Redacted) {
+            checked[UserInfoKeys.error] = nil
+        }
+        return checked
     }
 
     private let cacheDirectory: URL = {
