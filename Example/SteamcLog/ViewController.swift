@@ -17,6 +17,54 @@ private enum Event: String, AnalyticsEvent {
 
 class ViewController: UIViewController {
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Turns ExampleDestination on and off. With it off, its "[ExampleDestination]" lines stop showing in the console.
+        let example = switchRow("ExampleDestination", isOn: UserDefaults.standard.bool(forKey: exampleDestinationEnabledKey)) { isOn in
+            UserDefaults.standard.set(isOn, forKey: exampleDestinationEnabledKey)
+            setExampleDestinationAttached(isOn)
+        }
+
+        // The built-in destinations use the same attach/detach calls. They always start attached, so these aren't saved.
+        let builtIns = [("Console", BuiltInDestination.console), ("Disk", .disk), ("Sentry", .sentry)].map { name, destination in
+            switchRow(name, isOn: true) { isOn in
+                if isOn {
+                    clog.attach(destination: destination)
+                } else {
+                    clog.detach(destination: destination)
+                }
+            }
+        }
+
+        let rows = UIStackView(arrangedSubviews: [example] + builtIns)
+        rows.axis = .vertical
+        rows.alignment = .trailing
+        rows.spacing = 8
+        rows.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(rows)
+        NSLayoutConstraint.activate([
+            rows.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            rows.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+        ])
+    }
+
+    private func switchRow(_ name: String, isOn: Bool, onChange: @escaping (Bool) -> Void) -> UIView {
+        let label = UILabel()
+        label.text = name
+        let toggle = UISwitch()
+        toggle.isOn = isOn
+        toggle.addAction(UIAction { [unowned toggle] _ in
+            onChange(toggle.isOn)
+            // Logged after the change, so this line only shows up in destinations that are still on.
+            clog.info("\(name) turned \(toggle.isOn ? "on" : "off")")
+        }, for: .valueChanged)
+
+        let row = UIStackView(arrangedSubviews: [label, toggle])
+        row.spacing = 8
+        return row
+    }
+
     @IBAction func runTests() {
         clog.verbose("May your beer be laid under an enchantment of surpassing excellence for seven years!")
         clog.debug("And some things that should not have been forgotten were lost. History became legend. Legend became myth.")

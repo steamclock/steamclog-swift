@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Redacted` types need `static let safeProperties`, not `static var`.
 - `config` is a `Config` rather than `Config!`, and `sentryConfig` is a `let`. Setting `sentryConfig` after init never did anything.
 - `RedactedLogDestination` is a `final class` and takes `safeHeaders` and `safeParams` in its init, rather than as properties set afterwards.
+- Add `detach(destination:)` to remove a destination added with `attach(destination:outputLevel:)`.
+- Add `attach(destination:)` and `detach(destination:)` for the built-in destinations (`.console`, `.disk`, `.sentry`), so they can be turned off and on at runtime. `SentryConfig(startAttached:)` sets Sentry's starting state.
+- Attaching a destination that's already attached does nothing, instead of sending it every line twice.
 
 ## [3.0.0]
 - Update to use 9.x versions of Sentry SDK. Minimum iOS version is now 15.0, matching Sentry 9.

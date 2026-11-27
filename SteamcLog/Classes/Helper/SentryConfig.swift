@@ -35,6 +35,9 @@ public struct SentryConfig: Sendable {
     public static let defaultEnvironment = "prod"
     #endif
 
+    /// Whether SteamcLog starts out sending logs to Sentry. Default is true.
+    let startAttached: Bool
+
     /*
      * Create a new Sentry Configuration to use.
      *
@@ -45,6 +48,9 @@ public struct SentryConfig: Sendable {
      *   - debug: Enable debug mode for SentrySDK. Default is false.
      *   - tracesSampleRate: Sets the percentage of the tracing data that is collected by Sentry.
      *   - environment: Sets Sentry's `environment`. Default is `debug` in debug builds and `prod` otherwise.
+     *   - startAttached: Whether SteamcLog starts out sending logs and breadcrumbs to Sentry. Change it later with
+     *     `SteamcLog.attach(destination: .sentry)` and `detach(destination: .sentry)`. This doesn't stop the Sentry
+     *     SDK itself (crash reports, sessions).
      */
     public init(
             key: String,
@@ -52,12 +58,14 @@ public struct SentryConfig: Sendable {
             autoSessionTracking: Bool = true,
             debug: Bool = false,
             tracesSampleRate: NSNumber = 0.0,
-            environment: String = SentryConfig.defaultEnvironment) {
+            environment: String = SentryConfig.defaultEnvironment,
+            startAttached: Bool = true) {
         self.key = key
         self.attachStackTrace = attachStacktrace
         self.autoSessionTracking = autoSessionTracking
         self.debug = debug
         self.tracesSampleRate = tracesSampleRate
         self.environment = environment
+        self.startAttached = startAttached
     }
 }

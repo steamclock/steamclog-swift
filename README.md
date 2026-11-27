@@ -201,6 +201,26 @@ clog.attach(destination: MyDestination(), outputLevel: .fixed(.info))
 
 `.console`, `.disk` and `.remote` follow that level of the current `LogLevelPreset`, the same way SteamcLog's built-in destinations do.
 
+To turn your destination off at runtime (from a setting or feature flag, say), hold on to it and detach it. Attach it again to turn it back on:
+
+```swift
+let remote = MyDestination()
+clog.attach(destination: remote, outputLevel: .remote)
+
+// Later, when the setting changes:
+clog.detach(destination: remote)
+```
+
+The built-in destinations work the same way, using `.console`, `.disk` or `.sentry`. `SentryConfig(startAttached:)` sets Sentry's starting state.
+
+```swift
+clog.detach(destination: .sentry)
+clog.attach(destination: .sentry)
+```
+
+Attaching `.sentry` only works if you passed a `SentryConfig` when creating SteamcLog. Otherwise it logs a warning and does nothing.
+Detaching Sentry only stops SteamcLog sending logs and breadcrumbs, not the Sentry SDK itself (crash reports, sessions). Detaching the disk means exported logs and user reports won't include that stretch.
+
 ## Using SteamcLog with Netable
 
 If you're also using [Netable](https://github.com/steamclock/netable), you can pipe your logs directly from Netable into SteamcLog.

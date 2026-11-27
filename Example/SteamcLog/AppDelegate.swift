@@ -27,12 +27,33 @@ let clog = SteamcLog(
     sentryConfig: SentryConfig(key: "", debug: true)
 )
 
+let exampleDestinationEnabledKey = "exampleDestinationEnabled"
+
+/// Stands in for something like a remote logging service, so you can watch it turn on and off in the console.
+final class ExampleDestination: SteamcLogDestination {
+    func write(_ entry: LogEntry) {
+        print("[ExampleDestination] \(entry.formattedMessage)")
+    }
+}
+
+// Kept around so it can be detached again.
+let exampleDestination = ExampleDestination()
+
+func setExampleDestinationAttached(_ attached: Bool) {
+    if attached {
+        clog.attach(destination: exampleDestination, outputLevel: .fixed(.info))
+    } else {
+        clog.detach(destination: exampleDestination)
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Starts in whatever state the switch in ViewController was last left in.
+        setExampleDestinationAttached(UserDefaults.standard.bool(forKey: exampleDestinationEnabledKey))
         return true
     }
 }

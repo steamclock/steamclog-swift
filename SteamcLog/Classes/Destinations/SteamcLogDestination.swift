@@ -37,3 +37,22 @@ public enum DestinationLevel: Sendable {
         }
     }
 }
+
+/// SteamcLog's own destinations, for turning them off and on with `SteamcLog.attach(destination:)` and
+/// `SteamcLog.detach(destination:)`.
+public enum BuiltInDestination: Sendable {
+    /// os.log, which shows up in the Xcode console and Console.app.
+    case console
+    /// The log file used for exports and user reports.
+    case disk
+    /// Sentry, if a `SentryConfig` was passed in.
+    case sentry
+
+    func matches(_ destination: SteamcLogDestination) -> Bool {
+        switch self {
+        case .console: return destination is SteamcLogSystemLogDestination
+        case .disk: return destination is FileLogDestination
+        case .sentry: return destination is SentryDestination
+        }
+    }
+}
