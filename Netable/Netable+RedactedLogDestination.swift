@@ -8,14 +8,18 @@
 import Netable
 import SteamcLog
 
-public class RedactedLogDestination: LogDestination {
-    public var clog: SteamcLog
+/// Netable calls this from its own threads, so everything is set once in `init`.
+public final class RedactedLogDestination: LogDestination {
+    public let clog: SteamcLog
 
-    public var safeHeaders = Set<String>()
-    public var safeParams = Set<String>()
+    /// Headers and params whose values are logged as-is. Everything else is logged as `<redacted>`.
+    public let safeHeaders: Set<String>
+    public let safeParams: Set<String>
 
-    public init(clog: SteamcLog) {
+    public init(clog: SteamcLog, safeHeaders: Set<String> = [], safeParams: Set<String> = []) {
         self.clog = clog
+        self.safeHeaders = safeHeaders
+        self.safeParams = safeParams
     }
 
     public func log(event: LogEvent) {

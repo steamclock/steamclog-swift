@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum LogLevel: Int {
+public enum LogLevel: Int, Sendable {
     case verbose
     case debug
     case info

@@ -8,8 +8,8 @@
 
 import Foundation
 
-public struct Config {
-    public enum ExtraInfoPurpose {
+public struct Config: Sendable {
+    public enum ExtraInfoPurpose: Sendable {
         case userReport
         case error
         case fatal
@@ -32,7 +32,7 @@ public struct Config {
     /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
     /// Useful for stoping certain types of failures (network errors, etc) from being logged off device.
     /// Called on whichever thread logged the error.
-    internal let suppressError: (Error) -> Bool
+    internal let suppressError: @Sendable (Error) -> Bool
 
     /// Attach detailed logs from disk (if available) to all user reports. Default is false.
     internal let detailedLogsOnUserReports: Bool
@@ -40,7 +40,7 @@ public struct Config {
     /// Set a callback to collect additional app specific properties to associate with an error, called any time a error/fatal/user report is logged. The `purpose` parameter indicates what sort of error this is, particularly to allow the callee to
     /// associate more personal data with user reports (where privacy issues are less of a concern). Note: unlike the objects and userInfo passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
     /// the callback must handle and privacy preservation or redaction. Called on whichever thread logged the line.
-    @usableFromInline internal let extraInfo: (ExtraInfoPurpose) -> [String: Any]?
+    @usableFromInline internal let extraInfo: @Sendable (ExtraInfoPurpose) -> [String: any Sendable]?
 
     /*
      * Create a new SteamcLog configuration to use.
@@ -62,9 +62,9 @@ public struct Config {
             requireRedacted: Bool = false,
             identifier: String = "steamclog",
             autoRotateConfig: AutoRotateConfig = AutoRotateConfig(),
-            suppressError: @escaping (Error) -> Bool = { _ in false },
+            suppressError: @escaping @Sendable (Error) -> Bool = { _ in false },
             detailedLogsOnUserReports: Bool = false,
-            extraInfo: @escaping (ExtraInfoPurpose) -> [String: Any]? = { _ in return nil}) {
+            extraInfo: @escaping @Sendable (ExtraInfoPurpose) -> [String: any Sendable]? = { _ in return nil}) {
         self.requireRedacted = requireRedacted
         self.logLevel = logLevel
         self.identifier = identifier

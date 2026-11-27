@@ -10,13 +10,15 @@ import Foundation
 
 /// Writes logs to a file, archiving it alongside as `<name>_yyyy-MM-dd_HHmmss.<ext>` once it gets too old or too big.
 /// Behaves the same as the XCGLogger `AutoRotatingFileDestination` it replaces.
-final class FileLogDestination: SteamcLogDestination {
+final class FileLogDestination: SteamcLogDestination, @unchecked Sendable {
+    // Unchecked because the compiler can't see that the mutable state is only touched on `queue`. The exceptions are
+    // `init`, `onInternalLog` and the first `open()`, which `SteamcLog.init` sets up before any other thread can reach this.
+
     static let maxFileSize: UInt64 = 1_048_576
     static let maxArchivedFiles = 10
 
-
     /// Reports housekeeping lines (file opened, rotated, failures) to the other destinations.
-    var onInternalLog: ((LogLevel, String) -> Void)?
+    var onInternalLog: (@Sendable (LogLevel, String) -> Void)?
 
     private let fileURL: URL
     private let baseName: String

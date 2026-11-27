@@ -8,7 +8,7 @@
 import Foundation
 
 /// A single log line, as handed to each destination.
-public struct LogEntry {
+public struct LogEntry: Sendable {
     public let level: LogLevel
     public let message: String
     public let date: Date
@@ -16,12 +16,12 @@ public struct LogEntry {
     public let functionName: String
     public let fileName: String
     public let lineNumber: Int
-    public let userInfo: [String: Any]
+    public let userInfo: [String: any Sendable]
 
     /// SteamcLog's own housekeeping lines (app details, file rotation) carry no call site, and are formatted without one.
     let isInternal: Bool
 
-    init(level: LogLevel, message: String, functionName: String = "", fileName: String = "", lineNumber: Int = 0, userInfo: [String: Any] = [:], isInternal: Bool = false) {
+    init(level: LogLevel, message: String, functionName: String = "", fileName: String = "", lineNumber: Int = 0, userInfo: [String: any Sendable] = [:], isInternal: Bool = false) {
         self.level = level
         self.message = message
         self.date = Date()
@@ -50,7 +50,7 @@ public struct LogEntry {
     }
 
     /// The app's own `userInfo`, without the keys SteamcLog uses internally.
-    var attributes: [String: Any] {
+    var attributes: [String: any Sendable] {
         userInfo.filter { !UserInfoKeys.all.contains($0.key) }
     }
 

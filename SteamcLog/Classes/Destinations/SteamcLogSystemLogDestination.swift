@@ -9,7 +9,7 @@
 import Foundation
 import OSLog
 
-class SteamcLogSystemLogDestination: SteamcLogDestination {
+final class SteamcLogSystemLogDestination: SteamcLogDestination {
     private let logger: Logger
 
     init(category: String) {

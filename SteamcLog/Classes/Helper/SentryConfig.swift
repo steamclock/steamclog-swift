@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SentryConfig {
+public struct SentryConfig: Sendable {
     /// Sentry project specific key. Found here: https://docs.sentry.io/platforms/cocoa/?platform=swift
     /// Set this key to an empty string to not report logs to Sentry.
     let key: String

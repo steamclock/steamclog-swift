@@ -22,7 +22,7 @@ extension LogLevel {
     }
 }
 
-class SentryDestination: SteamcLogDestination {
+final class SentryDestination: SteamcLogDestination {
 
     func write(_ entry: LogEntry) {
         let attributes = entry.attributes

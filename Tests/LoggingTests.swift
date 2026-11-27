@@ -1,8 +1,12 @@
 import XCTest
 @testable import SteamcLog
 
+/// Declared the way apps do. This target builds in Swift 6 mode, so this also checks a global `let` compiles there.
+private let sharedClog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+
 final class LoggingTests: XCTestCase {
-    private class Collector: SteamcLogDestination {
+    // Unchecked: these tests only log from their own thread, apart from the stress test, which doesn't attach one.
+    private final class Collector: SteamcLogDestination, @unchecked Sendable {
         var entries: [LogEntry] = []
         func write(_ entry: LogEntry) { entries.append(entry) }
     }
@@ -39,20 +43,19 @@ final class LoggingTests: XCTestCase {
         XCTAssertEqual(fixed.entries.map(\.message), ["debug preset info", "release preset info"])
     }
 
-    /// Swapping config while other threads log shouldn't crash. Every thread uses the same `clog`, the way apps share
-    /// one global. Thread Sanitizer misses this race (it happens inside compiler-generated copies of `Config`), so this
-    /// is a stress test instead: before the config moved behind the dispatcher's lock, it crashed in `outlined destroy of Config`.
+    /// Swapping config while other threads log shouldn't crash. Every thread uses the same global `clog`, the way apps
+    /// do. Thread Sanitizer misses this race (it happens inside compiler-generated copies of `Config`), so this is a
+    /// stress test instead: before the config moved behind the dispatcher's lock, it crashed in `outlined destroy of Config`.
     func testChangingConfigWhileLoggingFromOtherThreads() {
-        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
         DispatchQueue.concurrentPerform(iterations: 4) { worker in
             for i in 0..<100_000 {
                 if worker == 0 {
                     let tag = "a heap allocated tag \(i)"
-                    clog.config = Config(logLevel: i.isMultiple(of: 2) ? .release : .debug, extraInfo: { _ in ["tag": tag] })
+                    sharedClog.config = Config(logLevel: i.isMultiple(of: 2) ? .release : .debug, extraInfo: { _ in ["tag": tag] })
                 } else if i.isMultiple(of: 1000) {
-                    clog.userReport("worker \(worker) line \(i)")
+                    sharedClog.userReport("worker \(worker) line \(i)")
                 } else {
-                    _ = clog.config.extraInfo(.error)
+                    _ = sharedClog.config.extraInfo(.error)
                 }
             }
         }
@@ -93,7 +96,7 @@ final class LoggingTests: XCTestCase {
 
     /// Stands in for Sentry, which reads the log file as soon as it's handed a user report.
     func testUserReportIsOnDiskBeforeLaterDestinationsSeeIt() throws {
-        final class FileReader: SteamcLogDestination {
+        final class FileReader: SteamcLogDestination, @unchecked Sendable {
             let url: URL
             var seen: [(message: String, fileName: String, onDisk: Bool)] = []
             init(url: URL) { self.url = url }
@@ -135,7 +138,7 @@ final class LoggingTests: XCTestCase {
 
     func testUserInfoAndErrorReachDestinations() {
         struct Plain: Error {}
-        struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
+        struct Safe: Error, Redacted { static let safeProperties = Set<String>() }
 
         let collector = Collector()
         let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
@@ -168,7 +171,7 @@ final class LoggingTests: XCTestCase {
     }
 
     func testUserInfoIsRedactedAndShownInTheLine() {
-        struct Account: Redacted { let id = "secret"; static var safeProperties = Set<String>() }
+        struct Account: Redacted { let id = "secret"; static let safeProperties = Set<String>() }
 
         let collector = Collector()
         let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
@@ -185,7 +188,7 @@ final class LoggingTests: XCTestCase {
     }
 
     func testSuppressedRedactedErrorIsDowngradedToWarning() {
-        struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
+        struct Safe: Error, Redacted { static let safeProperties = Set<String>() }
 
         let collector = Collector()
         let clog = SteamcLog(Config(logLevel: .debug, suppressError: { $0 is Safe }), sentryConfig: nil)
@@ -235,7 +238,7 @@ final class LoggingTests: XCTestCase {
 
         let url = dir.appendingPathComponent("steamclog.txt")
         let file = FileLogDestination(fileURL: url, maxTimeInterval: 600)
-        var reported: [(LogLevel, String)] = []
+        nonisolated(unsafe) var reported: [(LogLevel, String)] = [] // appended on the file queue, read after `queue.sync`
         file.onInternalLog = { reported.append(($0, $1)) }
         file.open()
 
@@ -266,7 +269,7 @@ final class LoggingTests: XCTestCase {
 
         let url = dir.appendingPathComponent("steamclog.txt")
         let file = FileLogDestination(fileURL: url, maxTimeInterval: 600)
-        var reported: [String] = []
+        nonisolated(unsafe) var reported: [String] = [] // appended on the file queue, read after `queue.sync`
         file.onInternalLog = { reported.append($1) }
         file.open()
 

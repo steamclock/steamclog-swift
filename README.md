@@ -35,12 +35,12 @@ import SteamcLog
 
 // defined globally
 #if DEBUG
-private let config = Config(logLevel: .firehose) // this will be used in debug builds.
+private let config = Config(logLevel: .debugVerbose) // this will be used in debug builds.
 #else
 private let config = Config(logLevel: .release) // this will be used for release builds
 #endif
 
-let clog = SteamcLog(config: config)
+let clog = SteamcLog(config, sentryConfig: SentryConfig(key: "<your DSN>"))
 
 class AppDelegate: UIApplicationDelegate {
     // ...
@@ -48,6 +48,10 @@ class AppDelegate: UIApplicationDelegate {
 ```
 
 See configuration documentation for details on `logLevel` [here](#configuration).
+
+`SteamcLog` is `Sendable`, so a global `let clog` works in Swift 6 language mode too, and you can log from any thread. Changing `clog.config` later is safe while other threads are logging. Try to create it on the main thread (Swift globals are created on first use, so logging something early in `application(_:didFinishLaunchingWithOptions:)` does it). Sentry finishes starting on the main thread, so lines logged from another thread before then don't reach Sentry.
+
+Anything SteamcLog calls back into your code from (`suppressError`, `extraInfo`, and custom destinations) runs on whichever thread logged the line, so those need to be `@Sendable` / `Sendable` too.
 
 _Firebase Crashlytics is no longer a supported destination for crash reporting_
 
@@ -131,7 +135,7 @@ Each of these functions has the following 3 available signatures
 `clog.<level>(_ message: String, object: Encodable)`
 `clog.<level>(_ message: String, object: Redacted)`
 
-All but `fatal` also take a `userInfo: [String: Any]`, which is passed through to each destination on `LogEntry.userInfo`. The console and log file add it to the end of the line, and the Sentry destination adds it to breadcrumbs, and to the event's extras for errors:
+All but `fatal` also take a `userInfo: [String: any Sendable]`, which is passed through to each destination on `LogEntry.userInfo`. The console and log file add it to the end of the line, and the Sentry destination adds it to breadcrumbs, and to the event's extras for errors:
 
 ```swift
 clog.info("Opened cart", userInfo: ["itemCount": 3])
@@ -158,7 +162,7 @@ Example:
 ```swift
 import SteamcLog
 struct User: Codable, Redacted {
-    static var safeProperties = Set<String>(["name", "email"])
+    static let safeProperties = Set<String>(["name", "email"])
     let name: String
     let uuid: UUID
     let email: String
@@ -179,10 +183,10 @@ And the log will output:
 
 In addition to the Sentry log destination that comes packaged with SteamcLog, you can create your own log destination and attach it to your SteamcLog instance using `attach`.
 
-A destination is any class conforming to `SteamcLogDestination`:
+A destination is any class conforming to `SteamcLogDestination`. `write` is called on whichever thread logged the line, sometimes from several threads at once, so the protocol requires `Sendable`. A final class with only `let` properties is the easy case. If it needs mutable state, guard it with a lock or serial queue and mark the class `@unchecked Sendable`.
 
 ```swift
-class MyDestination: SteamcLogDestination {
+final class MyDestination: SteamcLogDestination {
     func write(_ entry: LogEntry) {
         print(entry.formattedMessage)
     }
@@ -205,5 +209,10 @@ First, add the `SteamcLogNetable` product from this package to your target, alon
 
 Then, when you create your Netable instance, set the log destination to `RedactedLogDestination` and pass in a reference to your Steamclog instance, like so:
 ```
-let netable = Netable(baseURL: URL(string: "https://api.thecatapi.com/v1/")!, logDestination: RedactedLogDestination(clog: clog)
+let netable = Netable(baseURL: URL(string: "https://api.thecatapi.com/v1/")!, logDestination: RedactedLogDestination(clog: clog))
+```
+
+Header and param values are logged as `<redacted>` unless you list them as safe:
+```
+RedactedLogDestination(clog: clog, safeHeaders: ["Content-Type"], safeParams: ["page"])
 ```
