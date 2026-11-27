@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Log calls (except `fatal`) take a `userInfo: [String: Any]`, which reaches destinations on `LogEntry.userInfo`. The console and log file append it to the line, the Sentry destination adds it to breadcrumbs and error extras, and breadcrumbs now include the callsite. Its values follow the same redaction rules as logged objects.
 - `error(_:_:)` and `forwardedLog` with an `Error` add it to `userInfo` under `UserInfoKeys.error`, and the Sentry destination reports it with `capture(error:)` instead of a message event. With `requireRedacted` set, only `Redacted` errors are passed along.
 - Added `environment` to `SentryConfig`, which sets Sentry's `environment`. It defaults to `debug` or `prod`, replacing the `environment` tag SteamcLog used to set, so saved Sentry searches on that tag should switch to the built-in field.
+- Changing `clog.config` while other threads are logging no longer risks a crash. The config is now kept behind a lock, and setting it no longer counts as mutating `clog`, so a `let clog` can change its config too.
+- The log file formats each line on the thread that logged it, rather than later on its own queue, so `userInfo` values are described as they were when logged.
+- Documented that custom destinations, `suppressError` and `extraInfo` are called from whichever thread logged, and that `SteamcLog` should be created on the main thread so Sentry gets the earliest lines.
 
 ## [3.0.0]
 - Update to use 9.x versions of Sentry SDK. Minimum iOS version is now 15.0, matching Sentry 9.

@@ -10,10 +10,12 @@ import Foundation
 import Sentry
 
 public struct SteamcLog {
+    /// Safe to change while other threads are logging. Copies of this `SteamcLog` share it.
     public var config: Config! {
-        didSet {
-            dispatcher.apply(config.logLevel)
-        }
+        get { dispatcher.config }
+        // Nonmutating, so changing it doesn't write to the app's (usually global) `clog`, which would race with every
+        // other thread reading it to log.
+        nonmutating set { dispatcher.config = newValue! }
     }
 
     // Sentry configuration options. If this is not set (or set to nil during creation), Sentry will not be used.
@@ -25,15 +27,17 @@ public struct SteamcLog {
     /*
      * Create your SteamcLog object.
      * We recommend setting up a global instance of SteamcLog, probably in your AppDelegate file.
+     * Create it on the main thread (for example, by logging from `application(_:didFinishLaunchingWithOptions:)`
+     * before anything else does). Sentry finishes starting on the main thread, so lines logged from another thread
+     * before that happens don't reach Sentry.
      *
      * - Parameters:
      *   - config: General configuration options. See Config.swift for details.
      *   - sentryConfig: Sentry configuration options. If this is `nil`, Sentry will not be used.
      */
     public init(_ config: Config, sentryConfig: SentryConfig?) {
-        self.config = config
+        self.dispatcher = LogDispatcher(config: config)
         self.sentryConfig = sentryConfig
-        self.dispatcher = LogDispatcher(preset: config.logLevel)
 
         // Added before the Sentry destination. Destinations get each entry in the order they were added, so a user
         // report's own line is in the log file by the time Sentry attaches it.

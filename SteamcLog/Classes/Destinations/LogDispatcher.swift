@@ -8,7 +8,7 @@
 import Foundation
 
 /// Fans log entries out to every destination whose level allows them.
-/// Also owns each destination's level, so changing the preset updates every destination in one place.
+/// Also owns the config and each destination's level, so changing the config updates every destination in one place.
 @usableFromInline final class LogDispatcher {
     private struct Attached {
         let destination: SteamcLogDestination
@@ -16,32 +16,39 @@ import Foundation
         var level: LogLevel
     }
 
-    // Config can change (and destinations be attached) while other threads are logging, so `attached` and `preset`
-    // are only touched under this lock. Destinations are written to outside it.
+    // Config can change (and destinations be attached) while other threads are logging, so `attached` and `_config`
+    // are only touched under this lock. Destinations and config callbacks are called outside it.
     private let lock = NSLock()
     private var attached: [Attached] = []
-    private var preset: LogLevelPreset
+    private var _config: Config
 
     var destinations: [SteamcLogDestination] { snapshot().map(\.destination) }
 
-    init(preset: LogLevelPreset) {
-        self.preset = preset
+    init(config: Config) {
+        _config = config
+    }
+
+    /// Setting this re-resolves every destination's level against the new preset. Fixed levels stay as they are.
+    @usableFromInline var config: Config {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _config
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _config = newValue
+            for index in attached.indices {
+                attached[index].level = attached[index].rule.resolve(newValue.logLevel)
+            }
+        }
     }
 
     func add(_ destination: SteamcLogDestination, outputLevel rule: DestinationLevel) {
         lock.lock()
         defer { lock.unlock() }
-        attached.append(Attached(destination: destination, rule: rule, level: rule.resolve(preset)))
-    }
-
-    /// Re-resolves every destination's level against a new preset. Fixed levels stay as they are.
-    func apply(_ preset: LogLevelPreset) {
-        lock.lock()
-        defer { lock.unlock() }
-        self.preset = preset
-        for index in attached.indices {
-            attached[index].level = attached[index].rule.resolve(preset)
-        }
+        attached.append(Attached(destination: destination, rule: rule, level: rule.resolve(_config.logLevel)))
     }
 
     @usableFromInline func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: String, fileName: String, lineNumber: Int, userInfo: [String: Any] = [:]) {
