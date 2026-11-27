@@ -25,6 +25,61 @@ final class LoggingTests: XCTestCase {
         XCTAssertTrue(chatty.entries[0].formattedMessage.hasSuffix(" [Info] [main] [B.swift:7] f() > hello"))
     }
 
+    func testDisabledDestinationGetsNothingUntilReenabled() {
+        let dispatcher = LogDispatcher(config: Config(logLevel: .debug))
+        let toggled = Collector(), other = Collector()
+        dispatcher.add(toggled, outputLevel: .fixed(.verbose), isEnabled: false)
+        dispatcher.add(other, outputLevel: .fixed(.verbose))
+
+        dispatcher.log(.info, "off", functionName: "f()", fileName: "/a/B.swift", lineNumber: 7)
+        dispatcher.logInternal(.info, "internal while off")
+        dispatcher.setEnabled(true) { $0 === toggled }
+        dispatcher.log(.info, "on", functionName: "f()", fileName: "/a/B.swift", lineNumber: 8)
+        dispatcher.logInternal(.info, "internal while on")
+
+        XCTAssertEqual(toggled.entries.map(\.message), ["on", "internal while on"])
+        XCTAssertEqual(other.entries.count, 4)
+    }
+
+    func testDetachedDestinationGetsNothingUntilReattached() {
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let detached = Collector()
+        clog.attach(destination: detached, outputLevel: .fixed(.verbose))
+
+        clog.detach(destination: detached)
+        clog.info("detached")
+        clog.attach(destination: detached, outputLevel: .fixed(.verbose))
+        clog.info("reattached")
+
+        XCTAssertEqual(detached.entries.map(\.message), ["reattached"])
+
+        clog.attach(destination: detached, outputLevel: .fixed(.verbose))
+        clog.info("attached twice")
+        XCTAssertEqual(detached.entries.map(\.message), ["reattached", "attached twice"])
+    }
+
+    func testBuiltInDestinationsCanBeDetachedAndReattached() throws {
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let file = try XCTUnwrap(clog.dispatcher.destinations.compactMap { $0 as? FileLogDestination }.first)
+        let off = "disk off \(UUID().uuidString)", on = "disk on \(UUID().uuidString)"
+
+        clog.detach(destination: .disk)
+        clog.info(off)
+        clog.attach(destination: .disk)
+        clog.info(on)
+        file.queue.sync {}
+
+        let contents = try XCTUnwrap(clog.getLogFileContents())
+        XCTAssertFalse(contents.contains(off))
+        XCTAssertTrue(contents.contains(on))
+
+        // There's no Sentry to turn on without a SentryConfig, so this should say so rather than fail silently.
+        let collector = Collector()
+        clog.attach(destination: collector, outputLevel: .fixed(.verbose))
+        clog.attach(destination: .sentry)
+        XCTAssertEqual(collector.entries.map(\.level), [.warn])
+    }
+
     func testChangingConfigUpdatesDestinationsFollowingThePreset() {
         let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
         let followsConsole = Collector(), fixed = Collector()

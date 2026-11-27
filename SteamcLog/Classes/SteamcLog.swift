@@ -58,7 +58,7 @@ public struct SteamcLog: Sendable {
                 options.tracesSampleRate = sentry.tracesSampleRate
             }
 
-            dispatcher.add(SentryDestination(), outputLevel: .remote)
+            dispatcher.add(SentryDestination(), outputLevel: .remote, isEnabled: sentry.startAttached)
         }
 
         // Opened after Sentry is set up, so Sentry still gets the "writing log to" breadcrumb.
@@ -134,9 +134,46 @@ public struct SteamcLog: Sendable {
      *   - destination: The new destination to attach to the logger.
      *   - outputLevel: Which level the destination receives. `.console`, `.disk` or `.remote` follow that level of the
      *     current preset and update whenever `config` changes. `.fixed(level)` always uses `level`.
+     *
+     * Does nothing if this instance is already attached.
      */
     public func attach(destination: SteamcLogDestination, outputLevel: DestinationLevel) {
         dispatcher.add(destination, outputLevel: outputLevel)
+    }
+
+    /*
+     * Detach a destination that was attached with `attach(destination:outputLevel:)`, so it stops receiving logs.
+     * Attach it again to turn it back on. Does nothing if it isn't attached.
+     *
+     * - Parameters:
+     *   - destination: The same instance that was passed to `attach(destination:outputLevel:)`.
+     */
+    public func detach(destination: SteamcLogDestination) {
+        dispatcher.remove(destination)
+    }
+
+    /*
+     * Turn one of SteamcLog's built-in destinations back on after `detach(destination:)`. Takes effect from the next
+     * log. Does nothing if it's already attached.
+     *
+     * `.sentry` can only be turned back on if a `SentryConfig` was passed in when SteamcLog was created. Otherwise
+     * there's no Sentry to turn on, and this logs a warning instead.
+     */
+    public func attach(destination: BuiltInDestination) {
+        if !dispatcher.setEnabled(true, where: destination.matches) {
+            dispatcher.logInternal(.warn, "\(destination) destination isn't set up, so it can't be attached")
+        }
+    }
+
+    /*
+     * Turn one of SteamcLog's built-in destinations off. A detached destination gets nothing, including SteamcLog's
+     * own housekeeping lines. Takes effect from the next log.
+     *
+     * Detaching `.sentry` only stops SteamcLog sending logs and breadcrumbs, not the Sentry SDK itself (crash
+     * reports, sessions). Detaching `.disk` means exported logs and user reports won't include that stretch.
+     */
+    public func detach(destination: BuiltInDestination) {
+        dispatcher.setEnabled(false, where: destination.matches)
     }
 
     // MARK: All Log Level

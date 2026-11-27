@@ -15,6 +15,11 @@ import Foundation
         let destination: SteamcLogDestination
         let rule: DestinationLevel
         var level: LogLevel
+        var isEnabled: Bool
+
+        func accepts(_ level: LogLevel) -> Bool {
+            isEnabled && level.rawValue >= self.level.rawValue
+        }
     }
 
     // Config can change (and destinations be attached) while other threads are logging, so `attached` and `_config`
@@ -46,14 +51,34 @@ import Foundation
         }
     }
 
-    func add(_ destination: SteamcLogDestination, outputLevel rule: DestinationLevel) {
+    func add(_ destination: SteamcLogDestination, outputLevel rule: DestinationLevel, isEnabled: Bool = true) {
         lock.lock()
         defer { lock.unlock() }
-        attached.append(Attached(destination: destination, rule: rule, level: rule.resolve(_config.logLevel)))
+        guard !attached.contains(where: { $0.destination === destination }) else { return }
+        attached.append(Attached(destination: destination, rule: rule, level: rule.resolve(_config.logLevel), isEnabled: isEnabled))
+    }
+
+    func remove(_ destination: SteamcLogDestination) {
+        lock.lock()
+        defer { lock.unlock() }
+        attached.removeAll { $0.destination === destination }
+    }
+
+    /// Turns every attached destination that `matches` on or off, returning false if none did. Used for the built-in
+    /// destinations, which can't be removed and re-added since the file has to stay ahead of Sentry.
+    @discardableResult func setEnabled(_ isEnabled: Bool, where matches: (SteamcLogDestination) -> Bool) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        var found = false
+        for index in attached.indices where matches(attached[index].destination) {
+            attached[index].isEnabled = isEnabled
+            found = true
+        }
+        return found
     }
 
     @usableFromInline func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: String, fileName: String, lineNumber: Int, userInfo: [String: any Sendable] = [:]) {
-        let enabled = snapshot().filter { level.rawValue >= $0.level.rawValue }
+        let enabled = snapshot().filter { $0.accepts(level) }
         guard !enabled.isEmpty else { return }
         let entry = LogEntry(level: level, message: message(), functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)
         enabled.forEach { $0.destination.write(entry) }
@@ -68,7 +93,7 @@ import Foundation
     /// Housekeeping lines from SteamcLog itself. `source` is skipped, since it's the one reporting.
     func logInternal(_ level: LogLevel, _ message: String, excluding source: SteamcLogDestination? = nil) {
         let entry = LogEntry(level: level, message: message, isInternal: true)
-        for item in snapshot() where item.destination !== source && level.rawValue >= item.level.rawValue {
+        for item in snapshot() where item.destination !== source && item.accepts(level) {
             item.destination.write(entry)
         }
     }
