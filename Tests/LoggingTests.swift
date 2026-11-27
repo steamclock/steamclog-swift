@@ -127,6 +127,79 @@ final class LoggingTests: XCTestCase {
         XCTAssertEqual(collector.entries.map(\.message), ["it broke: {\"step\":3}"])
     }
 
+    func testUserInfoAndErrorReachDestinations() {
+        struct Plain: Error {}
+        struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
+
+        let collector = Collector()
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        clog.attach(destination: collector, outputLevel: .fixed(.info))
+        clog.info("info", userInfo: ["screen": "home"])
+        clog.error("failed", Plain(), userInfo: ["attempt": 2])
+        clog.userReport("report", userInfo: ["ticket": "abc"])
+
+        let errorEntry = collector.entries.first { $0.level == .error }
+        XCTAssertEqual(collector.entries.first?.userInfo["screen"] as? String, "home")
+        XCTAssertEqual(errorEntry?.userInfo["attempt"] as? Int, 2)
+        XCTAssertTrue(errorEntry?.userInfo[UserInfoKeys.error] is Plain)
+        XCTAssertEqual(collector.entries.last?.userInfo["ticket"] as? String, "abc")
+        XCTAssertNotNil(collector.entries.last?.userInfo[UserInfoKeys.detailedLogURLs])
+
+        // With requireRedacted, only Redacted errors are passed along.
+        let redacting = SteamcLog(Config(logLevel: .debug, requireRedacted: true), sentryConfig: nil)
+        let redactedCollector = Collector()
+        redacting.attach(destination: redactedCollector, outputLevel: .fixed(.error))
+        redacting.error("plain", Plain())
+        redacting.error("safe", Safe())
+        XCTAssertNil(redactedCollector.entries[0].userInfo[UserInfoKeys.error])
+        XCTAssertTrue(redactedCollector.entries[1].userInfo[UserInfoKeys.error] is Safe)
+
+        // An error the caller puts in userInfo themselves goes through the same check.
+        redacting.userReport("report", userInfo: [UserInfoKeys.error: Plain()])
+        redacting.forwardedLog(level: .error, message: "forwarded", object: Plain(), functionName: "f()", fileName: "A.swift", lineNumber: 1)
+        XCTAssertNil(redactedCollector.entries[2].userInfo[UserInfoKeys.error])
+        XCTAssertNil(redactedCollector.entries[3].userInfo[UserInfoKeys.error])
+    }
+
+    func testUserInfoIsRedactedAndShownInTheLine() {
+        struct Account: Redacted { let id = "secret"; static var safeProperties = Set<String>() }
+
+        let collector = Collector()
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        clog.attach(destination: collector, outputLevel: .fixed(.info))
+        clog.info("opened", userInfo: ["screen": "home", "account": Account()])
+        XCTAssertTrue(collector.entries[0].formattedMessage.hasSuffix("> opened {account: Account(id: <redacted>), screen: home}"))
+
+        let redacting = SteamcLog(Config(logLevel: .debug, requireRedacted: true), sentryConfig: nil)
+        let redactedCollector = Collector()
+        redacting.attach(destination: redactedCollector, outputLevel: .fixed(.info))
+        redacting.info("opened", userInfo: ["screen": "home", "account": Account()])
+        XCTAssertEqual(redactedCollector.entries[0].userInfo["screen"] as? String, "<redacted>")
+        XCTAssertEqual(redactedCollector.entries[0].userInfo["account"] as? String, "Account(id: <redacted>)")
+    }
+
+    func testSuppressedRedactedErrorIsDowngradedToWarning() {
+        struct Safe: Error, Redacted { static var safeProperties = Set<String>() }
+
+        let collector = Collector()
+        let clog = SteamcLog(Config(logLevel: .debug, suppressError: { $0 is Safe }), sentryConfig: nil)
+        clog.attach(destination: collector, outputLevel: .fixed(.warn))
+        clog.error("cancelled", Safe())
+
+        XCTAssertEqual(collector.entries.map(\.level), [.warn])
+        XCTAssertNil(collector.entries.first?.userInfo[UserInfoKeys.error])
+    }
+
+    func testSentryBreadcrumbDataHasAttributesAndCallsite() {
+        let entry = LogEntry(level: .info, message: "hi", functionName: "f()", fileName: "/a/B.swift", lineNumber: 7,
+                             userInfo: ["screen": "home", UserInfoKeys.extraInfo: ["x": 1]])
+        let data = SentryDestination.breadcrumbData(for: entry, attributes: ["screen": "home"])
+        XCTAssertEqual(data?["screen"] as? String, "home")
+        XCTAssertEqual(data?["file"] as? String, "B.swift:7")
+        XCTAssertEqual(data?["function"] as? String, "f()")
+        XCTAssertNil(SentryDestination.breadcrumbData(for: LogEntry(level: .info, message: "internal", isInternal: true), attributes: [:]))
+    }
+
     /// `fatal()` crashes right after logging, so its line has to be written before `write` returns.
     func testFatalLineIsWrittenBeforeWriteReturns() throws {
         let dir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

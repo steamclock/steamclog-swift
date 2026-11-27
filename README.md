@@ -61,6 +61,8 @@ Destination logging levels; it is recommended to use the defaults set by Steamcl
 #### requireRedacted: Bool
 Default value is `false`.
 Require that all logged objects conform to Redacted or are all redacted by default.
+This covers `userInfo` values too: with it set, any value that isn't `Redacted` shows as `<redacted>` in every destination.
+`Redacted` only controls an error's `debugDescription`. If an error also conforms to `CustomNSError` or `LocalizedError`, Sentry still sends its `errorUserInfo` and localized description unredacted, so keep anything sensitive out of those.
 
 #### autoRotateConfig: AutoRotateConfig
 By default, logs will rotate every 10 minutes, and store 10 archived log files.
@@ -93,6 +95,10 @@ Default value is 0.0.
 Sets the percentage of the tracing data that is collected by Sentry. Values must be between 0 and 1, and values larger than 1 will be set to 1.
 Note that setting this to anything greater than 0 can cause projects to blow past their usage quotas by generating far more events than normal.
 
+#### environment: String
+Default value is `debug` in debug builds and `prod` otherwise.
+Sets Sentry's `environment`, so you can match it to other services (like Datadog's `env`) and filter by it.
+
 #### filter: SentryFilter
 By default, all error objects will be sent to Sentry when submitted via the `error` call. 
 This allows you to change this behaviour at the SteamcLog Config-level, by passing in a function that filters errors from being logged.
@@ -124,6 +130,17 @@ Each of these functions has the following 3 available signatures
 `clog.<level>(_ message: String)`
 `clog.<level>(_ message: String, object: Encodable)`
 `clog.<level>(_ message: String, object: Redacted)`
+
+All but `fatal` also take a `userInfo: [String: Any]`, which is passed through to each destination on `LogEntry.userInfo`. The console and log file add it to the end of the line, and the Sentry destination adds it to breadcrumbs, and to the event's extras for errors:
+
+```swift
+clog.info("Opened cart", userInfo: ["itemCount": 3])
+// [Info] [main] [CartView.swift:42] load() > Opened cart {itemCount: 3}
+```
+
+`userInfo` follows the same redaction rules as logged objects: a `Redacted` value is logged as its `debugDescription`, and with `requireRedacted` set, any other value is logged as `<redacted>`.
+
+When you log an `Error` with `clog.error`, SteamcLog also adds it under `UserInfoKeys.error`, and Sentry reports it with `capture(error:)` so issues are grouped by the error's type. If `requireRedacted` is set, only errors that conform to `Redacted` are passed along.
 
 ## Exporting Logs
 

@@ -26,6 +26,15 @@ public struct SentryConfig {
     /// Sets the percentage of the tracing data that is collected by Sentry. Default is 0.
     let tracesSampleRate: NSNumber
 
+    /// Sets Sentry's `environment`. Default is `debug` in debug builds and `prod` otherwise.
+    let environment: String
+
+    #if DEBUG
+    public static let defaultEnvironment = "debug"
+    #else
+    public static let defaultEnvironment = "prod"
+    #endif
+
     /*
      * Create a new Sentry Configuration to use.
      *
@@ -35,17 +44,20 @@ public struct SentryConfig {
      *   - autoSessionTracking: Enable SentrySDK auto session tracking. Default is false.
      *   - debug: Enable debug mode for SentrySDK. Default is false.
      *   - tracesSampleRate: Sets the percentage of the tracing data that is collected by Sentry.
+     *   - environment: Sets Sentry's `environment`. Default is `debug` in debug builds and `prod` otherwise.
      */
     public init(
             key: String,
             attachStacktrace: Bool = true,
             autoSessionTracking: Bool = true,
             debug: Bool = false,
-            tracesSampleRate: NSNumber = 0.0) {
+            tracesSampleRate: NSNumber = 0.0,
+            environment: String = SentryConfig.defaultEnvironment) {
         self.key = key
         self.attachStackTrace = attachStacktrace
         self.autoSessionTracking = autoSessionTracking
         self.debug = debug
         self.tracesSampleRate = tracesSampleRate
+        self.environment = environment
     }
 }
