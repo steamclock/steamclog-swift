@@ -8,7 +8,7 @@ final class LoggingTests: XCTestCase {
     }
 
     func testDispatcherRespectsDestinationLevels() {
-        let dispatcher = LogDispatcher(preset: .debug)
+        let dispatcher = LogDispatcher(config: Config(logLevel: .debug))
         let chatty = Collector(), quiet = Collector()
         dispatcher.add(chatty, outputLevel: .fixed(.verbose))
         dispatcher.add(quiet, outputLevel: .fixed(.warn))
@@ -22,7 +22,7 @@ final class LoggingTests: XCTestCase {
     }
 
     func testChangingConfigUpdatesDestinationsFollowingThePreset() {
-        var clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
         let followsConsole = Collector(), fixed = Collector()
         clog.attach(destination: followsConsole, outputLevel: .console)
         clog.attach(destination: fixed, outputLevel: .fixed(.info))
@@ -39,15 +39,21 @@ final class LoggingTests: XCTestCase {
         XCTAssertEqual(fixed.entries.map(\.message), ["debug preset info", "release preset info"])
     }
 
-    /// Swapping config while other threads log shouldn't crash (run with Thread Sanitizer to catch regressions).
+    /// Swapping config while other threads log shouldn't crash. Every thread uses the same `clog`, the way apps share
+    /// one global. Thread Sanitizer misses this race (it happens inside compiler-generated copies of `Config`), so this
+    /// is a stress test instead: before the config moved behind the dispatcher's lock, it crashed in `outlined destroy of Config`.
     func testChangingConfigWhileLoggingFromOtherThreads() {
-        var clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
-        let reader = clog
+        let clog = SteamcLog(Config(logLevel: .debug), sentryConfig: nil)
         DispatchQueue.concurrentPerform(iterations: 4) { worker in
-            if worker == 0 {
-                for i in 0..<500 { clog.config = Config(logLevel: i.isMultiple(of: 2) ? .release : .debug) }
-            } else {
-                for i in 0..<500 { reader.info("worker \(worker) line \(i)") }
+            for i in 0..<100_000 {
+                if worker == 0 {
+                    let tag = "a heap allocated tag \(i)"
+                    clog.config = Config(logLevel: i.isMultiple(of: 2) ? .release : .debug, extraInfo: { _ in ["tag": tag] })
+                } else if i.isMultiple(of: 1000) {
+                    clog.userReport("worker \(worker) line \(i)")
+                } else {
+                    _ = clog.config.extraInfo(.error)
+                }
             }
         }
     }

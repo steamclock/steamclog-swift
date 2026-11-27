@@ -83,8 +83,11 @@ final class FileLogDestination: SteamcLogDestination {
     }
 
     func write(_ entry: LogEntry) {
+        // Formatted here rather than on `queue`, since describing `userInfo` values can call into app objects the
+        // app may be changing on this thread.
+        let line = entry.formattedMessage
         queue.async {
-            self.append(entry.formattedMessage)
+            self.append(line)
         }
 
         // Two kinds of line can't be left sitting in the queue: a fatal one, since the app crashes right after, and a

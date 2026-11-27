@@ -31,6 +31,7 @@ public struct Config {
 
     /// Predicate for testing any Error-conforming objects passed in as the associated object at the "error" log level. If true, that specific instance of the error will be downgraded to a warning.
     /// Useful for stoping certain types of failures (network errors, etc) from being logged off device.
+    /// Called on whichever thread logged the error.
     internal let suppressError: (Error) -> Bool
 
     /// Attach detailed logs from disk (if available) to all user reports. Default is false.
@@ -38,7 +39,7 @@ public struct Config {
 
     /// Set a callback to collect additional app specific properties to associate with an error, called any time a error/fatal/user report is logged. The `purpose` parameter indicates what sort of error this is, particularly to allow the callee to
     /// associate more personal data with user reports (where privacy issues are less of a concern). Note: unlike the objects and userInfo passed into individual logging functions, this info is not redacted in any way even if requireRedacted is set,
-    /// the callback must handle and privacy preservation or redaction
+    /// the callback must handle and privacy preservation or redaction. Called on whichever thread logged the line.
     @usableFromInline internal let extraInfo: (ExtraInfoPurpose) -> [String: Any]?
 
     /*
@@ -50,6 +51,11 @@ public struct Config {
      *   - identifier: The indentifier to note logs under. Default is "steamclog".
      *   - autoRotateConfig: Customize when logs are rotated. Defaults to 600 seconds.
      *   - suppressError: Downgrade some errors to warnings if this test returns true
+     *   - detailedLogsOnUserReports: Attach the log files to user reports. Default is false.
+     *   - extraInfo: Extra properties to send with errors, fatals and user reports. Not redacted.
+     *
+     * `suppressError` and `extraInfo` are called on whichever thread logged the line, so they need to be safe to call
+     * from any thread.
      */
     public init(
             logLevel: LogLevelPreset = .debug,

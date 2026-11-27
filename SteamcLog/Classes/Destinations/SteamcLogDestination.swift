@@ -8,6 +8,9 @@
 import Foundation
 
 /// Somewhere log lines can be sent. Attach your own with `SteamcLog.attach(destination:outputLevel:)`.
+///
+/// `write(_:)` is called on whichever thread logged the line, and SteamcLog's own housekeeping lines (like log file
+/// rotation) come from a background queue. It can be called from several threads at once, so it needs to be thread safe.
 public protocol SteamcLogDestination: AnyObject {
     func write(_ entry: LogEntry)
 }
