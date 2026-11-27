@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct AutoRotateConfig {
+public struct AutoRotateConfig: Sendable {
     /// The number of seconds before the log file will be rotated out.
     let fileRotationTime: TimeInterval
 

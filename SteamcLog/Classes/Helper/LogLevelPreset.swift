@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum LogLevelPreset: String, Codable {
+public enum LogLevelPreset: String, Codable, Sendable {
 
     /// console: verbose, disk: verbose, remote: none
     case debugVerbose

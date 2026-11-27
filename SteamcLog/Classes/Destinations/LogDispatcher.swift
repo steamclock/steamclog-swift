@@ -9,7 +9,8 @@ import Foundation
 
 /// Fans log entries out to every destination whose level allows them.
 /// Also owns the config and each destination's level, so changing the config updates every destination in one place.
-@usableFromInline final class LogDispatcher {
+/// Unchecked `Sendable` because the compiler can't see that `lock` guards the mutable state.
+@usableFromInline final class LogDispatcher: @unchecked Sendable {
     private struct Attached {
         let destination: SteamcLogDestination
         let rule: DestinationLevel
@@ -51,7 +52,7 @@ import Foundation
         attached.append(Attached(destination: destination, rule: rule, level: rule.resolve(_config.logLevel)))
     }
 
-    @usableFromInline func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: String, fileName: String, lineNumber: Int, userInfo: [String: Any] = [:]) {
+    @usableFromInline func log(_ level: LogLevel, _ message: @autoclosure () -> String, functionName: String, fileName: String, lineNumber: Int, userInfo: [String: any Sendable] = [:]) {
         let enabled = snapshot().filter { level.rawValue >= $0.level.rawValue }
         guard !enabled.isEmpty else { return }
         let entry = LogEntry(level: level, message: message(), functionName: functionName, fileName: fileName, lineNumber: lineNumber, userInfo: userInfo)

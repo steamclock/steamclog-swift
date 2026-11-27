@@ -14,7 +14,7 @@ enum CustomError: Error, Codable {
     case filteredError
 }
 
-var clog = SteamcLog(
+let clog = SteamcLog(
     Config(
         logLevel: .debugVerbose,
         suppressError: { error in
